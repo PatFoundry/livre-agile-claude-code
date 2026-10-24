@@ -1,0 +1,178 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>L&#x27;analyste qui pose les bonnes questions — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="" data-current="latest" hidden aria-label="Version du livre"></select></span></header><main><article class="roman"><div class="lbl">Chapitre 22</div><h1>L&#x27;analyste qui pose les bonnes questions</h1><h2>Mardi 9 décembre, 14 heures</h2>
+<p>Pendant que la colonne de gauche du tableau se remplissait d'anomalies, celle de droite est restée presque vide deux jours durant. C'était voulu. Avant que la méthode entre dans notre dépôt, quelqu'un devait la lire. Pas la documentation, ni les vidéos que Sofiane regardait le soir : les fichiers eux-mêmes, ceux que l'agent chargerait chaque fois qu'il jouerait l'analyste, le chef de produit ou l'architecte.</p>
+<p>Mathilde y avait passé le lundi après-midi et le mardi matin, entre deux échanges sur la copie des données qu'elle venait de refuser. À 14 heures, elle nous a réunis dans la salle Scarpe, Nadia, Émilie, Julien et moi, avec une feuille imprimée recto verso. Elle n'avait pas apporté son ordinateur.</p>
+<p>— Ce sont des fichiers de texte, a-t-elle commencé. Des centaines. Des consignes, des déroulés, des modèles de documents, des listes de contrôle. Pas une ligne de programme qui s'exécute dans votre dos. C'est la bonne nouvelle. La mauvaise, c'est que des consignes, ça s'exécute aussi. Seulement, ça s'exécute dans la tête de l'agent.</p>
+<p>Elle avait lu tout ce que l'agent chargerait pour nous. Le reste, les modules dont nous ne nous servirions pas, elle l'avait fait retirer de la copie. Sur sa feuille, il y avait quatre points.</p>
+<p>Le premier concernait l'analyste. Pour préparer son brief, la méthode lui proposait de chercher sur Internet : le marché, les concurrents, les tendances. Nos paramètres gérés le lui interdisaient depuis le premier jour.</p>
+<p>— Je ne veux pas qu'il passe une heure à essayer, puis à s'excuser de ne pas pouvoir. J'ai ajouté une ligne à nos consignes : ici, l'analyste ne cherche pas sur Internet. Il cherche dans le wiki, et il demande aux gens.</p>
+<p>Nadia a souri. Je crois qu'elle trouvait la phrase juste. Moi aussi.</p>
+<p>Le deuxième point concernait les exemples. Les modèles invitaient l'équipe à décrire des utilisateurs types, avec un prénom, un âge et une histoire, et à donner à l'analyste des cas réels pour nourrir son travail.</p>
+<p>— Des cas racontés, oui. Des dossiers anonymisés, oui, dès que Gérard aura fini son script. Des dossiers réels, jamais. Vous savez pourquoi.</p>
+<p>Personne n'a eu besoin qu'elle dise « Mercredi noir ».</p>
+<p>Le troisième point était l'installation. La méthode savait se mettre à jour toute seule, en allant chercher sa dernière version sur Internet.</p>
+<p>— Elle ne le fera pas. Nous figeons la version que j'ai lue, et elle entre dans le catalogue interne, à côté du socle et de votre boîte à outils. Quand quelqu'un voudra la suivante, il me la donnera à lire, et je relirai ce qui a changé.</p>
+<p>— Seulement ce qui a changé ? a demandé Julien.</p>
+<p>— Seulement ce qui a changé. Je ne suis pas masochiste.</p>
+<p>Le quatrième point tenait en trois phrases, qu'elle a lues sur sa feuille.</p>
+<p>— Rien, dans ces fichiers, ne passe au-dessus de notre socle. Ce sont des consignes, et nos garde-fous n'en sont pas. Si une consigne de la méthode contredit un garde-fou, c'est le garde-fou qui gagne, parce que ce n'est pas l'agent qui décide.</p>
+<p>Elle a posé la feuille sur la table. Julien l'a retournée pour lire le verso. Il n'y avait qu'une ligne, en bas : <em>Lu et validé, sous réserve des quatre points. M. Grare, 9 décembre.</em></p>
+<p>Restait à choisir le niveau. La méthode en proposait trois. Un parcours rapide, pour une correction ou une petite évolution : une spécification technique, puis le code. Un parcours complet, pour un produit : le brief, le document d'exigences, l'architecture, puis les stories. Et un niveau entreprise, qui reprenait le parcours complet et y ajoutait trois documents : la sécurité, l'exploitation, la stratégie de test.</p>
+<p>Julien voulait le parcours complet, pas davantage.</p>
+<p>— On a un portail qui marche, a-t-il dit. On y ajoute des sinistres. On ne va pas écrire un dossier de sécurité pour un formulaire de bris de glace.</p>
+<p>— Vous n'ajoutez pas seulement des sinistres, a dit Mathilde. Vous allez travailler avec d'autres équipes du train. Recevoir des photos de maisons brûlées, avec des gens dessus. Enregistrer le nom et l'adresse de voisins qui ne sont pas nos assurés, pour la responsabilité civile. Et DORA nous demande de documenter le risque informatique et la résilience de tout ce qui touche à un service important. Si ce n'est pas écrit au début, ce sera écrit à la fin, par moi, en urgence. Comme d'habitude.</p>
+<p>Émilie, qui n'avait encore rien dit, a levé les yeux de son cahier à petits carreaux.</p>
+<p>— La stratégie de test, c'est le document que j'écris toujours à la fin, a-t-elle dit. Quand quelqu'un me demande ce que j'ai testé. Pour une fois, il serait au début.</p>
+<p>Julien m'a regardé. Je savais ce qu'il pensait, parce que je le pensais aussi. Trois documents de plus, c'était peut-être trois documents que personne ne lirait. J'en avais vu des armoires entières, en vingt-cinq ans, de ces documents de conformité écrits pour être classés.</p>
+<p>— Niveau entreprise, ai-je dit. Avec la règle de la rétrospective : chaque document a un propriétaire. Mathilde pour la sécurité. Julien pour l'exploitation, avec Didier Vermeersch. Émilie pour la stratégie de test.</p>
+<p>— Et un lecteur, a dit Julien. Si personne ne le lit avant de coder, on arrête de l'écrire.</p>
+<p>— Et un lecteur.</p>
+<p>Je l'ai ajouté le soir même au tableau des propriétaires, dans le dépôt, à côté des fichiers de la méthode : une colonne <em>Lu par</em>, à remplir avant que la première story parte chez l'agent. C'était la première règle que nous ajoutions à BMAD. Ce ne serait pas la dernière.</p>
+<p>Le lundi suivant, Sabine Dumortier est arrivée dans la salle Lys avec un carton de classeurs, un mug ébréché et un air de défi. Philippe Wattebled nous la prêtait trois après-midi par semaine jusqu'en février, à plein temps ensuite. Elle gérait des incendies et des responsabilités civiles depuis quinze ans. C'était la personne du métier que nous avions demandée en novembre, pour tous les sinistres qui n'étaient ni des dégâts des eaux ni des vols.</p>
+<p>Nadia, qui avait travaillé à côté d'elle pendant six ans, m'avait prévenu. Sabine était la meilleure gestionnaire incendie de la maison, et elle se plaignait depuis des années qu'on ne l'écoutait jamais. Elle avait rempli, de son chef, une quarantaine de fiches d'expression de besoin pour l'outil de gestion. Aucune n'était revenue, ni acceptée ni refusée.</p>
+<p>Elle a posé son carton, a regardé le mur, la carte des stories, le ruban rouge, le registre de la dette, puis elle s'est tournée vers moi.</p>
+<p>— Alors c'est vous, le portail. On m'a dit qu'ici, on écoutait les gens. On va voir.</p>
+<h2>Lundi 15 décembre, 14 heures</h2>
+<p>L'analyste n'avait pas attendu Sabine pour se mettre au travail. Depuis le mercredi précédent, Nadia lui avait fait lire tout ce que la maison savait déjà : le wiki de Gérard, les conditions générales, le dossier des règles, trois ans de statistiques de sinistres par type, les motifs d'appel du centre de relation, et le document d'Horizon que nous avions versé dans le wiki en novembre. Il n'en avait pas tiré de brief. Il en avait tiré une liste de questions, celles auxquelles aucun de ces documents ne répondait. Il y en avait quarante et une, classées par sinistre. Nadia en avait traité une douzaine seule. Pour le reste, il fallait Sabine.</p>
+<p>Elles se sont installées dans la salle Scarpe, Nadia au clavier, Sabine à côté d'elle, Émilie au bout de la table avec son cahier. Je suis resté la première heure. Le reste, je l'ai lu le soir, dans le journal que l'agent tenait de chaque séance. Il posait une question à la fois, attendait la réponse, demandait souvent un exemple, et notait en face de chaque réponse qui l'avait donnée.</p>
+<p>La première question sur l'incendie s'est affichée vers 14 h 20.</p>
+<p><em>Lorsqu'un incendie rend le logement inhabitable, de quoi l'assuré dispose-t-il encore au moment où il déclare : son téléphone, l'accès à sa messagerie, son numéro de contrat ?</em></p>
+<p>Sabine l'a lue deux fois. Puis elle s'est adossée à sa chaise.</p>
+<p>— De rien, a-t-elle dit. La plupart du temps, de rien. Ils sont sortis en pyjama. La nuit même, ils ont appelé l'assistance, ou quelqu'un l'a fait pour eux, et c'est l'assistance qui les a relogés. Nous, nous les avons au téléphone le lendemain ou le surlendemain, d'un appareil prêté, depuis l'hôtel ou de chez un parent. Ils ne connaissent pas leur numéro de contrat, certains ne savent même plus chez qui ils sont assurés. Ils ont un numéro de dossier d'assistance griffonné sur un papier, et c'est à peu près tout.</p>
+<p>Nadia a tapé la réponse mot pour mot. La question suivante est arrivée.</p>
+<p><em>Dans ce cas, le portail doit-il être utilisé par l'assuré lui-même, ou par quelqu'un pour lui ?</em></p>
+<p>C'est à partir de là que tout s'est déplié. Les petits incendies, la poêle oubliée sur le feu, le grille-pain, la multiprise, se déclaraient comme un dégât des eaux : l'assuré chez lui, son téléphone à la main, des photos. Les grands incendies, eux, ne se déclaraient pas. Ils se signalaient. Le portail devait proposer, dès le premier écran, un rappel immédiat par un gestionnaire. C'est le gestionnaire qui ferait la déclaration, sur le même portail, au nom de l'assuré, en repartant du dossier que l'assistance avait ouvert la nuit du sinistre, où le contrat avait déjà été retrouvé.</p>
+<p>L'agent a alors écrit une ligne qu'aucune des deux n'avait vue venir.</p>
+<p><em>Ce besoin est de même nature que celui de la story en cours d'essai, « Déclarer pour un proche » : une personne déclare au nom d'une autre. Proposition : un seul mécanisme, avec des droits différents selon qui déclare.</em></p>
+<p>Sabine a regardé Nadia.</p>
+<p>— Il est toujours comme ça ?</p>
+<p>— Non, a dit Nadia. Parfois, il est pénible.</p>
+<p>Il l'a été une demi-heure plus tard. Arrivé au bris de glace, que Sabine avait expédié en trois phrases — une photo, la facture du vitrier, et la plupart des dossiers réglés sans expert —, il a proposé d'afficher à l'assuré, à la fin de sa déclaration, une estimation de son indemnisation, calculée à partir de la franchise et du prix moyen d'une vitre. Nadia a répondu avant que Sabine ait fini de lire.</p>
+<p>— Non. Jamais de montant avant le gestionnaire ou l'expert. Un montant affiché, c'est une promesse. Et une promesse qu'on ne tient pas, c'est une réclamation.</p>
+<p>L'agent n'a pas insisté. Il a rangé l'idée dans une rubrique de son brouillon intitulée <em>Ce que le portail ne fera pas</em>, avec la phrase de Nadia pour justification. C'est devenu, à mes yeux, la rubrique la plus utile du document. Dans aucun des projets que j'avais connus, personne n'avait jamais écrit ce qu'il ne ferait pas, ni pourquoi.</p>
+<p>Le mardi, elles sont passées aux catastrophes naturelles. La première question portait sur une règle que Nadia connaissait par cœur, puisqu'elle l'avait écrite.</p>
+<p><em>La règle F1 indique que la franchise applicable est celle des conditions particulières en vigueur à la date du sinistre. S'applique-t-elle aux catastrophes naturelles ?</em></p>
+<p>— Non, a dit Sabine. Pour une catastrophe naturelle, la franchise est fixée par la loi. La même pour tout le monde, quel que soit le contrat.</p>
+<p>Nadia s'est figée une seconde. La règle F1 lui avait coûté, à l'automne, quatre sources contradictoires à réconcilier. Elle a ouvert le fichier, a ajouté elle-même l'exception, puis elle a demandé à l'agent de rédiger une règle F3 pour la franchise légale. Sabine l'a relue, a corrigé un mot et l'a validée de son nom. Il n'y avait rien à ajouter, sinon que deux personnes du métier valaient mieux qu'une, et que l'agent avait surtout servi à les faire se parler.</p>
+<p>Les questions suivantes portaient sur le calendrier.</p>
+<p><em>Un assuré peut-il déclarer un sinistre de catastrophe naturelle avant la publication de l'arrêté qui la reconnaît ?</em></p>
+<p>— Il doit pouvoir, a dit Sabine. Il déclare ses dégâts, on ouvre le dossier, et on attend l'arrêté. Ensuite, il a trente jours après la publication au Journal officiel. Avant 2021, c'était dix. Ne me demandez pas combien de gens ont perdu leurs droits pour trois jours de retard.</p>
+<p>Le portail ne bloquerait donc rien. Il enregistrerait la déclaration, dirait à l'assuré que son dossier attendait la reconnaissance de l'état de catastrophe naturelle, et le gestionnaire reprendrait le dossier à la publication de l'arrêté.</p>
+<p><em>Le parcours de la phase 1 demande à l'assuré de choisir entre un dégât des eaux et un vol. Avec six sinistres de plus, saura-t-il toujours lequel choisir ?</em></p>
+<p>Sabine a ri, sans gaieté.</p>
+<p>— Jamais. Après un gros orage, votre cave est sous l'eau. C'est un dégât des eaux ? Une tempête ? Une catastrophe naturelle ? Ça dépend d'où vient l'eau, de la force du vent ce jour-là, et d'un arrêté qui sera peut-être publié dans deux mois. Même nous, le premier jour, nous ne le savons pas toujours. Chaque fois qu'une rivière déborde, nous recevons des dizaines de dégâts des eaux qui n'en sont pas.</p>
+<p><em>Proposition : l'assuré décrit ce qui s'est passé, pas la garantie qu'il croit concernée. La qualification revient au gestionnaire.</em></p>
+<p>Nadia a relu la proposition deux fois. Elle savait ce qu'elle voulait dire : l'écran d'accueil du portail, qui demandait à l'assuré de choisir son sinistre, ne survivrait pas à la phase 2. Le premier écran ne demanderait plus <em>quel sinistre ?</em>, mais <em>que s'est-il passé ?</em> Et il faudrait le refaire pour tous les sinistres, y compris les deux qui partiraient en production en janvier.</p>
+<p>Le mercredi, Mathilde est venue s'asseoir au bout de la table, et l'agent est arrivé à la responsabilité civile.</p>
+<p><em>Dans une déclaration de responsabilité civile, l'assuré donne le nom et l'adresse d'une personne qui n'est pas assurée par la maison. Qui informe cette personne que ses données sont traitées, et sur quel fondement ?</em></p>
+<p>Mathilde a levé les sourcils.</p>
+<p>— C'est ma question, a-t-elle dit. Il me l'a volée.</p>
+<p>Elle a demandé qu'on la marque <em>à confirmer</em> avec le nom d'Anne-Sophie Dhondt, et elle est allée l'appeler dans le couloir.</p>
+<p>En trois après-midi, l'analyste a posé quatre-vingt-sept questions. Nadia et Sabine ont répondu à soixante-seize. Les onze autres sont restées marquées <em>à confirmer</em>, chacune avec le nom de la personne qui pouvait trancher : Anne-Sophie Dhondt pour les tiers, Philippe Wattebled pour le délai de rappel après un grand incendie, Gérard pour deux champs du système des contrats, Didier Vermeersch pour le volume de photos qu'il faudrait stocker au lendemain d'une tempête. Aucune n'avait été inventée pour faire sérieux. Aucune n'avait été oubliée pour faire propre.</p>
+<p>Le jeudi 18, Nadia a demandé à l'agent de rédiger le brief à partir des réponses. Il tenait en six pages. Elles l'ont relu ensemble, l'ont corrigé pendant une heure, puis l'ont validé, chacune de son nom, dans le dépôt, à côté du code. La première page disait l'essentiel.</p>
+<blockquote>
+<p><strong>Brief produit — phase 2</strong> · propriétaires : Nadia Benali, Sabine Dumortier · validé le 18 décembre</p>
+<p><em>Problème.</em> Hors dégâts des eaux et vols, un assuré ne peut déclarer un sinistre que par téléphone, par courrier ou en agence.</p>
+<p><em>Sinistres.</em> Incendie, bris de glace, tempête-grêle-neige, catastrophes naturelles, dommages électriques, responsabilité civile.</p>
+<p><em>Qui déclare.</em> L'assuré ; un proche, pour lui ; un gestionnaire, avec lui. Un seul mécanisme, des droits différents.</p>
+<p><em>Principes.</em> L'assuré décrit ce qui s'est passé ; c'est le gestionnaire qui qualifie la garantie. Le portail informe, il ne bloque jamais une déclaration. Jamais de montant avant le gestionnaire ou l'expert.</p>
+<p><em>Incendie.</em> Petit incendie : déclaration en ligne. Logement inhabitable : rappel immédiat, déclaration saisie par le gestionnaire.</p>
+<p><em>Catastrophes naturelles.</em> Déclaration possible avant l'arrêté, dossier en attente. Franchise fixée par la loi (règle F3).</p>
+<p><em>Ce que le portail ne fera pas.</em> Estimer l'indemnisation. Choisir l'expert. Recevoir la déclaration d'un tiers qui n'est pas notre assuré.</p>
+<p><em>À confirmer (11).</em> Dont l'information des tiers en responsabilité civile (A.-S. Dhondt) et le délai de rappel après un grand incendie (P. Wattebled).</p>
+</blockquote>
+<p>Sabine a relu la dernière rubrique deux fois. Puis elle a posé ses lunettes sur la table.</p>
+<p>— C'est la première fois qu'on me pose ces questions avant de construire, a-t-elle dit. D'habitude, on me les pose après. Quand c'est en production et que ça ne marche pas.</p>
+<p>Le même jeudi, Sofiane a terminé l'essai sur la story du proche, sur sa branche à part. Quatre jours et demi entre la première question de l'analyste et le dernier scénario vert, c'était plus long qu'une story ordinaire de la phase 1. Mais il n'y avait eu qu'une seule retouche après relecture, et pas une question de Sofiane à Nadia pendant le développement, parce qu'elle avait déjà répondu à toutes. La condition d'arrêt fixée à la rétrospective n'avait pas été atteinte. Julien a relu les mesures le soir.</p>
+<p>— Plus lent au début, a-t-il dit. Plus rien à reprendre à la fin. Je signe.</p>
+<p>Avant de partir, Sylvie m'a demandé où le brief était rangé dans Jira. Je lui ai répondu qu'il était dans le dépôt, et qu'un lien suffirait. Elle a noté quelque chose dans son carnet. Je n'y ai plus pensé. J'aurais dû.</p>
+<p>Le 22 décembre, pendant que la moitié de l'équipe faisait ses valises, Sandrine Debruyne a lu le brief. Elle m'a écrit le soir même. <em>Je prends vos six sinistres comme features du prochain <strong>incrément. <strong>M</strong>e</strong>r<strong>c</strong>i</em>* <strong>d</strong>e** m'<strong>a</strong>v<strong>o</strong>i<strong>r</strong> <strong>apport</strong>é* <em>l**e</em> *brief avant <strong>m</strong>êm<strong>e</strong> <em>*que je le demande</em>*</p>
+<h2>Jeudi 8 janvier, 8 h 30</h2>
+<p>La maison réunissait ses délégués une fois par an, en juin, dans la grande salle du rez-de-chaussée, sous les portraits des présidents successifs de la mutuelle. Le reste de l'année, la salle servait aux vœux de la direction et, depuis deux ans, aux PI Planning du train Indemnisation : deux jours, tous les trois mois, pendant lesquels toutes les équipes du train planifiaient ensemble les dix semaines suivantes, devant un mur couvert de papier kraft.</p>
+<p>Il y avait neuf tables rondes et près de quatre-vingt-dix personnes. Huit équipes, dont deux venues d'Horizon. Et la nôtre, la neuvième, à la table la plus proche de la sortie de secours. Isabelle Delattre m'a assuré que c'était un hasard.</p>
+<p>Autour de notre table, il y avait Nadia, Sabine, Émilie, Julien, Sofiane, Sylvie, Gérard pour la matinée et Mathilde pour l'après-midi. Il y avait aussi Antoine Lambrecht, développeur de l'ESN d'Horizon, que Laurent Dewitte nous prêtait à mi-temps depuis le lundi pour relire le code classé rouge. Il connaissait le cœur de gestion mieux que Julien, et il le savait. Julien le savait aussi. Ils s'étaient jaugés pendant trois jours, poliment. Le jeudi matin, ils partageaient un paquet de gaufres. Une dernière chaise portait un carton plié : <em>Léa Vandenberghe</em>. Notre deuxième testeuse n'arriverait qu'en février, mais Sylvie avait tenu à ce qu'elle ait sa place, et sa capacité, dans le plan.</p>
+<p>Philippe Wattebled a ouvert la journée. Il a parlé du métier pendant vingt minutes, sans une seule diapositive : les délais de règlement, les réclamations, le centre de relation qui saturait chaque lundi matin d'hiver. Puis Sandrine Debruyne a présenté la vision et les features de l'incrément. Pour la partie qui nous concernait, elle avait repris notre brief presque mot pour mot : les six sinistres, le portail qui informe et ne bloque jamais, la rubrique de ce qu'il ne ferait pas. Elle a cité une phrase de Sabine, telle que le brief la rapportait : après un grand incendie, l'assuré n'a souvent plus rien, ni téléphone, ni papiers, ni numéro de contrat. Sabine a rougi jusqu'aux oreilles, puis elle a balayé la salle du regard, comme pour mettre quiconque au défi de sourire.</p>
+<p>Marc Vanhoutte a présenté l'architecture. Une seule diapositive nous concernait vraiment : l'espace adhérent, par lequel passait tout assuré qui se connectait à un service de la maison. Il ne connaissait qu'une personne par contrat, et personne n'avait jamais prévu qu'un gestionnaire puisse y agir aux côtés d'un assuré.</p>
+<p>À 10 h 30, Isabelle a lancé les ateliers.</p>
+<p>— Vous avez jusqu'à 16 heures pour un premier plan. Les dépendances au mur, en laine rouge. Et je veux voir des objectifs, pas des listes de tâches.</p>
+<p>Le modèle du train demandait, pour chaque itération, une capacité en points. Sylvie l'a rempli, parce qu'il fallait le remplir. Puis, en dessous, au crayon, elle a ajouté une seconde ligne : <em>de six à huit stories terminées par semaine, un à deux jours chacune de la préparation à la recette.</em> Isabelle est passée derrière elle vers 11 heures, s'est penchée et a lu les deux lignes.</p>
+<p>— Laquelle des deux dois-je croire ?</p>
+<p>— La seconde, a dit Sylvie. La première, c'est pour votre tableur.</p>
+<p>Isabelle a souri à moitié.</p>
+<p>— Mon tableur et moi, nous en reparlerons.</p>
+<p>Puis nous avons découpé l'incrément. Cinq itérations de deux semaines, jusqu'à la mi-mars. Pour la première, nous n'avons inscrit aucune story de code. Nous avons inscrit trois documents : les exigences, l'architecture, le découpage en epics et en stories, pour les sinistres que nous allions engager. Plus la story du proche, qui attendait sur sa branche : l'essai avait contourné l'espace adhérent, et il faudrait désormais passer par lui.</p>
+<p>Isabelle est repassée à 14 heures.</p>
+<p>— Deux semaines sans rien livrer ?</p>
+<p>— Deux semaines pour ne pas livrer n'importe quoi pendant les huit suivantes, a dit Julien.</p>
+<p>Elle a regardé Nadia, qui a hoché la tête, puis Émilie, qui lui a montré la ligne de la stratégie de test. Isabelle a photographié notre feuille avec son téléphone, sans rien dire. J'ai appris plus tard qu'elle l'avait montrée le soir même à deux autres équipes.</p>
+<p>C'est la laine rouge qui a décidé du reste. L'espace adhérent relevait d'une autre équipe du train, deux tables plus loin. Pour qu'un proche puisse déclarer au nom d'un assuré, il fallait que l'espace adhérent sache enregistrer un mandat, avec l'accord de l'assuré et une date de fin. Pour qu'un gestionnaire puisse déclarer avec l'assuré, il fallait qu'il s'y connecte avec ses propres droits, et que chacun de ses gestes soit tracé. Leur product owner a écouté Nadia, a consulté son équipe, et a placé les deux à la fin de la deuxième itération. D'ici là, notre story du proche resterait sur sa branche, quoi que fasse notre agent. Personne dans la salle, et aucun agent, ne codait plus vite qu'une dépendance.</p>
+<p>Le rappel immédiat après un grand incendie relevait du centre de relation. Une demande de rappel venue du portail devait arriver dans la file des conseillers avant toutes les autres. L'équipe qui gérait leurs outils l'a placée à la troisième itération, et elle a soulevé une question que nous n'avions pas vue : combien de conseillers seraient formés aux grands sinistres, et qui les remplacerait pendant leurs congés ? Ce n'était pas une question de code. Philippe Wattebled l'a prise pour lui.</p>
+<p>Restaient les catastrophes naturelles. Aucune équipe ne nous bloquait. Ce qui nous retenait, c'était le nouveau premier écran, à refaire pour tous les sinistres, et les questions encore ouvertes sur la qualification des garanties. Nous ne savions pas les chiffrer honnêtement. Les catastrophes naturelles ne seraient pas un objectif engagé.</p>
+<p>Le soir, à la revue de direction, Claire, Laurent Dewitte, Philippe Wattebled et Isabelle ont fait le tour du mur. Dewitte s'est arrêté devant notre feuille, où le nom d'Antoine figurait dans chaque itération, à mi-temps. Il s'est tourné vers Franck Ryckebusch.</p>
+<p>— Antoine avec eux jusqu'à la mi-mars, c'est réel ?</p>
+<p>— C'est réel.</p>
+<p>— Alors c'est engagé chez nous aussi.</p>
+<p>Il l'a noté dans son carnet en cuir. En octobre, il nous aurait demandé si nous étions sûrs de nous. En janvier, il engageait son équipe pour la nôtre.</p>
+<p>Le vendredi matin, nous avons écrit nos objectifs. Trois engagés : déclarer pour un proche, pour tous les sinistres, avec la déclaration accompagnée par un gestionnaire, qui reposait sur le même mécanisme ; le bris de glace ; les petits incendies, avec le rappel immédiat pour les grands. Deux non engagés : les catastrophes naturelles, déclarables avant l'arrêté ; la responsabilité civile, sous réserve de l'avis d'Anne-Sophie Dhondt. Les tempêtes et les dommages électriques iraient à l'incrément suivant. Nous ne promettions pas tous les sinistres pour Pâques. Nous promettions ce que nous savions faire, et nous disions ce que nous ne savions pas encore.</p>
+<p>Philippe Wattebled est venu à notre table à 11 heures pour attribuer la valeur métier, de un à dix, comme il le faisait pour toutes les équipes. Il a lu les objectifs en silence, son stylo à la main. Bris de glace : cinq.</p>
+<p>— Utile, a-t-il dit. Mais personne ne m'en a jamais parlé à la machine à café.</p>
+<p>Petits incendies : huit. Catastrophes naturelles : neuf, malgré le non engagé. Responsabilité civile : six. Puis il est arrivé au proche, et il a écrit dix sans hésiter.</p>
+<p>— Un appel sur quatre, pour déclarer un sinistre, vient de quelqu'un d'autre que l'assuré, a-t-il dit. Un fils, une voisine, une aide à domicile. Chez nos assurés de plus de soixante-quinze ans, c'est un sur deux. Depuis trente ans, nous leur répondons que l'assuré doit appeler lui-même. Ce sera la première chose, dans cette maison, qui leur dira oui.</p>
+<p>J'ai pensé au commentaire libre du système des contrats, celui que Gérard avait fait remplacer dans la copie de recette, où quelqu'un avait noté un jour l'adresse d'un fils qui gérait les papiers de sa mère. Le besoin était là depuis trente ans, dans un champ que personne ne lisait.</p>
+<p>À 15 heures, Isabelle a fait voter le train. Chaque équipe votait d'abord pour son propre plan, à main levée, de un à cinq doigts. Julien a levé quatre doigts, Sofiane cinq, Émilie, Antoine et Sylvie quatre. Sabine en a levé cinq, a regardé les autres, et en a replié un. Nadia a levé trois doigts.</p>
+<p>Trois, ce n'était pas un refus. Isabelle aurait pu passer. Elle s'est tournée vers Nadia.</p>
+<p>— Vous voulez dire pourquoi ?</p>
+<p>— Les catastrophes naturelles, a dit Nadia. Si une inondation arrive au printemps, personne ne se souviendra que nous les avions mises en non engagé. On se souviendra que le portail ne savait pas faire.</p>
+<p>— Vous voulez qu'on change le plan ?</p>
+<p>— Non. Je veux que ce soit écrit.</p>
+<p>Isabelle l'a écrit sur la feuille des risques, devant les quatre-vingt-dix personnes de la salle. Dans la colonne du propriétaire, Claire a inscrit son propre nom, sans qu'on le lui demande. Si une inondation arrivait avant que le portail sache faire, les assurés déclareraient comme avant, par téléphone, et c'est elle qui l'expliquerait au comité. Pas de promesse non estimée : c'était la règle qu'on lui avait imposée en novembre, et elle l'appliquait maintenant sans qu'on la lui rappelle.</p>
+<p>Le train a voté quatre, en moyenne. Notre table aussi.</p>
+<h2>Vendredi 9 janvier, 17 heures</h2>
+<p>À 17 heures, la salle se vidait. Les équipes décrochaient le papier kraft, roulaient la laine rouge, ramassaient les post-it tombés sous les tables. Sylvie photographiait le mur, panneau par panneau, pour recopier le plan dans Jira pendant le week-end.</p>
+<p>Émilie est venue me chercher près de la sortie de secours.</p>
+<p>— Tu peux venir avec moi ? a-t-elle demandé. Je vais voir monsieur Dewitte. J'aimerais un témoin, au cas où je me dégonflerais.</p>
+<p>Laurent Dewitte rangeait son carnet en cuir dans sa serviette, au fond de la salle. Il nous a vus arriver et il a attendu, la serviette à la main.</p>
+<p>— Monsieur Dewitte, a dit Émilie. Je vous avais promis une réponse en janvier.</p>
+<p>— Nous y sommes.</p>
+<p>— Je reste dans l'équipe.</p>
+<p>Il a hoché la tête, sans surprise apparente. Elle n'avait pas fini.</p>
+<p>— Une référente des tests d'acceptation, chez vous, c'est quelqu'un qui relit les tests des autres, à la fin, quand tout est déjà construit. J'ai été au bout de la chaîne toute ma carrière. Je ne veux plus y être.</p>
+<p>Elle a pris sa respiration.</p>
+<p>— Mais vos testeurs écrivent leurs cas après le code, comme moi en septembre. Et depuis le premier janvier, vos équipes ont le droit d'utiliser l'agent. Elles vont s'en servir, avec ou sans scénarios. Je peux leur apprendre à écrire les scénarios avant le code, et à les donner à lire à l'agent sans qu'il puisse y toucher. Un jour par semaine. Le jeudi, si cela vous convient. Ce ne sera pas pour qu'elles aillent plus vite. Ce sera pour qu'elles sachent ce qu'elles vont livrer avant de le livrer.</p>
+<p>Dewitte a reposé sa serviette sur une chaise. Il a rouvert son carnet, a écrit quelque chose, longtemps, puis il l'a refermé.</p>
+<p>— C'est mieux que ce que je demandais, a-t-il dit. Je vous demandais de contrôler mes équipes. Vous me proposez de leur apprendre à ne plus avoir besoin de l'être.</p>
+<p>Il s'est tourné vers moi.</p>
+<p>— Vous aussi, vous aviez refusé. En novembre.</p>
+<p>— Je n'avais rien proposé à la place, ai-je dit.</p>
+<p>— Non, a-t-il dit. Elle, si.</p>
+<p>Il a serré la main d'Émilie, puis la mienne, et il est sorti avec Franck Ryckebusch, qui l'attendait à la porte.</p>
+<p>Émilie est restée un moment immobile, au milieu des chaises vides.</p>
+<p>— Je n'avais jamais dit non à un directeur, a-t-elle dit.</p>
+<p>— Tu ne lui as pas dit non. Tu lui as dit autre chose.</p>
+<p>Nous sommes sortis les derniers. Derrière nous, le mur était nu. Dans quatre jours, le portail partirait en production. Dans trois, l'agent chef de produit commencerait le document d'exigences de la phase 2. Et pendant le week-end, Sylvie recopierait dans Jira un plan qui, dès le lundi soir, ne dirait plus tout à fait la même chose que le dépôt. Je ne le savais pas encore. Je croyais qu'il n'y avait qu'une vérité, et que le reste était de la saisie.</p>
+<section class="carnet"><h2>Le carnet de Thomas</h2>
+<p><strong>Ce qui s'est passé.</strong> Avant d'installer BMAD, la sécurité a lu les fichiers de la méthode : des centaines de consignes et de modèles, aucun programme caché, mais des consignes qui s'exécutent dans la tête de l'agent. Elle a posé quatre réserves : pas de recherche sur Internet, aucun dossier réel, une version figée dans le catalogue interne, et le socle au-dessus de tout. L'équipe a choisi le niveau entreprise, à cause de DORA et des échanges avec d'autres équipes, en ajoutant une règle : pas de document sans propriétaire ni lecteur. L'agent analyste a d'abord lu tout ce que la maison savait, puis il a interrogé deux gestionnaires, une question à la fois : quatre-vingt-sept questions, dont onze restées à confirmer, chacune avec un nom. Il a fait apparaître ce que personne n'avait écrit : l'assuré qui n'a plus rien après un incendie, la franchise légale des catastrophes naturelles, une garantie que l'assuré ne sait pas choisir, les données des tiers. Le brief a servi de base au PI Planning du train : une première itération consacrée aux documents, trois objectifs engagés, deux non engagés, et des dépendances qui fixent le rythme. La testeuse a refusé le poste qu'on lui offrait et a proposé à la place de former les testeurs d'Horizon.</p>
+<p><strong>La leçon.</strong> L'analyse est la phase où l'agent est le moins spectaculaire et l'un des plus utiles : il ne produit pas de code, il produit des questions. Faites-lui lire d'abord tout ce que vous savez déjà, pour qu'il ne pose aux gens que les questions auxquelles vos documents ne répondent pas. Une question sans réponse n'est pas un défaut du brief : c'est une information, pourvu qu'elle porte le nom de celui qui peut trancher. Écrivez aussi ce que le produit ne fera pas, et pourquoi. Choisissez le niveau de la méthode d'après vos obligations, pas d'après la taille de la fonctionnalité, mais n'écrivez aucun document qui n'ait ni propriétaire ni lecteur. Faites lire la méthode par la sécurité avant de l'installer, et figez la version lue. Au PI Planning, enfin, une équipe augmentée ne va pas plus vite que ses dépendances : c'est la laine rouge qui fixe le rythme, pas l'agent.</p>
+<p><strong>Trois questions à poser à votre équipe</strong></p>
+<ol>
+<li>Notre analyse pose-t-elle ses questions aux gens qui vivent le problème, ou seulement à nos documents ?</li>
+<li>Chacun de nos documents a-t-il un propriétaire et un lecteur avant d'être écrit ?</li>
+<li>Dans notre dernier plan, quelles dépendances aucun agent ne pouvait-il accélérer ?</li>
+</ol>
+<p><strong>Pour aller plus loin.</strong> Manuel, chapitres M9 (installer et configurer BMAD : choisir le niveau de la méthode, adapter l'analyste au contexte de la maison) et M13 (bonnes pratiques : préparer un PI Planning avec une équipe augmentée).</p></section></article><nav class="pager"><span><a href="f-chapitre-21-rien-de-neuf.html">← Rien de neuf</a></span><span><a href="f-chapitre-23-un-prd-que-personne-n-avait-ecrit.html">Un PRD que personne n&#x27;avait écrit →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

@@ -1,0 +1,459 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CLAUDE.md et la mémoire — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Chapitre M3</div><h1>CLAUDE.md et la mémoire</h1><h2>Ce que couvre ce chapitre</h2>
+<p>Chaque session commence la tête vide. Deux mécanismes transportent le savoir d'une session à l'autre : les fichiers CLAUDE.md, que vous écrivez, et la mémoire automatique, que l'agent tient lui-même. Ce chapitre explique où ils vivent, ce qu'on y écrit, ce qu'on n'y écrit surtout pas, et comment les garder justes dans la durée.</p>
+<p>C'est le chapitre le plus important de la partie II pour une Product Owner ou un tech lead. Au chapitre 3 du roman, la première demande de fusion du projet ne contient pas une ligne de code : elle contient le CLAUDE.md, écrit avec le métier et relu par lui. Tout ce que l'agent fera ensuite en dépend.</p>
+<blockquote>
+<p><strong>Version de référence.</strong> Claude Code 2.1.301, publiée le 15 octobre 2026, avec la configuration Bedrock du chapitre M1. La lecture directe des fichiers AGENTS.md demande la version 2.1.281 ou plus récente sur Bedrock.</p>
+</blockquote>
+<p>Un principe traverse tout le chapitre, et Julien le formule au chapitre 3 : un CLAUDE.md est une consigne, pas un verrou. L'agent le lit et s'efforce de le suivre ; il peut l'interpréter. Ce qui doit être impossible relève des paramètres, au chapitre M4.</p>
+<h2>Le livret d'accueil de l'agent</h2>
+<p>Un CLAUDE.md est un simple fichier Markdown. L'outil le lit au démarrage de chaque session et le transmet au modèle comme un premier message, juste après ses instructions internes. L'agent commence donc chaque conversation en sachant ce que vous y avez écrit : le vocabulaire du métier, les frontières du code, la façon de travailler de l'équipe.</p>
+<p>Thomas en donne la meilleure image au chapitre 3 : le CLAUDE.md, c'est le livret d'accueil qu'on remet à un nouvel arrivant ; les paramètres, c'est son badge. Le livret explique ce qu'on attend de lui. Le badge ouvre certaines portes et pas d'autres. On ne protège pas une salle des coffres avec un livret d'accueil.</p>
+<p>La conséquence est pratique : l'agent suit le CLAUDE.md la plupart du temps, pas toujours. Il l'interprète, surtout quand une consigne est vague ou en contredit une autre. Au chapitre 10, l'agent bloqué sur un scénario propose de modifier le scénario, alors qu'aucune consigne ne l'y autorise ; seule une règle dans les paramètres l'en empêche vraiment.</p>
+<h3>Où ranger quoi</h3>
+<p>Avant d'écrire une ligne dans un CLAUDE.md, demandez-vous si elle n'a pas sa place ailleurs.</p>
+<table>
+<thead>
+<tr>
+<th>Ce que vous voulez</th>
+<th>Le bon outil</th>
+<th>Chapitre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Que l'agent sache quelque chose à chaque session</td>
+<td>CLAUDE.md</td>
+<td>M3</td>
+</tr>
+<tr>
+<td>Que l'agent retienne vos corrections sans que vous l'écriviez</td>
+<td>Mémoire automatique</td>
+<td>M3</td>
+</tr>
+<tr>
+<td>Qu'une consigne ne s'applique qu'à une partie du code</td>
+<td>Règle liée à un dossier</td>
+<td>M3</td>
+</tr>
+<tr>
+<td>Qu'une action soit impossible</td>
+<td>Paramètres : interdictions</td>
+<td>M4</td>
+</tr>
+<tr>
+<td>Qu'une procédure en plusieurs étapes soit disponible à la demande</td>
+<td>Skill</td>
+<td>M5</td>
+</tr>
+<tr>
+<td>Qu'une vérification ait lieu à coup sûr, à un moment précis</td>
+<td>Hook</td>
+<td>M6</td>
+</tr>
+</tbody>
+</table>
+<p>Deux erreurs reviennent sans cesse. La première consiste à confier à un CLAUDE.md ce qui relève d'un verrou : « ne jamais lire un fichier qui contient un mot de passe », la solution que propose Sofiane au chapitre 3. La seconde consiste à y déverser une procédure entière, qui encombre chaque session alors qu'elle ne sert qu'une fois par semaine : sa place est dans un skill.</p>
+<h2>Les niveaux</h2>
+<p>Les CLAUDE.md s'empilent. L'outil lit tous ceux qui s'appliquent, du plus général au plus proche du dossier de travail, et les additionne : aucun ne remplace l'autre. S'ils se contredisent, l'agent peut suivre l'un ou l'autre ; c'est pourquoi on évite de dire deux fois la même chose à deux niveaux.</p>
+<blockquote>
+<p><em>Schéma (version numérique) : ordre de lecture · le CLAUDE.md du projet est celui de l'équipe.</em></p>
+</blockquote>
+<p><strong>Entreprise.</strong> Le fichier géré par la DSI s'applique à toutes les sessions du poste, dans tous les dépôts, et aucun réglage individuel ne peut l'exclure. On le déploie comme les paramètres gérés du chapitre M1, au même endroit :</p>
+<table>
+<thead>
+<tr>
+<th>Système</th>
+<th>Emplacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS</td>
+<td><code>/Library/Application Support/ClaudeCode/CLAUDE.md</code></td>
+</tr>
+<tr>
+<td>Linux et WSL</td>
+<td><code>/etc/claude-code/CLAUDE.md</code></td>
+</tr>
+<tr>
+<td>Windows</td>
+<td><code>C:\Program Files\ClaudeCode\CLAUDE.md</code></td>
+</tr>
+</tbody>
+</table>
+<p>Le même texte peut aussi vivre dans la clé <code>claudeMd</code> du fichier <code>managed-settings.json</code>, ce qui évite de déployer deux fichiers. Dans le roman, c'est là que vivent les règles de Bertrand : par exemple, des rappels sur les données personnelles ou la conduite à tenir face à un secret. Les interdictions proprement dites, elles, vont dans les paramètres.</p>
+<p><strong>Utilisateur.</strong> <code>~/.claude/CLAUDE.md</code> porte vos préférences pour tous vos projets ; personne d'autre ne le lit. Julien y demande des explications détaillées, Sofiane y range ses raccourcis.</p>
+<p><strong>Projet.</strong> <code>./CLAUDE.md</code>, ou <code>./.claude/CLAUDE.md</code> si vous préférez garder la racine propre, est le fichier de l'équipe. Il est versionné avec le code et change par demande de fusion, comme le code : il modifie le comportement de l'agent autant qu'une ligne de Java.</p>
+<p><strong>Local.</strong> <code>./CLAUDE.local.md</code> porte vos notes pour ce projet seulement : l'adresse de votre environnement de test, vos jeux de données. Déclarez-le dans <code>.gitignore</code>. Il est lu juste après le CLAUDE.md du même dossier.</p>
+<p><strong>Dossiers parents et sous-dossiers.</strong> Lancé dans <code>portail/back</code>, l'outil lit aussi <code>portail/CLAUDE.md</code> s'il existe. Les CLAUDE.md des sous-dossiers, eux, ne se chargent qu'au moment où l'agent lit ou modifie un fichier de ce sous-dossier. Dans un grand dépôt partagé entre plusieurs équipes, le paramètre <code>claudeMdExcludes</code> permet d'ignorer les fichiers des autres.</p>
+<p><strong>Vérifier ce qui est chargé.</strong> <code>/context</code> liste les fichiers lus au démarrage sous <em>Memory files</em> ; <code>/memory</code> les affiche tous et ouvre celui que vous choisissez dans votre éditeur, en le créant s'il n'existe pas encore.</p>
+<h2>Écrire le premier CLAUDE.md</h2>
+<p>La commande <code>/init</code> produit un premier jet en quelques minutes : l'agent parcourt le dépôt et rédige un CLAUDE.md avec les commandes de compilation, de test et les conventions qu'il découvre. Si un fichier existe déjà, elle propose des améliorations au lieu de l'écraser. Elle reprend aussi les consignes laissées pour d'autres outils, comme <code>.cursorrules</code> ou <code>.github/copilot-instructions.md</code>.</p>
+<p>Pour une version guidée, définissez la variable <code>CLAUDE_CODE_NEW_INIT</code> à <code>1</code> avant de lancer <code>/init</code> : l'agent vous demande quoi mettre en place, explore le code, vous pose des questions sur ce qu'il n'a pas trouvé, puis soumet une proposition avant d'écrire quoi que ce soit.</p>
+<p><strong>Un premier jet n'est qu'un point de départ.</strong> Au chapitre 3, <code>/init</code> livre trois cents lignes. Julien les lit à voix haute : « Le projet est écrit en Java. » « Les tests se trouvent dans le dossier des tests. » Tout ce que l'agent a écrit, il le savait déjà en lisant le code ; ce qu'il ne sait pas, il ne l'a pas écrit, puisque ce n'est écrit nulle part.</p>
+<h3>La méthode en cinq temps</h3>
+<ol>
+<li><strong>Générer, puis élaguer.</strong> Passez chaque ligne du premier jet au test de Thomas : <em>si on retire cette ligne, l'agent fera-t-il une erreur ?</em> Si la réponse est non, la ligne part. Dans le roman, il en reste trente-cinq sur trois cents.</li>
+<li><strong>Écrire l'essentiel avec le métier.</strong> Une heure d'atelier, autour de la question que Julien écrit au tableau : <em>qu'est-ce qu'un développeur brillant, arrivé ce matin, ne peut pas deviner ?</em> La réponse tient presque toujours en cinq rubriques : pourquoi le projet existe, les mots du métier, les frontières qu'on ne franchit pas, la façon de travailler, ce qu'on ne fait jamais.</li>
+<li><strong>Renvoyer plutôt que recopier.</strong> Si une information existe déjà, dans la documentation d'architecture ou la liste des commandes, le CLAUDE.md indique où la trouver, et l'agent l'ouvrira quand il en aura besoin. Un document recopié vieillit deux fois.</li>
+<li><strong>Publier par demande de fusion.</strong> Le fichier change le comportement de l'agent autant que du code ; il passe par la même porte et se fait relire par le métier. Au chapitre 3, Nadia y laisse sept commentaires.</li>
+<li><strong>Tester avec une session neuve.</strong> Ouvrez une session sans rien expliquer et confiez-lui une petite tâche réelle. Écoutez ses questions : chacune révèle soit une lacune du fichier, soit une règle métier qui relève de la spécification.</li>
+</ol>
+<h3>Écrire des consignes vérifiables</h3>
+<p>Une consigne précise est mieux suivie qu'une consigne vague. Écrivez-en que l'on pourrait vérifier.</p>
+<table>
+<thead>
+<tr>
+<th>Plutôt que</th>
+<th>Écrire</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Respecter les bonnes pratiques.</td>
+<td>Tests d'abord : écrire le test, le voir échouer, puis le code.</td>
+</tr>
+<tr>
+<td>Faire attention au système des contrats.</td>
+<td>Tout appel au système des contrats passe par <code>adaptateur-contrats</code>.</td>
+</tr>
+<tr>
+<td>Utiliser le bon vocabulaire.</td>
+<td>Déclarant : remplit la déclaration ; pas forcément l'assuré.</td>
+</tr>
+<tr>
+<td>Bien tester avant de livrer.</td>
+<td>Lancer <code>mvn verify</code> avant chaque commit.</td>
+</tr>
+</tbody>
+</table>
+<p>Groupez les consignes sous des titres Markdown et en listes courtes : l'agent les suit mieux qu'un texte dense, et un relecteur repère plus vite une contradiction.</p>
+<h2>Ce qu'on y met, ce qu'on n'y met pas</h2>
+<table>
+<thead>
+<tr>
+<th>On y met</th>
+<th>On n'y met pas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>La raison d'être du projet, en une phrase, avec un renvoi vers la vision</td>
+<td>Ce que le code dit déjà : le langage, l'arborescence, les dépendances</td>
+</tr>
+<tr>
+<td>Le vocabulaire du métier, validé par le métier</td>
+<td>Un secret, quel qu'il soit : le fichier part au modèle à chaque session</td>
+</tr>
+<tr>
+<td>Les frontières de l'architecture</td>
+<td>Une interdiction qui doit tenir à coup sûr : sa place est dans les paramètres</td>
+</tr>
+<tr>
+<td>La façon de travailler : tests d'abord, une story par branche, la forme des commits</td>
+<td>Les règles détaillées d'une fonctionnalité : elles relèvent de sa spécification</td>
+</tr>
+<tr>
+<td>Les « ne jamais » de comportement, comme inventer une règle de gestion</td>
+<td>Une procédure en dix étapes : elle fera un skill</td>
+</tr>
+<tr>
+<td>L'erreur que l'agent a déjà commise deux fois</td>
+<td>Vos préférences personnelles : elles vont au niveau utilisateur ou local</td>
+</tr>
+<tr>
+<td>Les commandes qui ne se devinent pas, ou un renvoi vers leur liste</td>
+<td>L'état du sprint en cours : il sera faux la semaine prochaine</td>
+</tr>
+</tbody>
+</table>
+<p>La quatrième ligne de droite demande du discernement. Au chapitre 3, l'agent apprend de Nadia trois règles sur la date du sinistre. Julien n'en garde qu'une dans le CLAUDE.md, la plus générale : <em>une déclaration n'est jamais rejetée automatiquement ; le gestionnaire décide.</em> Les délais et les cas du vol vont dans la spécification de la fonctionnalité. Un principe qui vaut pour tout le portail a sa place dans le fichier lu à chaque session ; un détail qui ne vaut que pour un écran n'y a pas la sienne.</p>
+<h3>Un exemple commenté</h3>
+<p>Voici le CLAUDE.md du portail sinistres, tel qu'il est au chapitre 10, après deux ajouts du métier.</p>
+<pre><code class="language-markdown"># Portail sinistres — consignes pour l'agent
+
+Portail de déclaration de sinistre habitation. Vision : docs/vision.md
+
+## Vocabulaire métier (validé par Nadia Benali)
+- Déclarant : remplit la déclaration ; pas forcément l'assuré.
+- Assuré : personne couverte ; pas forcément le souscripteur.
+- Franchise, plafond : jamais codés en dur, toujours lus dans le contrat.
+
+## Principes métier
+- Une déclaration n'est jamais rejetée automatiquement : le gestionnaire décide.
+- On ne bloque jamais une déclaration ; on la complète.
+
+## Règles techniques
+- Tout appel au système des contrats passe par adaptateur-contrats.
+- Tests d'abord. Une story = une branche = une demande de fusion.
+- Commandes du projet : docs/commandes.md
+
+## Ne jamais
+- Inventer une règle de gestion. Poser la question.
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Rubrique</th>
+<th>Pourquoi elle est là</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Titre et vision</td>
+<td>Une phrase suffit à orienter chaque décision ; le détail est un clic plus loin.</td>
+</tr>
+<tr>
+<td>Vocabulaire métier</td>
+<td>Confondre assuré et déclarant, c'est verser l'indemnité au mauvais tiers. Le code ne peut pas l'apprendre à l'agent.</td>
+</tr>
+<tr>
+<td>Principes métier</td>
+<td>Deux phrases que Nadia appliquait depuis douze ans sans les avoir jamais écrites. Elles valent pour tout le portail.</td>
+</tr>
+<tr>
+<td>Règles techniques</td>
+<td>La frontière de l'adaptateur n'est visible nulle part dans le code ; la méthode de travail non plus.</td>
+</tr>
+<tr>
+<td>Ne jamais</td>
+<td>Une seule ligne, mais la plus rentable : elle transforme une invention en question.</td>
+</tr>
+</tbody>
+</table>
+<p>Trois remarques de forme. Le fichier tient sur une page, loin de la limite de deux cents lignes au-delà de laquelle l'agent suit moins bien ses consignes. Les chemins comme <code>docs/vision.md</code> sont de simples renvois : l'agent ouvre le fichier quand il en a besoin. Et les commentaires HTML, <code>&lt;!-- comme celui-ci --&gt;</code>, sont retirés avant l'envoi au modèle : c'est l'endroit pour noter, à l'usage des humains, qui a validé quoi et quand.</p>
+<h2>Organiser au-delà d'un fichier</h2>
+<p>Un CLAUDE.md d'une page suffit longtemps. Trois mécanismes prennent le relais quand le projet grandit.</p>
+<h3>Les imports</h3>
+<p>Une ligne <code>@chemin/vers/fichier.md</code> dans un CLAUDE.md insère le fichier désigné au démarrage, comme s'il y était écrit. Le chemin est relatif au fichier qui importe ; un fichier importé peut en importer d'autres, sur quatre niveaux au plus.</p>
+<pre><code class="language-markdown">## Façon de travailler
+- Conventions Git : @docs/conventions-git.md
+</code></pre>
+<p>Un import organise, il n'allège pas : le fichier importé est envoyé au modèle à chaque session, comme le reste. Pour un document long qui ne sert que de temps en temps, écrivez simplement son chemin entre accents graves, <code>docs/architecture.md</code> : il n'est pas importé, et l'agent l'ouvrira quand il en aura besoin.</p>
+<p>Quand un import vise un fichier hors du dépôt, l'outil demande votre accord la première fois. C'est une protection contre un fichier piégé glissé par un tiers dans un projet partagé. L'usage le plus courant est légitime : un <code>CLAUDE.local.md</code> qui importe <code>@~/.claude/portail-perso.md</code>, pour retrouver ses notes personnelles dans toutes les copies du dépôt.</p>
+<h3>Les règles liées à un dossier</h3>
+<p>Le dossier <code>.claude/rules/</code> accueille des fichiers de consignes thématiques. Sans en-tête, une règle est chargée au démarrage, comme le CLAUDE.md du projet. Avec un en-tête <code>paths</code>, elle ne se charge que lorsque l'agent lit ou modifie un fichier correspondant. Au chapitre 10, la règle sur les scénarios d'acceptation pourrait s'écrire ainsi :</p>
+<pre><code class="language-markdown">---
+paths:
+  - &quot;src/test/resources/scenarios/**/*.feature&quot;
+---
+# Scénarios d'acceptation
+- Écrits et validés par le métier et la recette. Ne jamais les modifier.
+- Un scénario qui semble faux : s'arrêter et le signaler.
+</code></pre>
+<p>Cette règle ne coûte rien tant que l'agent ne touche pas aux scénarios. Elle reste pourtant une consigne : au chapitre 10, c'est le verrou posé dans les paramètres qui empêche réellement l'agent de réécrire un scénario. Les deux se complètent. La règle explique pourquoi ; le verrou garantit.</p>
+<p>Deux précautions. Une règle liée à un dossier disparaît à la compaction et ne revient qu'au prochain fichier concerné ; une consigne vitale va donc dans le CLAUDE.md. Et vos règles personnelles, valables pour tous vos projets, se rangent dans <code>~/.claude/rules/</code>.</p>
+<h3>AGENTS.md</h3>
+<p>AGENTS.md est un format partagé par plusieurs outils d'agents de code. Claude Code le lit à la place du CLAUDE.md quand aucun CLAUDE.md ni CLAUDE.local.md n'existe dans le dossier de travail ou au-dessus. Sur Bedrock, cette lecture directe demande la version 2.1.281 ou plus récente.</p>
+<p>Le réglage <em>Project instructions</em>, dans <code>/config</code>, change ce comportement :</p>
+<table>
+<thead>
+<tr>
+<th>Valeur</th>
+<th>Ce que l'agent lit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude-md-or-agents-md</code></td>
+<td>Le CLAUDE.md, ou l'AGENTS.md s'il n'y a pas de CLAUDE.md. C'est la valeur par défaut.</td>
+</tr>
+<tr>
+<td><code>claude-md-and-agents-md</code></td>
+<td>Les deux, le CLAUDE.md d'abord.</td>
+</tr>
+<tr>
+<td><code>claude-md</code></td>
+<td>Le CLAUDE.md seulement.</td>
+</tr>
+<tr>
+<td><code>managed-only</code></td>
+<td>Seulement le fichier de l'entreprise et la mémoire automatique, au démarrage.</td>
+</tr>
+</tbody>
+</table>
+<p>Dans une équipe où chacun n'utilise pas le même outil, la solution la plus robuste tient en deux fichiers : un AGENTS.md partagé par tous, et un CLAUDE.md qui commence par <code>@AGENTS.md</code>, suivi des seules consignes propres à Claude Code. Chaque outil lit ce qui le concerne, et aucune règle n'est écrite deux fois.</p>
+<h2>La mémoire automatique</h2>
+<p>Le CLAUDE.md, c'est vous qui l'écrivez. La mémoire automatique, c'est l'agent qui la tient : au fil du travail, il note pour lui-même ce qui lui servira dans une prochaine session. Elle est active par défaut.</p>
+<p><strong>Ce qu'il retient.</strong> Quatre sortes de notes :</p>
+<table>
+<thead>
+<tr>
+<th>Sorte</th>
+<th>Exemple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vous</td>
+<td>« Julien préfère des explications détaillées avant chaque modification. »</td>
+</tr>
+<tr>
+<td>Vos corrections</td>
+<td>« Ne pas utiliser le mot sinistre pour une déclaration non recevable. »</td>
+</tr>
+<tr>
+<td>Le projet</td>
+<td>« La reprise des dossiers vol est prévue pour janvier. »</td>
+</tr>
+<tr>
+<td>Les références</td>
+<td>« Les codes retour du mainframe sont décrits dans le wiki de l'équipe contrats. »</td>
+</tr>
+</tbody>
+</table>
+<p>Il ne note pas ce qu'il peut retrouver dans le code ou l'historique Git, ni ce que le CLAUDE.md dit déjà. Et il ne note pas à chaque session : seulement ce qui lui paraît utile plus tard. Quand il le fait, le terminal l'indique par un message comme <em>Saved 2 memories</em> ; quand il relit ses notes, par <em>Recalled 2 memories</em>.</p>
+<p><strong>Où elle vit.</strong> Dans <code>~/.claude/projects/&lt;projet&gt;/memory/</code>, sur votre poste : un index <code>MEMORY.md</code>, dont les deux cents premières lignes sont lues à chaque session, et un fichier par sujet, que l'agent ouvre à la demande. Toutes les copies d'un même dépôt partagent la même mémoire. Elle n'est ni versionnée, ni partagée avec l'équipe, ni effacée par le nettoyage des sessions au bout de trente jours.</p>
+<p><strong>Comment la piloter.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Pour</th>
+<th>Faire</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lire ou corriger ce qu'il a retenu</td>
+<td><code>/memory</code>, puis ouvrir le dossier de la mémoire automatique : ce sont des fichiers Markdown ordinaires.</td>
+</tr>
+<tr>
+<td>Lui faire retenir quelque chose</td>
+<td>Le lui dire : « retiens que les tests d'API demandent un serveur Redis local ».</td>
+</tr>
+<tr>
+<td>Mettre quelque chose dans le CLAUDE.md plutôt</td>
+<td>Le dire aussi : « ajoute cela au CLAUDE.md ».</td>
+</tr>
+<tr>
+<td>La couper pour vous</td>
+<td>Le bouton de <code>/memory</code>, qui règle <code>autoMemoryEnabled</code> dans vos paramètres.</td>
+</tr>
+<tr>
+<td>La couper pour un projet</td>
+<td><code>"autoMemoryEnabled": false</code> dans les paramètres du projet.</td>
+</tr>
+<tr>
+<td>La couper pour toute l'entreprise</td>
+<td>La variable <code>CLAUDE_CODE_DISABLE_AUTO_MEMORY</code> à <code>1</code>, dans le bloc <code>env</code> des paramètres gérés.</td>
+</tr>
+</tbody>
+</table>
+<h3>La mémoire de l'un n'est pas celle de l'équipe</h3>
+<p>La mémoire automatique est personnelle. Ce que Sofiane a appris à l'agent un mardi, Émilie ne le retrouve pas dans sa propre session. C'est sa limite pour une équipe : une correction qui compte pour tous doit remonter dans le CLAUDE.md, par une demande de fusion. Une bonne habitude consiste à relire sa mémoire en rétrospective : ce qui revient chez deux personnes a sa place dans le fichier partagé.</p>
+<p>C'est aussi un sujet de sécurité. Ces fichiers sont du texte en clair sur le poste, comme l'historique des sessions. Une organisation qui traite des données sensibles doit décider en connaissance de cause : garder la mémoire et la faire relire, ou la couper par les paramètres gérés. Dans les deux cas, la règle du chapitre 3 tient toujours : un secret qui n'est pas dans le code ne se retrouvera dans aucune mémoire.</p>
+<h2>Entretenir ses instructions</h2>
+<p>Un CLAUDE.md n'est jamais fini. Il vieillit comme une documentation, mais ses erreurs coûtent plus cher : l'agent les applique à la lettre, à chaque session.</p>
+<h3>Quand y toucher</h3>
+<table>
+<thead>
+<tr>
+<th>Signe</th>
+<th>Geste</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L'agent commet la même erreur une deuxième fois</td>
+<td>Ajouter la consigne qui l'aurait évitée.</td>
+</tr>
+<tr>
+<td>Une relecture de demande de fusion relève ce que l'agent aurait dû savoir</td>
+<td>Ajouter la consigne, dans la même demande de fusion si possible.</td>
+</tr>
+<tr>
+<td>Vous retapez la même correction que la semaine dernière</td>
+<td>La sortir de la conversation et l'écrire.</td>
+</tr>
+<tr>
+<td>Une consigne n'a plus d'effet visible depuis des semaines</td>
+<td>La retirer : chaque ligne coûte à chaque session.</td>
+</tr>
+<tr>
+<td>Deux consignes se contredisent</td>
+<td>Trancher ; l'agent choisirait au hasard.</td>
+</tr>
+<tr>
+<td>Le fichier dépasse deux cents lignes</td>
+<td>Déplacer ce qui ne vaut que pour un dossier vers une règle, et les procédures vers des skills.</td>
+</tr>
+</tbody>
+</table>
+<p>Au-delà de deux cents lignes, l'outil affiche d'ailleurs un avertissement au démarrage et dans <code>/status</code>.</p>
+<h3>Par quelle porte</h3>
+<p>Le CLAUDE.md du projet change par demande de fusion, relue comme du code ; quand une modification touche au vocabulaire ou aux règles du métier, la Product Owner fait partie des relecteurs. C'est la réponse à la troisième question du carnet de Thomas, au chapitre 3 : quand l'agent répète une erreur, qui met le fichier à jour, et par quelle porte ?</p>
+<p>Une pratique simple tient l'ensemble à jour : une rubrique de cinq minutes en rétrospective. Quelles lignes ajouter, d'après les erreurs du sprint ? Quelles lignes retirer ? Qu'ont retenu les mémoires automatiques de chacun qui mérite d'être partagé ?</p>
+<h3>Les outils de contrôle</h3>
+<ul>
+<li><strong><code>/doctor prompt-audit</code></strong> fait relire vos fichiers d'instructions par l'agent : consignes périmées, renvois vers des fichiers ou des commandes qui n'existent plus, contradictions entre fichiers. Il produit un rapport avec des corrections proposées, et ne modifie rien sans votre accord.</li>
+<li><strong><code>/doctor</code></strong> propose aussi d'élaguer un CLAUDE.md trop long, en retirant ce que l'agent peut déduire du code.</li>
+<li><strong><code>/context</code></strong> confirme quels fichiers ont réellement été chargés.</li>
+<li><strong>Une session neuve</strong> reste le meilleur test, après chaque modification importante : une petite tâche réelle, sans rien expliquer, et l'écoute de ses questions.</li>
+</ul>
+<h3>Quand l'agent ne suit pas le fichier</h3>
+<p>Commencez par vérifier dans <code>/context</code> que le fichier est bien chargé. Cherchez ensuite une consigne trop vague, ou une autre qui la contredit, dans un autre niveau ou dans une règle. Si la consigne a été donnée en cours de conversation plutôt qu'écrite, elle a pu disparaître à la compaction. Et si elle doit s'appliquer à coup sûr, à chaque fois, c'est qu'elle n'avait pas sa place dans un CLAUDE.md : elle relève d'un paramètre (chapitre M4) ou d'un hook (chapitre M6).</p>
+<h2>Dans le roman</h2>
+<table>
+<thead>
+<tr>
+<th>Chapitre</th>
+<th>Scène</th>
+<th>Ce qu'elle illustre ici</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3 — Le fichier qui parle à la machine</td>
+<td>Lundi, 14 heures : Sofiane veut interdire la lecture des secrets par une consigne ; Julien et Thomas expliquent la différence entre livret d'accueil et badge.</td>
+<td>Un CLAUDE.md est une consigne, pas un verrou.</td>
+</tr>
+<tr>
+<td>3 — Le fichier qui parle à la machine</td>
+<td>Lundi après-midi : trois cents lignes générées, trente-cinq gardées après le test de la suppression.</td>
+<td>Générer, puis élaguer.</td>
+</tr>
+<tr>
+<td>3 — Le fichier qui parle à la machine</td>
+<td>Mardi : l'atelier avec Nadia sur le vocabulaire, le choix des niveaux, la première demande de fusion du projet.</td>
+<td>Écrire l'essentiel avec le métier ; publier par la même porte que le code.</td>
+</tr>
+<tr>
+<td>3 — Le fichier qui parle à la machine</td>
+<td>Mercredi, 15 heures : dans une session neuve, l'agent pose trois questions au lieu d'inventer trois règles ; une seule entre dans le fichier.</td>
+<td>Le test de la session neuve ; ce qui relève du CLAUDE.md et ce qui relève de la spécification.</td>
+</tr>
+<tr>
+<td>10 — Émilie ne suit plus</td>
+<td>Mercredi, 9 heures : Nadia ajoute « on ne bloque jamais une déclaration ; on la complète » ; l'agent propose de modifier un scénario, et un verrou l'en empêche.</td>
+<td>Un principe métier à sa place ; la consigne et le verrou qui se complètent.</td>
+</tr>
+</tbody>
+</table>
+<p>Pour aller plus loin : M4 (paramètres et permissions), M5 (skills et sous-agents), M6 (hooks), M12 (partager en équipe : ce qu'on versionne, ce qui reste local).</p>
+<h2>Sources</h2>
+<p>Consultées le 16 octobre 2026.</p>
+<ul>
+<li><a href="https://code.claude.com/docs/en/memory">Comment Claude se souvient de votre projet : CLAUDE.md, AGENTS.md, mémoire automatique</a></li>
+<li><a href="https://code.claude.com/docs/en/features-overview">Étendre Claude Code : quand utiliser CLAUDE.md, règles, skills, hooks</a></li>
+<li><a href="https://code.claude.com/docs/en/context-window">Fenêtre de contexte et compaction</a></li>
+<li><a href="https://code.claude.com/docs/en/data-usage">Utilisation des données et stockage local</a></li>
+<li><a href="https://code.claude.com/docs/en/managed-settings">Déployer des paramètres gérés</a></li>
+<li><a href="https://code.claude.com/docs/en/changelog">Notes de version de Claude Code</a></li>
+</ul></article><nav class="pager"><span><a href="f-m02-premiers-pas.html">← Premiers pas</a></span><span><a href="f-m04-parametres-et-permissions.html">Paramètres et permissions →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

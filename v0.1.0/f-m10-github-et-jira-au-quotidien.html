@@ -1,0 +1,647 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GitHub et Jira au quotidien — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Chapitre M10</div><h1>GitHub et Jira au quotidien</h1><h2>Ce que couvre ce chapitre</h2>
+<p>L'agent écrit du code dans un dépôt ; l'équipe le pilote dans Jira ; la maison le livre par GitHub. Ce chapitre décrit le circuit qui relie les trois : les conventions qui permettent de retrouver d'où vient chaque ligne, les protections qui empêchent qu'une branche principale bouge sans relecture, la revue automatique et les contrôles de la chaîne d'intégration, et la façon dont Jira reste à jour sans que personne le recopie.</p>
+<p>Le roman en montre la construction pas à pas. Au chapitre 8, quatre agents produisent en parallèle plus de branches que l'équipe ne sait en réunir. Au chapitre 9, quarante demandes de fusion attendent un seul relecteur. Au chapitre 25, une coordinatrice recopie chaque soir le dépôt dans Jira depuis trois semaines, et l'équipe pose une règle : une information, un seul endroit, partout ailleurs un lien. Au chapitre 27, une story passe de son ticket à la fusion en une journée, par un circuit que personne ne remarque plus.</p>
+<blockquote>
+<p><strong>Version de référence.</strong> Claude Code 2.1.301, publiée le 15 octobre 2026, et l'action GitHub <code>anthropics/claude-code-action@v1</code>, avec la configuration Bedrock du chapitre M1. Le dépôt de la maison est sur une instance GitHub Enterprise Server interne, et les tickets dans Jira ; les différences avec github.com sont signalées.</p>
+</blockquote>
+<p>Rien dans ce chapitre n'est propre aux agents : une bonne convention de branche ou une branche protégée servent tout autant aux humains. C'est précisément le point. Le circuit ne distingue pas qui a écrit le code ; il garantit que quelqu'un l'a relu.</p>
+<h2>Le circuit d'une story</h2>
+<p>Au chapitre 27, une story de bris de glace passe en une journée de son ticket à la fusion : scénarios rouges puis verts, prérelecture, relecture humaine, tests exploratoires. Aucune étape n'est nouvelle. Ce qui a changé depuis le chapitre 8, c'est qu'elles s'enchaînent toujours dans le même ordre, et que chacune laisse une trace reliée aux autres par la clé du ticket.</p>
+<blockquote>
+<p><em>Schéma (version numérique) : le circuit d'une story · la relecture humaine reste le passage obligé.</em></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Étape</th>
+<th>Qui</th>
+<th>Ce qui la rend possible</th>
+<th>Chapitre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ticket Jira</td>
+<td>L'agent le crée quand Nadia valide la story</td>
+<td>Le connecteur Jira</td>
+<td>M7</td>
+</tr>
+<tr>
+<td>Branche</td>
+<td>Le développeur, ou l'agent</td>
+<td>La convention de nommage</td>
+<td>M10</td>
+</tr>
+<tr>
+<td>Code et commits</td>
+<td>L'agent, en local</td>
+<td>Le mode plan, la skill d'implémentation</td>
+<td>M2, M9</td>
+</tr>
+<tr>
+<td>Demande de fusion</td>
+<td>Le développeur</td>
+<td>La convention de titre</td>
+<td>M10</td>
+</tr>
+<tr>
+<td>Contrôles</td>
+<td>La chaîne d'intégration</td>
+<td>Les tests, les scénarios, les contrôles du socle</td>
+<td>M10</td>
+</tr>
+<tr>
+<td>Prérelecture</td>
+<td>Un agent qui n'a pas écrit le code</td>
+<td>La skill de préparation des relectures</td>
+<td>M5</td>
+</tr>
+<tr>
+<td>Relecture humaine</td>
+<td>Les propriétaires des fichiers touchés</td>
+<td>La branche protégée, le fichier des propriétaires</td>
+<td>M10</td>
+</tr>
+<tr>
+<td>Exploration</td>
+<td>La testeuse</td>
+<td>Les scénarios d'acceptation et son jugement</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Fusion</td>
+<td>Le développeur, une fois tout vert</td>
+<td>La branche protégée</td>
+<td>M10</td>
+</tr>
+<tr>
+<td>Jira à jour</td>
+<td>Personne</td>
+<td>L'intégration entre GitHub et Jira</td>
+<td>M10</td>
+</tr>
+</tbody>
+</table>
+<h3>Retracer une ligne en quatre minutes</h3>
+<p>Au chapitre 16, la commission sécurité vérifie qu'on peut retracer l'origine d'une ligne de code en moins de quatre minutes. C'est le test qui dit si le circuit tient :</p>
+<ol>
+<li><code>git blame</code> donne le commit qui a écrit la ligne ;</li>
+<li>le message du commit porte la clé du ticket, et dit si un agent y a contribué ;</li>
+<li>la clé mène au ticket Jira, et au fichier de la story dans le dépôt ;</li>
+<li>la story mène à sa spécification, et au nom de qui l'a approuvée ;</li>
+<li>la demande de fusion dit qui a relu, et quels contrôles sont passés.</li>
+</ol>
+<p>Le reste du chapitre installe chacun de ces maillons.</p>
+<h2>Conventions de branches et de commits</h2>
+<p>Une convention n'a de valeur que si elle est suivie à chaque fois, par tout le monde. L'agent la suit mieux qu'un humain pressé, à condition qu'elle soit écrite là où il la lit, et vérifiée là où personne ne peut l'oublier.</p>
+<h3>Les règles de l'équipe</h3>
+<table>
+<thead>
+<tr>
+<th>Objet</th>
+<th>Convention</th>
+<th>Exemple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Branche</td>
+<td>La clé du ticket, puis quelques mots</td>
+<td><code>SIN-57-photos-multiples</code></td>
+</tr>
+<tr>
+<td>Commit</td>
+<td>La clé en tête de la première ligne, puis ce que fait le changement, à l'indicatif</td>
+<td><code>SIN-57 Limite à dix les photos d'une déclaration</code></td>
+</tr>
+<tr>
+<td>Corps du commit</td>
+<td>Pourquoi, en quelques lignes ; le renvoi vers la spécification</td>
+<td><code>Spécification : _bmad-output/implementation-artifacts/spec-sin-57.md</code></td>
+</tr>
+<tr>
+<td>Demande de fusion</td>
+<td>La clé et le titre de la story ; dans la description, les liens vers la story, la spécification et les scénarios, et l'étiquette de risque</td>
+<td><code>SIN-57 — Joindre plusieurs photos</code></td>
+</tr>
+<tr>
+<td>Découpage</td>
+<td>Une story, une branche, une demande de fusion</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>La clé en majuscules est ce qui permet à Jira de rattacher d'office la branche, les commits et la demande de fusion au ticket. Elle est aussi ce qui rend possible le test des quatre minutes.</p>
+<h3>Les écrire là où l'agent les lit</h3>
+<p>Ces règles prennent trois lignes dans la rubrique <em>Façon de travailler</em> du CLAUDE.md (chapitre M3). Claude Code a aussi ses propres consignes de commit et de demande de fusion, intégrées. Si elles contredisent celles de l'équipe, l'agent risque de choisir au hasard : le paramètre <code>"includeGitInstructions": false</code> les retire, et ne laisse que celles du CLAUDE.md.</p>
+<h3>Dire qui a écrit</h3>
+<p>Par défaut, l'outil signe ses commits d'une ligne <code>Co-Authored-By</code> et ses descriptions de demande de fusion d'une mention. L'équipe garde cette signature : c'est elle qui dit, au deuxième maillon du test des quatre minutes, qu'un agent a contribué. Le paramètre <code>attribution</code> permet d'en adapter le texte, jamais de la supprimer dans la configuration de référence :</p>
+<pre><code class="language-json">{
+  &quot;attribution&quot;: {
+    &quot;commit&quot;: &quot;Co-Authored-By: Claude &lt;noreply@anthropic.com&gt;&quot;,
+    &quot;pr&quot;: &quot;Préparé avec Claude Code, relu par une personne de l'équipe.&quot;
+  }
+}
+</code></pre>
+<h3>Les vérifier là où personne ne peut les oublier</h3>
+<p>Une consigne suffit à l'agent dans la plupart des cas. Pour que la règle tienne dans tous les cas, et pour les humains aussi, la chaîne d'intégration refuse une demande de fusion dont le titre ou un commit ne porte pas de clé valide. C'est un contrôle de quelques lignes, décrit avec les autres à la section sur la chaîne d'intégration.</p>
+<h3>Une branche courte</h3>
+<p>Au chapitre 8, quatre agents ouvrent quatre branches en une matinée ; deux d'entre elles vivent assez longtemps pour diverger, et leur réunion fabrique deux champs pour une seule notion. La convention la plus utile n'est pas dans le nom : une branche vit le temps d'une story, rarement plus de deux jours, et se réunit à la branche principale dès qu'elle est relue.</p>
+<h2>Protéger la branche principale</h2>
+<p>Les verrous du chapitre M4 agissent sur le poste : ils empêchent l'agent de toucher à certains fichiers. Ceux de cette section agissent sur le serveur : ils empêchent quiconque, humain ou automate, de faire entrer une modification dans la branche principale sans la relecture prévue. Les deux se complètent. Le premier évite l'erreur ; le second garantit qu'elle ne passe pas.</p>
+<h3>Les règles de la branche principale</h3>
+<p>Sur GitHub Enterprise Server, une règle de protection de branche, ou un <em>ruleset</em>, s'applique à <code>main</code> :</p>
+<table>
+<thead>
+<tr>
+<th>Règle</th>
+<th>Effet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Demande de fusion obligatoire</td>
+<td>Personne ne pousse directement sur la branche principale.</td>
+</tr>
+<tr>
+<td>Une approbation au moins</td>
+<td>Et l'auteur de la demande ne peut pas s'approuver lui-même.</td>
+</tr>
+<tr>
+<td>Approbation des propriétaires des fichiers</td>
+<td>Voir le fichier des propriétaires, ci-dessous.</td>
+</tr>
+<tr>
+<td>Approbations annulées à chaque nouveau commit</td>
+<td>Une relecture porte sur ce qui sera fusionné, pas sur une version antérieure.</td>
+</tr>
+<tr>
+<td>Contrôles obligatoires</td>
+<td>La fusion attend que la chaîne d'intégration soit verte.</td>
+</tr>
+<tr>
+<td>Pas de poussée forcée, pas de suppression</td>
+<td>L'historique ne se réécrit pas.</td>
+</tr>
+<tr>
+<td>Aucune exception</td>
+<td>Les administrateurs et les comptes d'automatisation sont soumis aux mêmes règles.</td>
+</tr>
+</tbody>
+</table>
+<p>La dernière ligne compte pour les agents. L'identité qu'utilise l'action GitHub de la section suivante peut commenter et pousser des commits sur une branche de travail ; elle ne doit ni approuver, ni contourner une règle. Aucun agent ne fusionne dans la branche principale.</p>
+<h3>Le fichier des propriétaires</h3>
+<p>Le fichier <code>.github/CODEOWNERS</code> dit qui doit approuver une modification, selon les fichiers touchés. C'est la traduction côté serveur des règles du roman : les scénarios appartiennent au métier et à la recette, le socle à la sécurité, chaque skill à sa propriétaire.</p>
+<pre><code class="language-text"># .github/CODEOWNERS
+*                                       @mutuelle/portail-sinistres
+/src/test/resources/scenarios/          @mutuelle/metier-sinistres @mutuelle/recette
+/CLAUDE.md                              @mutuelle/portail-sinistres @nbenali
+/.claude/                               @mutuelle/portail-sinistres @mutuelle/securite
+/.claude/skills/preparer-story/         @nbenali
+/_bmad/custom/                          @mutuelle/portail-sinistres @mutuelle/securite
+/.github/                               @mutuelle/securite
+/src/main/resources/db/migration/       @mutuelle/dba
+</code></pre>
+<p>La dernière ligne qui correspond à un fichier l'emporte ; l'ordre va donc du plus général au plus précis. Avec la règle d'approbation des propriétaires, une demande de fusion qui touche un scénario attend l'accord du métier ou de la recette, quel que soit son auteur.</p>
+<h3>Les deux verrous des scénarios</h3>
+<p>Au chapitre 10, les scénarios d'acceptation sont devenus inaccessibles en écriture pour l'agent, par une règle de permission. Cette section ajoute le second verrou : même si quelqu'un les modifie, à la main ou depuis un poste mal configuré, la modification n'entre pas sans Nadia ou Émilie. Le premier verrou protège la session ; le second protège le produit.</p>
+<h3>Ce que GitHub ne fait pas</h3>
+<p>La limite de travail en cours du chapitre 9, six demandes en revue au plus, ne se règle pas dans GitHub. Elle vit dans la colonne <em>En revue</em> du tableau Jira, qui l'affiche en rouge quand elle est dépassée, et dans la discipline de l'équipe : quand la colonne est pleine, on relit avant de commencer quoi que ce soit.</p>
+<h2>La revue automatique des demandes de fusion</h2>
+<p>Au chapitre 9, la préparation des relectures se lance à la main, depuis le poste d'un développeur. L'étape suivante consiste à la lancer d'office, à l'ouverture de chaque demande de fusion, pour que la fiche attende le relecteur au lieu que le relecteur l'attende. C'est le rôle de l'action GitHub <code>anthropics/claude-code-action</code>, qui exécute Claude Code dans la chaîne d'intégration.</p>
+<h3>Ce qui s'applique à la configuration de référence</h3>
+<p>L'éditeur propose aussi un service de revue automatique géré, sans fichier de workflow ; il suppose une organisation claude.ai et une forge joignable depuis ses serveurs. Ni l'un ni l'autre ne correspond à la configuration de référence. Reste l'action GitHub, qui fonctionne avec GitHub Enterprise Server et avec Bedrock, à quatre conditions :</p>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Pourquoi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Des exécuteurs auto-hébergés, sur le réseau interne</td>
+<td>Ils joignent le Git interne, le miroir des bibliothèques et Bedrock, et rien d'autre.</td>
+</tr>
+<tr>
+<td>Une application GitHub propre à la maison</td>
+<td>L'installation guidée ne vaut que pour github.com ; sur l'instance interne, on crée une application avec les seuls droits utiles.</td>
+</tr>
+<tr>
+<td>Une fédération d'identité vers AWS</td>
+<td>L'exécuteur échange son jeton OIDC contre des identifiants AWS temporaires, sans aucune clé stockée. Le rôle IAM n'accepte que ce dépôt et reprend la politique du chapitre M1.</td>
+</tr>
+<tr>
+<td>Les paramètres gérés sur l'image des exécuteurs</td>
+<td>Le socle s'applique dans la chaîne d'intégration comme sur les postes.</td>
+</tr>
+</tbody>
+</table>
+<h3>Le workflow</h3>
+<pre><code class="language-yaml"># .github/workflows/prerelecture.yml
+name: Prérelecture
+on:
+  pull_request:
+    types: [opened, ready_for_review, synchronize]
+concurrency:
+  group: prerelecture-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  prerelecture:
+    if: github.event.pull_request.draft == false
+    runs-on: [self-hosted, linux, agents]
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: eu-west-3
+      - uses: anthropics/claude-code-action@v1
+        env:
+          GH_HOST: git.mutuelle.intra
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        with:
+          github_token: ${{ steps.app-token.outputs.token }}
+          use_bedrock: &quot;true&quot;
+          prompt: &gt;-
+            /prepare-relecture ${{ github.event.pull_request.number }}
+            Publie la fiche en commentaire de la demande de fusion.
+          claude_args: &gt;-
+            --model eu.anthropic.claude-sonnet-5-5
+            --max-turns 30
+            --allowedTools &quot;Bash(gh pr view *),Bash(gh pr diff *),Bash(gh pr comment *)&quot;
+</code></pre>
+<p>Les noms d'hôtes sont fictifs ; le fichier est à faire valider par l'équipe qui administre les exécuteurs.</p>
+<table>
+<thead>
+<tr>
+<th>Ligne</th>
+<th>Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>types</code> et <code>if</code></td>
+<td>La prérelecture se lance à l'ouverture, au passage en relecture, et à chaque nouveau commit ; jamais sur un brouillon.</td>
+</tr>
+<tr>
+<td><code>concurrency</code></td>
+<td>Deux commits rapprochés ne lancent pas deux prérelectures : la première est annulée.</td>
+</tr>
+<tr>
+<td><code>timeout-minutes</code>, <code>--max-turns</code></td>
+<td>Bornent la durée et le coût d'une exécution.</td>
+</tr>
+<tr>
+<td><code>permissions</code></td>
+<td>Lire le code, commenter la demande de fusion, obtenir le jeton d'identité ; rien d'autre.</td>
+</tr>
+<tr>
+<td><code>prompt</code></td>
+<td>La skill de préparation des relectures du chapitre M5, qui produit la fiche d'une page.</td>
+</tr>
+<tr>
+<td><code>--allowedTools</code></td>
+<td>Les trois seules commandes autorisées sans demande : lire la demande, lire la différence, publier la fiche.</td>
+</tr>
+</tbody>
+</table>
+<h3>Ce que la prérelecture ne fait pas</h3>
+<p>Elle ne signe pas. L'application GitHub qu'elle utilise peut commenter, jamais approuver, et la branche protégée exige de toute façon l'approbation d'un propriétaire humain. C'est la phrase du chapitre 9, inscrite dans la configuration : l'agent prépare, il ne signe pas.</p>
+<p>Elle lit aussi du contenu que n'importe qui peut écrire : la description de la demande de fusion, les commentaires, le code proposé. C'est exactement la situation du chapitre M7. La parade est la même : des outils réduits à la lecture et au commentaire, aucun accès au réseau au-delà des hôtes internes, et les paramètres gérés du socle sur l'exécuteur.</p>
+<h3>Et sur le poste</h3>
+<p>Rien n'empêche un développeur de lancer la même relecture avant même d'ouvrir sa demande de fusion : <code>/code-review</code> sur sa branche, ou la skill de l'équipe. C'est souvent le meilleur moment, puisqu'il peut corriger avant que quiconque ait lu.</p>
+<h2>Les contrôles de la chaîne d'intégration</h2>
+<p>La chaîne d'intégration est le seul endroit par où passe tout le code, quel qu'en soit l'auteur. C'est là que vivent les contrôles qui doivent arrêter aussi les humains : au chapitre 13, la ligne fautive la plus ancienne avait été écrite à la main, sans agent, et c'est un test de la chaîne qui l'a attrapée en quatre minutes.</p>
+<h3>Les contrôles obligatoires</h3>
+<table>
+<thead>
+<tr>
+<th>Contrôle</th>
+<th>Ce qu'il vérifie</th>
+<th>D'où il vient</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Construction et tests</td>
+<td>Le code compile, les tests unitaires passent</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Scénarios d'acceptation</td>
+<td>Les scénarios du métier passent tous</td>
+<td>Chapitre 10</td>
+</tr>
+<tr>
+<td>Journaux sans données personnelles</td>
+<td>Les journaux produits par les scénarios ne contiennent aucune des données synthétiques de test</td>
+<td>Chapitre 13</td>
+</tr>
+<tr>
+<td>Détection de secrets</td>
+<td>La différence ne contient ni clé, ni mot de passe, ni certificat</td>
+<td>Chapitre 3</td>
+</tr>
+<tr>
+<td>Clé Jira</td>
+<td>Le titre de la demande de fusion et chaque commit commencent par une clé</td>
+<td>Ce chapitre</td>
+</tr>
+<tr>
+<td>Spécification approuvée</td>
+<td>Toute spécification ajoutée porte le nom de qui l'a approuvée</td>
+<td>Chapitre M9</td>
+</tr>
+<tr>
+<td>Seuils de qualité</td>
+<td>Couverture et analyse statique ne descendent pas sous le seuil</td>
+<td>Chapitre M4</td>
+</tr>
+</tbody>
+</table>
+<p>Tous sont déclarés comme contrôles obligatoires dans la règle de la branche principale : la fusion reste impossible tant que l'un d'eux est rouge.</p>
+<h3>Un principe : un contrôle obligatoire est déterministe</h3>
+<p>La prérelecture de la section précédente n'est pas dans cette liste, et ce n'est pas un oubli. Un contrôle obligatoire doit donner la même réponse à la même demande de fusion ; un modèle ne le garantit pas. La prérelecture informe le relecteur ; elle ne bloque rien. Ce qui bloque est écrit en code, se relit, et se teste.</p>
+<h3>Deux contrôles en quelques lignes</h3>
+<p>Les deux contrôles propres à ce manuel tiennent dans une étape du workflow :</p>
+<pre><code class="language-yaml">  conventions:
+    runs-on: [self-hosted, linux]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Clé Jira et spécification approuvée
+        env:
+          TITRE: ${{ github.event.pull_request.title }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          echo &quot;$TITRE&quot; | grep -qE '^SIN-[0-9]+ ' \
+            || { echo &quot;Le titre ne commence pas par une clé Jira.&quot;; exit 1; }
+          if git log --no-merges --format=%s &quot;$BASE&quot;..HEAD | grep -vqE '^SIN-[0-9]+ '; then
+            echo &quot;Un commit ne commence pas par une clé Jira.&quot;; exit 1
+          fi
+          for f in $(git diff --name-only --diff-filter=A &quot;$BASE&quot;...HEAD \
+                     -- '_bmad-output/implementation-artifacts/spec-*.md'); do
+            grep -qE '^Approuvé par : .+' &quot;$f&quot; \
+              || { echo &quot;$f : approbation manquante.&quot;; exit 1; }
+          done
+</code></pre>
+<p>Le titre de la demande de fusion passe par une variable d'environnement, jamais directement dans le script : un titre est écrit par quelqu'un, et pourrait contenir des commandes.</p>
+<h3>Quand l'agent tourne dans la chaîne</h3>
+<p>L'action GitHub exécute Claude Code en mode non interactif. Les chapitres précédents ont signalé ce que ce mode change, et c'est ici que cela compte :</p>
+<table>
+<thead>
+<tr>
+<th>Ce qui change</th>
+<th>Parade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Les hooks du dépôt s'exécutent sans demande d'approbation (M6)</td>
+<td>Sur ses propres dépôts, c'est voulu ; pour un dépôt tiers, <code>--settings '{"disableAllHooks": true}'</code></td>
+</tr>
+<tr>
+<td>Les serveurs MCP du dépôt se connectent sans demande (M7)</td>
+<td><code>--strict-mcp-config</code>, avec la seule liste voulue</td>
+</tr>
+<tr>
+<td>Personne n'est là pour répondre à une demande d'autorisation</td>
+<td><code>--allowedTools</code> limité au strict nécessaire ; tout le reste est refusé</td>
+</tr>
+<tr>
+<td>L'exécution peut boucler</td>
+<td><code>--max-turns</code> et une durée maximale pour le job</td>
+</tr>
+</tbody>
+</table>
+<h2>Jira au quotidien</h2>
+<p>Au chapitre 25, l'équipe découvre trois listes de stories qui ne disent plus la même chose : les fichiers du dépôt, le tableau Jira construit au PI Planning, et le fichier de suivi de la méthode. Une coordinatrice recopie chaque soir le dépôt dans Jira depuis trois semaines. Une équipe voisine a bâti un mandat de six mois d'après Jira, alors que la sponsor avait décidé un an. Le bureau des projets veut tout dans Jira, le tech lead défend le dépôt, et tous deux ont raison.</p>
+<h3>Une information, un seul endroit</h3>
+<p>La réunion qui suit remplit un tableau simple : qui écrit, et qui lit, chaque information. La règle qui en sort tient en une ligne : <strong>une information, un seul endroit, partout ailleurs un lien.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Information</th>
+<th>Où elle vit</th>
+<th>Qui l'écrit</th>
+<th>Ailleurs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Texte de la story, critères, décisions, hors-périmètre</td>
+<td>Le dépôt</td>
+<td>L'agent rédige, Nadia valide</td>
+<td>Un lien depuis le ticket</td>
+</tr>
+<tr>
+<td>Scénarios d'acceptation</td>
+<td>Le dépôt</td>
+<td>Le métier et la recette</td>
+<td>Un lien depuis le ticket</td>
+</tr>
+<tr>
+<td>Classement de risque</td>
+<td>Le dépôt, dans la story</td>
+<td>L'équipe, avec la sécurité</td>
+<td>Une étiquette dans Jira, posée à la création du ticket</td>
+</tr>
+<tr>
+<td>Priorité, itération, assignation</td>
+<td>Jira</td>
+<td>La Product Owner et l'équipe</td>
+<td>L'agent la lit</td>
+</tr>
+<tr>
+<td>Dépendances entre équipes</td>
+<td>Jira, par des liens entre tickets</td>
+<td>Les Product Owners du train</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Statut</td>
+<td>Jira</td>
+<td>Personne : l'intégration le fait avancer</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Code, relecture, contrôles</td>
+<td>GitHub</td>
+<td>Les développeurs et les relecteurs</td>
+<td>Le panneau <em>Développement</em> du ticket</td>
+</tr>
+</tbody>
+</table>
+<p>Le contenu vit dans le dépôt, le pilotage dans Jira, et la passerelle entre les deux est automatique.</p>
+<h3>La passerelle</h3>
+<ol>
+<li><strong>Création.</strong> Quand Nadia valide une story dans le dépôt, l'agent crée le ticket par le connecteur Jira (chapitre M7), avec le titre, l'étiquette de risque et le lien vers le fichier. C'est la seule écriture qu'il fait dans Jira.</li>
+<li><strong>Rattachement.</strong> La clé dans la branche, les commits et le titre de la demande de fusion suffit : l'intégration entre GitHub Enterprise et Jira affiche tout dans le panneau <em>Développement</em> du ticket.</li>
+<li><strong>Avancement.</strong> Des règles d'automatisation de Jira, déclenchées par les événements de la forge, font passer le ticket en <em>En revue</em> à l'ouverture de la demande de fusion, et en <em>Terminé</em> à la fusion.</li>
+<li><strong>Rien d'autre.</strong> Le fichier de suivi de la méthode est supprimé (chapitre M9), et plus personne ne recopie.</li>
+</ol>
+<h3>Ce que l'agent lit avant de commencer</h3>
+<p>Le connecteur sert surtout en lecture. Une consigne du CLAUDE.md, ou de la personnalisation de la développeuse BMAD, le formalise :</p>
+<pre><code class="language-text">Avant de commencer une story, lis son ticket Jira : priorité, itération,
+dépendances. Si elle n'est pas dans l'itération en cours, ou si un ticket
+dont elle dépend n'est pas terminé, arrête-toi et dis-le.
+</code></pre>
+<p>Au chapitre 22, c'est exactement ce que la laine rouge du PI Planning rend visible : la story du proche dépend de l'espace adhérent d'une autre équipe, et reste sur sa branche quoi que fasse l'agent. Une équipe augmentée ne va pas plus vite que ses dépendances ; l'agent, au moins, doit le savoir avant de coder.</p>
+<h2>Mesurer le flux</h2>
+<p>Une fois le circuit en place, chaque story laisse dans GitHub et Jira une série d'horodatages : création du ticket, première branche, ouverture de la demande de fusion, première relecture, fusion. Ces traces suffisent à mesurer ce qui compte, sans formulaire de plus.</p>
+<h3>Les mesures utiles</h3>
+<table>
+<thead>
+<tr>
+<th>Mesure</th>
+<th>Calculée à partir de</th>
+<th>Ce qu'elle dit</th>
+<th>Dans le roman</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Attente avant relecture</td>
+<td>Ouverture de la demande de fusion, première relecture</td>
+<td>Où se trouve le goulot</td>
+<td>Chapitre 9</td>
+</tr>
+<tr>
+<td>Demandes en revue</td>
+<td>État des demandes de fusion ouvertes</td>
+<td>Si la limite de travail en cours tient</td>
+<td>Chapitre 9</td>
+</tr>
+<tr>
+<td>Délai de bout en bout</td>
+<td>Création du ticket, fusion</td>
+<td>Ce que vit le métier qui attend</td>
+<td>Chapitre 27</td>
+</tr>
+<tr>
+<td>Débit</td>
+<td>Stories terminées par semaine</td>
+<td>La base de toute prévision</td>
+<td>Chapitres 26 et 27</td>
+</tr>
+<tr>
+<td>Anomalies après fusion</td>
+<td>Tickets d'anomalie reliés à une story</td>
+<td>Si la vitesse se paie plus tard</td>
+<td>Chapitre 11</td>
+</tr>
+<tr>
+<td>Écarts de spécification</td>
+<td>Étiquette posée quand la démonstration révèle un malentendu</td>
+<td>Si les stories disent ce que le métier veut</td>
+<td>Chapitre 27</td>
+</tr>
+<tr>
+<td>Travail du soir</td>
+<td>Heure des commits</td>
+<td>Si l'équipe tient le rythme sans y laisser ses soirées</td>
+<td>Chapitre 11</td>
+</tr>
+<tr>
+<td>Coût par story</td>
+<td>Télémétrie de l'outil</td>
+<td>Ce que coûte une story livrée</td>
+<td>Chapitre M14</td>
+</tr>
+</tbody>
+</table>
+<h3>Faire calculer, puis figer le calcul</h3>
+<p>Au chapitre 11, Thomas obtient les vrais chiffres du sprint en dix minutes, en demandant à l'agent de les tirer de Jira et de GitHub. C'est le bon usage pour une première fois. Pour la suite, une précaution : un chiffre recalculé à chaque sprint par une conversation peut l'être un peu différemment chaque fois. On demande donc à l'agent d'écrire le script qui fait le calcul, on le relit, on le versionne, et c'est ce script qu'on relance ensuite. L'agent invente la mesure ; le script la reproduit.</p>
+<pre><code class="language-text">Écris un script qui calcule, pour les quatre dernières itérations, l'attente
+médiane avant première relecture, le débit hebdomadaire et le délai de bout
+en bout, à partir de Jira et de GitHub, en lecture seule. Range-le dans
+outils/mesures/ avec un README qui explique chaque calcul.
+</code></pre>
+<h3>Prévoir avec une fourchette</h3>
+<p>Au chapitre 27, la sponsor ne présente plus au comité une date, mais une fourchette assortie de probabilités, calculée sur le débit réel. La méthode est simple : à partir du débit des semaines passées, on simule de nombreuses fois le nombre de semaines nécessaires pour terminer le reste du périmètre, puis on lit le résultat comme une distribution, par exemple « huit semaines à 50 %, onze à 85 % ». Le même script de mesure peut produire cette simulation, à partir des seules données de Jira.</p>
+<p>Le chapitre 26 en tire la conséquence jusque dans son titre : la vélocité est morte. Quand une part du travail passe par des agents, les points d'effort disent de moins en moins le temps qu'il faudra. Le débit observé, lui, intègre tout, y compris la relecture, qui reste la vraie contrainte.</p>
+<h2>Dans le roman</h2>
+<table>
+<thead>
+<tr>
+<th>Chapitre</th>
+<th>Scène</th>
+<th>Ce qu'elle illustre ici</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8 — Quatre agents à la fois</td>
+<td>Quatre agents ouvrent quatre branches ; deux vivent assez longtemps pour diverger.</td>
+<td>Une story, une branche, courte, réunie dès qu'elle est relue.</td>
+</tr>
+<tr>
+<td>9 — Le goulot s'appelle Julien</td>
+<td>Quarante demandes de fusion pour un relecteur ; la limite de six en revue ; la préparation des relectures par un agent qui ne signe pas.</td>
+<td>La prérelecture dans la chaîne d'intégration ; la branche protégée qui exige un humain.</td>
+</tr>
+<tr>
+<td>13 — Mercredi noir</td>
+<td>Une ligne fautive écrite à la main, sans agent, attrapée par la chaîne en quatre minutes.</td>
+<td>Les contrôles obligatoires arrêtent aussi les humains.</td>
+</tr>
+<tr>
+<td>16 — La sécurité au quotidien</td>
+<td>La commission vérifie qu'on retrace une ligne de code en moins de quatre minutes.</td>
+<td>Les conventions qui relient chaque maillon par la clé du ticket.</td>
+</tr>
+<tr>
+<td>25 — Deux vérités</td>
+<td>Trois listes divergentes, une coordinatrice qui recopie chaque soir ; la règle « une information, un seul endroit ».</td>
+<td>Le contenu dans le dépôt, le pilotage dans Jira, une passerelle automatique.</td>
+</tr>
+<tr>
+<td>27 — Le sprint d'après</td>
+<td>Une story passe de son ticket à la fusion en une journée ; la sponsor présente une fourchette calculée sur le débit réel.</td>
+<td>Le circuit complet ; mesurer et prévoir à partir des traces.</td>
+</tr>
+</tbody>
+</table>
+<p>Pour aller plus loin : M4 (verrous sur le poste), M5 (la skill de préparation des relectures), M6 (hooks), M7 (connecteur Jira), M9 (spécifications BMAD), M13 (limiter le travail en cours), M14 (coût par story).</p>
+<h2>Sources</h2>
+<p>Consultées le 21 octobre 2026.</p>
+<ul>
+<li><a href="https://code.claude.com/docs/en/github-actions">Claude Code GitHub Actions</a></li>
+<li><a href="https://code.claude.com/docs/en/github-actions-cloud-providers">GitHub Actions avec Amazon Bedrock et les autres fournisseurs</a></li>
+<li><a href="https://code.claude.com/docs/en/github-enterprise-server">Claude Code et GitHub Enterprise Server</a></li>
+<li><a href="https://code.claude.com/docs/en/settings-reference">Référence des paramètres : attribution, includeGitInstructions</a></li>
+<li><a href="https://github.com/anthropics/claude-code-action/blob/main/docs/security.md">Action <code>anthropics/claude-code-action</code> : sécurité</a></li>
+<li><a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners">GitHub : propriétaires du code (CODEOWNERS)</a></li>
+<li><a href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect">GitHub : sécuriser les déploiements avec OpenID Connect</a></li>
+</ul></article><nav class="pager"><span><a href="f-m09-installer-et-configurer-bmad.html">← Installer et configurer BMAD</a></span><span><a href="f-m11-le-wiki-d-equipe-a-la-karpathy.html">Le wiki d&#x27;équipe à la Karpathy →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

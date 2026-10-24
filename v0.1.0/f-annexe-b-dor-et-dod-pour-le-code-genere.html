@@ -1,0 +1,424 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DoR et DoD pour le code généré — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Annexe B</div><h1>DoR et DoD pour le code généré</h1><h2>À quoi sert cette annexe</h2>
+<p>La définition de « prêt » (<em>Definition of Ready</em>, DoR) dit quand une story peut entrer dans une itération ; la définition de « terminé » (<em>Definition of Done</em>, DoD) dit quand elle peut en sortir. La seconde est un engagement du cadre Scrum ; la première est une pratique répandue, que beaucoup d'équipes formalisent.</p>
+<p>Avec un agent, les deux changent de poids. La définition de « prêt » devient la vraie porte d'entrée : une story mal préparée n'est plus codée lentement, elle est codée vite et de travers. La définition de « terminé » doit, elle, rester exigeante au moment même où produire du code ne coûte presque plus rien. Le roman le montre trois fois : au chapitre 9, l'agent produit plus que l'équipe ne peut relire ; au chapitre 10, des tests verts cachent quarante-sept anomalies ; au chapitre 17, une hypothèse silencieuse coûte une journée.</p>
+<p>Cette annexe donne les deux définitions telles que l'équipe du portail les applique à la fin de la phase 2, au format d'une liste à cocher qu'on peut copier dans <code>docs/definition-pret.md</code> et <code>docs/definition-termine.md</code>. Chaque critère renvoie au chapitre qui l'a fait naître.</p>
+<p>Deux principes les traversent :</p>
+<ul>
+<li><strong>Un critère se vérifie.</strong> « Story claire » ne se vérifie pas ; « hors-périmètre écrit » si.</li>
+<li><strong>Ce qui peut se vérifier par un programme se vérifie par un programme.</strong> Le reste revient à une personne nommée. La section <em>Qui vérifie quoi</em> fait le partage.</li>
+</ul>
+<h2>La définition de « prêt »</h2>
+<p>Une story n'entre dans l'itération que si chaque case est cochée. Une seule case vide, et elle retourne en préparation.</p>
+<pre><code class="language-markdown"># Définition de « prêt » — portail sinistres
+
+## Ce que la story demande
+- [ ] L'intention est écrite en une ou deux phrases : ce qui doit être vrai une fois la story finie.
+- [ ] Les critères d'acceptation sont écrits, et validés nommément par la Product Owner.
+- [ ] Le hors-périmètre est écrit : ce que la story ne fera pas, et pourquoi.
+
+## Ce qui la vérifiera
+- [ ] Les scénarios d'acceptation existent, écrits par le métier et la recette, et s'exécutent.
+- [ ] Les données de test nécessaires existent dans les jeux synthétiques.
+
+## Ce qui pourrait la bloquer
+- [ ] Aucune question ouverte ne bloque le travail ; chaque question restante a un nom et une date.
+- [ ] Les dépendances sont liées dans Jira, et terminées ou planifiées avant elle.
+- [ ] Si elle touche le système des contrats : les pages du wiki concernées sont relues par l'expert.
+
+## Sa taille et son risque
+- [ ] Elle tient en une session de l'agent ; sinon, elle est redécoupée par comportement.
+- [ ] Son niveau de risque est attribué : vert, orange ou rouge.
+
+## Son ticket
+- [ ] Le ticket Jira existe, porte l'étiquette de risque, la priorité et l'itération.
+</code></pre>
+<h3>D'où viennent ces critères</h3>
+<table>
+<thead>
+<tr>
+<th>Critère</th>
+<th>Ce qu'il évite</th>
+<th>D'où il vient</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Intention, critères validés, hors-périmètre</td>
+<td>Une story que l'agent complète par des hypothèses</td>
+<td>Chapitres 22 et 23 ; M9</td>
+</tr>
+<tr>
+<td>Scénarios exécutables avant le code</td>
+<td>Des tests écrits par l'agent d'après son propre code</td>
+<td>Chapitre 10 ; M13</td>
+</tr>
+<tr>
+<td>Données synthétiques disponibles</td>
+<td>La tentation de tester sur un vrai dossier</td>
+<td>Chapitre 13</td>
+</tr>
+<tr>
+<td>Questions ouvertes nommées et datées</td>
+<td>Une question qui reste sans réponse jusqu'à la recette</td>
+<td>Chapitre 22 ; M3</td>
+</tr>
+<tr>
+<td>Dépendances liées</td>
+<td>Une story codée qui attend sur sa branche</td>
+<td>Chapitre 22 ; M10</td>
+</tr>
+<tr>
+<td>Pages du wiki relues</td>
+<td>Un sens deviné dans un programme ancien</td>
+<td>Chapitre 17 ; M11</td>
+</tr>
+<tr>
+<td>Une session au plus</td>
+<td>Une demande de fusion trop grosse pour être relue</td>
+<td>Chapitre 9 ; M13</td>
+</tr>
+<tr>
+<td>Niveau de risque</td>
+<td>Une relecture trop légère sur une story sensible</td>
+<td>Chapitre 16 ; M13</td>
+</tr>
+<tr>
+<td>Ticket Jira complet</td>
+<td>Une story invisible pour le pilotage</td>
+<td>Chapitre 25 ; M10</td>
+</tr>
+</tbody>
+</table>
+<p>Le critère des scénarios est le plus coûteux à tenir, et le plus rentable. Au chapitre 10, pour quinze des anomalies relevées par Émilie, le cas de test existait déjà dans Jira avant que l'agent commence à coder ; il manquait seulement qu'il serve d'entrée.</p>
+<h2>La définition de « terminé »</h2>
+<p>Une story n'est terminée que lorsque toutes les cases sont cochées. « Le code est écrit » n'en est qu'une parmi d'autres.</p>
+<pre><code class="language-markdown"># Définition de « terminé » — portail sinistres
+
+## Ce que l'agent a produit
+- [ ] La spécification porte le nom de qui l'a approuvée.
+- [ ] Les scénarios ont échoué, puis passé, sans avoir été modifiés ; la sortie est jointe.
+- [ ] Les tests unitaires utiles sont ajoutés.
+- [ ] Tout écart au plan approuvé a été signalé et accepté.
+- [ ] Aucune dépendance n'est ajoutée sans accord du référent technique.
+
+## Ce que la chaîne a vérifié
+- [ ] Tous les contrôles obligatoires sont verts : construction, tests, scénarios, journaux
+      sans données personnelles, détection de secrets, clé Jira, spécification approuvée,
+      seuils de qualité.
+
+## Ce que des personnes ont vérifié
+- [ ] La prérelecture est faite, et chacun de ses points est retenu ou écarté avec sa raison.
+- [ ] Les propriétaires des fichiers touchés ont approuvé, à la profondeur que demande le risque.
+- [ ] Le relecteur sait expliquer le changement.
+- [ ] La testeuse a exploré la story après le vert.
+
+## Ce qui reste après la story
+- [ ] Ce qu'on a appris sur une règle de gestion est versé au wiki ; une décision est enregistrée.
+- [ ] La demande de fusion est fusionnée, la branche supprimée ; le ticket est passé à « Terminé »
+      par l'intégration.
+- [ ] La story est démontrable au métier, sur l'environnement de recette.
+</code></pre>
+<h3>D'où viennent ces critères</h3>
+<table>
+<thead>
+<tr>
+<th>Critère</th>
+<th>Ce qu'il évite</th>
+<th>D'où il vient</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spécification approuvée par une personne nommée</td>
+<td>Un point d'arrêt sauté par une phrase de la consigne</td>
+<td>M9</td>
+</tr>
+<tr>
+<td>Scénarios rouges puis verts, intouchés, avec la sortie</td>
+<td>Des tests qui ne prouvent rien ; une réussite affirmée sans preuve</td>
+<td>Chapitre 10 ; M13</td>
+</tr>
+<tr>
+<td>Écarts au plan signalés</td>
+<td>Une modification hors du périmètre approuvé</td>
+<td>M13</td>
+</tr>
+<tr>
+<td>Aucune dépendance sans accord</td>
+<td>Une bibliothèque que personne n'a choisie</td>
+<td>M4</td>
+</tr>
+<tr>
+<td>Contrôles obligatoires</td>
+<td>Une erreur qui passe parce qu'on était pressé, agent ou humain</td>
+<td>Chapitre 13 ; M10</td>
+</tr>
+<tr>
+<td>Prérelecture triée</td>
+<td>Une fiche suivie aveuglément, ou ignorée</td>
+<td>Chapitre 9 ; M5</td>
+</tr>
+<tr>
+<td>Approbation des propriétaires, selon le risque</td>
+<td>Un scénario ou un hook modifié sans son responsable</td>
+<td>Chapitre 16 ; M10</td>
+</tr>
+<tr>
+<td>Le relecteur sait expliquer</td>
+<td>Du code fusionné que plus personne ne comprend</td>
+<td>M13</td>
+</tr>
+<tr>
+<td>Exploration après le vert</td>
+<td>Ce que personne n'avait prévu</td>
+<td>Chapitre 27</td>
+</tr>
+<tr>
+<td>Savoir versé au wiki</td>
+<td>Une règle découverte puis oubliée</td>
+<td>Chapitres 17 et 24 ; M11</td>
+</tr>
+<tr>
+<td>Ticket passé par l'intégration</td>
+<td>Une double saisie, une deuxième vérité</td>
+<td>Chapitre 25 ; M10</td>
+</tr>
+<tr>
+<td>Démontrable au métier</td>
+<td>Une story techniquement finie qui ne répond pas au besoin</td>
+<td>Chapitre 27</td>
+</tr>
+</tbody>
+</table>
+<p>Trois critères sont propres au code produit par un agent, et n'existaient pas dans la définition de l'équipe avant l'arrivée de l'agent : la preuve jointe plutôt qu'une affirmation, le signalement des écarts au plan, et la capacité du relecteur à expliquer ce qu'il approuve.</p>
+<h2>Qui vérifie quoi</h2>
+<p>Une liste à cocher que chacun coche de bonne foi finit par être cochée par habitude. La règle du chapitre M10 s'applique ici aussi : ce qu'un programme peut vérifier, un programme le vérifie, et bloque ; le reste revient à une personne nommée.</p>
+<h3>La définition de « prêt »</h3>
+<table>
+<thead>
+<tr>
+<th>Critère</th>
+<th>Vérifié par</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ticket complet : étiquette de risque, priorité, itération</td>
+<td>Jira</td>
+<td>Une règle de flux refuse le passage à <em>Prêt</em> si un champ manque</td>
+</tr>
+<tr>
+<td>Dépendances terminées ou planifiées</td>
+<td>Jira</td>
+<td>Les liens entre tickets, visibles au tableau du train</td>
+</tr>
+<tr>
+<td>Scénarios existants et exécutables</td>
+<td>La chaîne d'intégration</td>
+<td>Un contrôle vérifie qu'un fichier de scénarios porte la clé de la story et se lit sans erreur</td>
+</tr>
+<tr>
+<td>Intention, critères validés, hors-périmètre</td>
+<td>La Product Owner</td>
+<td>Sa validation nominative dans la story</td>
+</tr>
+<tr>
+<td>Scénarios et données de test</td>
+<td>La testeuse et le métier</td>
+<td>Ils les écrivent ; leur nom figure dans le fichier des propriétaires</td>
+</tr>
+<tr>
+<td>Questions ouvertes, pages du wiki relues</td>
+<td>Le référent technique, l'expert</td>
+<td>Au moment de la préparation</td>
+</tr>
+<tr>
+<td>Taille</td>
+<td>L'équipe</td>
+<td>Lors de l'affinage, en se demandant si la story tient en une session</td>
+</tr>
+</tbody>
+</table>
+<h3>La définition de « terminé »</h3>
+<table>
+<thead>
+<tr>
+<th>Critère</th>
+<th>Vérifié par</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spécification approuvée</td>
+<td>La chaîne d'intégration</td>
+<td>Le contrôle de la ligne <em>Approuvé par</em> (M10)</td>
+</tr>
+<tr>
+<td>Scénarios intouchés</td>
+<td>Le poste et le serveur</td>
+<td>L'interdiction d'écriture (M4) et le fichier des propriétaires (M10)</td>
+</tr>
+<tr>
+<td>Contrôles obligatoires</td>
+<td>La chaîne d'intégration</td>
+<td>Les contrôles déclarés obligatoires sur la branche principale</td>
+</tr>
+<tr>
+<td>Approbation des propriétaires</td>
+<td>GitHub</td>
+<td>La branche protégée</td>
+</tr>
+<tr>
+<td>Ticket passé à <em>Terminé</em></td>
+<td>L'intégration GitHub et Jira</td>
+<td>À la fusion, sans saisie</td>
+</tr>
+<tr>
+<td>Prérelecture triée, écarts au plan</td>
+<td>Le relecteur</td>
+<td>En lisant la fiche et la spécification</td>
+</tr>
+<tr>
+<td>Le relecteur sait expliquer</td>
+<td>Le relecteur lui-même</td>
+<td>La cinquième question du chapitre M13</td>
+</tr>
+<tr>
+<td>Exploration</td>
+<td>La testeuse</td>
+<td>Avant la fusion des stories orange et rouges, après pour les vertes</td>
+</tr>
+<tr>
+<td>Savoir versé au wiki</td>
+<td>Le développeur, avec l'expert</td>
+<td>Une demande de fusion sur le wiki, liée à la story</td>
+</tr>
+<tr>
+<td>Démontrable au métier</td>
+<td>La Product Owner</td>
+<td>À la démonstration de fin d'itération</td>
+</tr>
+</tbody>
+</table>
+<p>Les critères vérifiés par un programme ne se discutent pas : une demande de fusion qui ne les remplit pas ne peut pas être fusionnée. Les critères humains, eux, se discutent en rétrospective quand ils glissent ; c'est le rôle des signes d'alerte du chapitre M13.</p>
+<h2>Selon le niveau de risque</h2>
+<p>Les deux définitions valent pour toutes les stories. Le niveau de risque, attribué en préparation, règle la profondeur de certaines vérifications ; il n'en supprime aucune.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Vert</th>
+<th>Orange</th>
+<th>Rouge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exemples</td>
+<td>Libellé, documentation, configuration sans effet métier</td>
+<td>Règle de gestion, écran, intégration avec un autre système</td>
+<td>Données personnelles, sécurité, paiement, système des contrats</td>
+</tr>
+<tr>
+<td>Préparation</td>
+<td>La définition de « prêt »</td>
+<td>La même, avec des scénarios qui couvrent les cas limites connus</td>
+<td>La même, avec les pages du wiki relues par l'expert, et des tests de caractérisation si le système ancien est touché</td>
+</tr>
+<tr>
+<td>Relecture</td>
+<td>Un relecteur, lecture de la fiche de prérelecture</td>
+<td>Un relecteur, lecture complète</td>
+<td>Deux relecteurs, dont un qui connaît le cœur de gestion</td>
+</tr>
+<tr>
+<td>Sécurité</td>
+<td>—</td>
+<td>—</td>
+<td>La sécurité relit si des données personnelles sont en jeu</td>
+</tr>
+<tr>
+<td>Exploration</td>
+<td>Après la fusion, par sondage</td>
+<td>Avant la fusion</td>
+<td>Avant la fusion, avec un jeu de données dédié</td>
+</tr>
+<tr>
+<td>Démonstration</td>
+<td>À la fin de l'itération</td>
+<td>À la fin de l'itération</td>
+<td>À la Product Owner, avant la fusion</td>
+</tr>
+</tbody>
+</table>
+<p>La prérelecture peut proposer de relever le niveau, jamais de l'abaisser. Une story qui change de niveau en cours de route repasse par la définition de « prêt » du niveau supérieur.</p>
+<h3>Le cas de l'urgence</h3>
+<p>Une correction de production ne dispense d'aucune case ; elle en change l'ordre. La story est préparée en quelques minutes, le scénario qui reproduit l'anomalie est écrit avant le correctif, et la relecture se fait en direct, à deux. Au chapitre 13, c'est un test de la chaîne qui a trouvé la ligne fautive en quatre minutes : les contrôles automatiques sont précisément ce qui permet d'aller vite sans aller à l'aveugle.</p>
+<h2>Faire vivre ces définitions</h2>
+<h3>Qui en répond</h3>
+<p>La définition de « prêt » appartient à la Product Owner, avec l'équipe ; celle de « terminé », à l'équipe, avec le référent technique. Toutes deux sont versionnées dans <code>docs/</code>, inscrites au registre des propriétaires (M12), et ne changent que par une demande de fusion, discutée en rétrospective.</p>
+<h3>Quand les changer</h3>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Ce qu'on fait</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Une anomalie trouvée en recette qu'un critère aurait arrêtée</td>
+<td>On ajoute le critère, au bon niveau de risque</td>
+</tr>
+<tr>
+<td>Un critère que personne ne sait vérifier</td>
+<td>On le reformule pour qu'il se vérifie, ou on le retire</td>
+</tr>
+<tr>
+<td>Un critère qu'un programme peut désormais vérifier</td>
+<td>On l'automatise, et il passe dans la colonne de la chaîne</td>
+</tr>
+<tr>
+<td>Des cases cochées par habitude</td>
+<td>On en parle en rétrospective, chiffres à l'appui</td>
+</tr>
+</tbody>
+</table>
+<p>L'indicateur qui dit si la définition de « terminé » remplit son rôle est le taux de retouche du chapitre M14. Au début, le temps de traversée monte : c'est attendu, et c'est ce que montre le chapitre 9 quand la vitesse affichée baisse en même temps que l'attente.</p>
+<h3>Faire vérifier par l'agent, faire décider par l'équipe</h3>
+<p>L'agent sait lire une liste à cocher. Deux lignes dans le CLAUDE.md lui font vérifier les deux définitions, sans lui en confier la décision :</p>
+<pre><code class="language-markdown">- Avant de commencer une story, vérifie docs/definition-pret.md. Si une case n'est
+  pas remplie, arrête-toi et dis laquelle.
+- Avant d'ouvrir la demande de fusion, vérifie docs/definition-termine.md et liste,
+  dans la description, les cases qui restent à cocher par une personne.
+</code></pre>
+<p>L'agent signale ce qui manque ; il ne coche pas à la place des personnes qui en répondent.</p>
+<h2>Renvois</h2>
+<ul>
+<li>M9 — BMAD : la spécification et son approbation</li>
+<li>M10 — GitHub et Jira : contrôles obligatoires, branche protégée, fichier des propriétaires</li>
+<li>M11 — Le wiki : verser ce qu'on apprend</li>
+<li>M13 — Bonnes pratiques : petites stories, tests d'abord, relecture, niveaux de risque</li>
+<li>M14 — Dépannage et coûts : le taux de retouche</li>
+<li>Annexe A — Modèle de CLAUDE.md</li>
+</ul>
+<p>Source, consultée le 23 octobre 2026 : <a href="https://scrumguides.org/scrum-guide.html">Le Guide Scrum, 2020</a>, pour la définition de « terminé » comme engagement de l'incrément.</p></article><nav class="pager"><span><a href="f-annexe-a-modele-de-claude-md.html">← Modèle de CLAUDE.md</a></span><span><a href="f-annexe-c-gabarit-de-specification.html">Gabarit de spécification →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

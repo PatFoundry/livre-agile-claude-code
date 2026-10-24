@@ -1,0 +1,437 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Partager en équipe — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Chapitre M12</div><h1>Partager en équipe</h1><h2>Ce que couvre ce chapitre</h2>
+<p>Un agent bien réglé sur le poste d'un seul développeur ne fait pas une équipe outillée. Les chapitres précédents ont produit des fichiers : un CLAUDE.md, des règles, des paramètres, des skills, des sous-agents, des hooks, des connecteurs, un wiki. Ce chapitre dit lesquels se partagent et lesquels restent personnels, comment les faire vivre à plusieurs sans qu'ils se dégradent, comment accueillir quelqu'un qui arrive, et comment un savoir-faire passe d'une personne à une équipe, puis à toute la maison.</p>
+<p>Le roman en montre le mouvement. Au chapitre 18, l'équipe découvre que ses rôles ont bougé, et Sofiane empaquette ses savoir-faire en skills partageables, chacune avec une propriétaire ; Nadia relit la sienne, la trouve fausse, la corrige, et en devient responsable. Au chapitre 22, une équipe du prestataire Horizon s'apprête à travailler avec les mêmes outils, et Émilie, plutôt que le poste qu'on lui offre, propose de former leurs testeurs. Au chapitre 27, une testeuse qui vient d'arriver comprend une story le matin même.</p>
+<blockquote>
+<p><strong>Version de référence.</strong> Claude Code 2.1.301, publiée le 15 octobre 2026, avec la configuration Bedrock du chapitre M1.</p>
+</blockquote>
+<p>La question de fond n'est pas technique : un fichier partagé est un engagement. Quelqu'un en répond, quelqu'un le relit, et quelqu'un le retire quand il ne sert plus.</p>
+<h2>Ce qui se partage, et à quel niveau</h2>
+<p>Chaque fichier de configuration a sa place naturelle, à l'un de trois niveaux. La règle tient en une phrase : <strong>une obligation va dans les paramètres gérés, une consigne utile à tous va dans le dépôt, une préférence reste sur le poste.</strong></p>
+<blockquote>
+<p><em>Schéma (version numérique) : où vit chaque fichier · le dépôt porte ce que l'équipe partage.</em></p>
+</blockquote>
+<h3>Le détail, fichier par fichier</h3>
+<table>
+<thead>
+<tr>
+<th>Fichier</th>
+<th>Versionné</th>
+<th>Qui en répond</th>
+<th>Chapitre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE.md</code> et <code>.claude/rules/</code></td>
+<td>Oui</td>
+<td>Le référent technique ; la Product Owner pour le glossaire</td>
+<td>M3</td>
+</tr>
+<tr>
+<td><code>.claude/settings.json</code></td>
+<td>Oui</td>
+<td>Le référent technique, avec la sécurité</td>
+<td>M4</td>
+</tr>
+<tr>
+<td><code>.claude/skills/</code></td>
+<td>Oui</td>
+<td>La propriétaire de chaque skill</td>
+<td>M5</td>
+</tr>
+<tr>
+<td><code>.claude/agents/</code></td>
+<td>Oui</td>
+<td>Le référent technique</td>
+<td>M5</td>
+</tr>
+<tr>
+<td><code>.claude/agent-memory/</code></td>
+<td>Oui, par défaut : à décider</td>
+<td>Le référent technique</td>
+<td>M5</td>
+</tr>
+<tr>
+<td>Hooks du projet, dans <code>.claude/settings.json</code></td>
+<td>Oui</td>
+<td>Le référent technique, avec la sécurité</td>
+<td>M6</td>
+</tr>
+<tr>
+<td><code>.mcp.json</code></td>
+<td>Oui, sans aucun secret</td>
+<td>Le référent technique</td>
+<td>M7</td>
+</tr>
+<tr>
+<td><code>.worktreeinclude</code></td>
+<td>Oui</td>
+<td>Le référent technique</td>
+<td>M5</td>
+</tr>
+<tr>
+<td><code>_bmad/</code> et <code>_bmad/custom/</code></td>
+<td>Oui, sauf deux fichiers</td>
+<td>Le référent technique</td>
+<td>M9</td>
+</tr>
+<tr>
+<td><code>wiki/</code></td>
+<td>Oui</td>
+<td>Le propriétaire du wiki</td>
+<td>M11</td>
+</tr>
+<tr>
+<td><code>CLAUDE.local.md</code></td>
+<td>Non</td>
+<td>Chacun</td>
+<td>M3</td>
+</tr>
+<tr>
+<td><code>.claude/settings.local.json</code></td>
+<td>Non</td>
+<td>Chacun</td>
+<td>M4</td>
+</tr>
+<tr>
+<td><code>~/.claude/</code> : réglages, skills et consignes personnels</td>
+<td>Non</td>
+<td>Chacun</td>
+<td>M3 à M5</td>
+</tr>
+<tr>
+<td><code>~/.claude/projects/</code> : mémoire automatique et transcriptions</td>
+<td>Jamais</td>
+<td>Chacun</td>
+<td>M2, M3</td>
+</tr>
+<tr>
+<td>Paramètres gérés, CLAUDE.md géré, plugin du socle</td>
+<td>Hors du dépôt</td>
+<td>La DSI</td>
+<td>M4, M8</td>
+</tr>
+</tbody>
+</table>
+<p>Une ligne mérite attention. Un sous-agent qui déclare une mémoire de projet écrit ses notes dans <code>.claude/agent-memory/</code>, que l'outil considère comme destiné à être versionné. Ces notes deviennent alors du contexte pour toute l'équipe, sans relecture humaine préalable. La configuration de référence les fait passer par une demande de fusion comme le reste, ou choisit la mémoire locale, qui reste sur le poste.</p>
+<h3>Comment les niveaux se combinent</h3>
+<p>Les consignes, CLAUDE.md et règles, s'additionnent : l'agent lit celles de l'entreprise, de l'équipe et de la personne. Les paramètres, eux, se superposent selon l'ordre du chapitre M4, et ce qu'impose l'entreprise ne peut pas être levé par l'équipe ni par la personne. Une préférence personnelle peut donc ajouter une autorisation pour son confort ; elle ne peut pas lever une interdiction.</p>
+<h2>Les fichiers personnels</h2>
+<h3>Le bloc du .gitignore</h3>
+<p>Le <code>.gitignore</code> du dépôt écarte, pour tout le monde, les fichiers qui ne doivent pas être partagés :</p>
+<pre><code class="language-text"># Claude Code : fichiers personnels
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/agent-memory-local/
+.claude/worktrees/
+
+# BMAD : préférences de chacun et fichiers de travail
+_bmad/config.user.toml
+_bmad/custom/*.user.toml
+_bmad/render/
+
+# Secrets
+.env
+.env.*
+</code></pre>
+<p>Deux précisions. Quand l'outil enregistre un réglage dans <code>.claude/settings.local.json</code>, il ajoute ce fichier aux exclusions Git personnelles du développeur, pas au <code>.gitignore</code> du dépôt : seul ce dernier protège toute l'équipe, y compris le jour où quelqu'un crée le fichier à la main. Et <code>CLAUDE.local.md</code> n'est jamais créé par l'outil ; on l'écarte avant que quelqu'un en ait besoin.</p>
+<h3>Ce qui ne quitte jamais le poste</h3>
+<p>Le dossier <code>~/.claude/projects/</code> contient la mémoire automatique de l'agent et la transcription intégrale de chaque session : chaque message, chaque commande, chaque contenu de fichier lu. Ces fichiers sont en clair. Trois règles en découlent :</p>
+<ol>
+<li><strong>On ne les copie nulle part</strong> : ni dans le dépôt, ni dans un ticket, ni dans une messagerie. Pour partager ce qu'une session a appris, on écrit une ligne dans le CLAUDE.md ou une page dans le wiki, relue comme le reste.</li>
+<li><strong>On les garde peu de temps.</strong> L'outil efface les transcriptions au-delà de trente jours par défaut ; les paramètres gérés de la configuration de référence ramènent ce délai à quatorze jours avec <code>"cleanupPeriodDays": 14</code>.</li>
+<li><strong>On les efface à la fin d'un projet.</strong> <code>claude purge &lt;chemin du projet&gt;</code> supprime les transcriptions, la mémoire automatique et l'historique propres à ce projet, après avoir affiché ce qui sera effacé.</li>
+</ol>
+<h3>Vérifier que rien ne s'échappe</h3>
+<p>Un fichier personnel versionné par erreur ne se voit pas : il se charge chez tout le monde, sans bruit. Le contrôle des conventions du chapitre M10 reçoit donc une ligne de plus, qui échoue si l'un de ces fichiers est suivi par Git :</p>
+<pre><code class="language-bash">test -z &quot;$(git ls-files CLAUDE.local.md .claude/settings.local.json _bmad/config.user.toml)&quot; \
+  || { echo &quot;Un fichier personnel est versionné.&quot;; exit 1; }
+</code></pre>
+<h2>Faire vivre les fichiers partagés</h2>
+<h3>Le propriétaire est celui qui sait</h3>
+<p>Au chapitre 18, Sofiane a écrit la skill qui décrit comment un gestionnaire recueille une déclaration. Nadia la lit et l'arrête net : elle ne pose jamais les questions dans cet ordre. Parler des pièces justificatives trop tôt, c'est laisser croire à l'assuré qu'on le soupçonne ; elle commence par ce qui s'est passé, puis par ce qu'il a déjà fait pour limiter les dégâts. Elle corrige la skill, et en devient la propriétaire.</p>
+<p>La règle est là : le propriétaire d'un fichier partagé n'est pas celui qui l'a écrit, mais celui qui sait si ce qu'il dit est juste. L'agent ou le développeur rédigent ; le métier, la recette, la sécurité répondent du contenu qui les concerne.</p>
+<h3>Le registre des propriétaires</h3>
+<p>Un tableau, versionné à la racine du dépôt, dit qui répond de quoi. Le chapitre 22 lui ajoute une colonne : qui le lit.</p>
+<table>
+<thead>
+<tr>
+<th>Fichier</th>
+<th>Propriétaire</th>
+<th>Lu par</th>
+<th>Dernière revue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE.md</code></td>
+<td>Julien</td>
+<td>Toute l'équipe, tous les agents</td>
+<td>Septembre</td>
+</tr>
+<tr>
+<td>Glossaire, dans <code>CLAUDE.md</code></td>
+<td>Nadia</td>
+<td>Toute l'équipe, tous les agents</td>
+<td>Septembre</td>
+</tr>
+<tr>
+<td>Skill <code>preparer-story</code></td>
+<td>Nadia</td>
+<td>Sofiane, l'agent</td>
+<td>Octobre</td>
+</tr>
+<tr>
+<td>Skill <code>ecrire-scenarios</code></td>
+<td>Émilie</td>
+<td>L'équipe, l'agent</td>
+<td>Octobre</td>
+</tr>
+<tr>
+<td>Skill <code>prepare-relecture</code></td>
+<td>Julien</td>
+<td>Les relecteurs</td>
+<td>Octobre</td>
+</tr>
+<tr>
+<td>Hooks et <code>.claude/settings.json</code></td>
+<td>Julien</td>
+<td>Mathilde</td>
+<td>Octobre</td>
+</tr>
+<tr>
+<td><code>wiki/</code></td>
+<td>Julien</td>
+<td>L'équipe, les agents, Horizon</td>
+<td>Octobre</td>
+</tr>
+</tbody>
+</table>
+<p>Un fichier sans propriétaire est retiré ou attribué ; un fichier sans lecteur n'aurait pas dû être écrit. Le fichier des propriétaires du chapitre M10 traduit ce tableau en approbations obligatoires.</p>
+<h3>Chaque changement se relit et se dit</h3>
+<p>Modifier une ligne de CLAUDE.md ou d'une skill change le comportement de tous les agents de l'équipe. Cela passe donc par une demande de fusion, approuvée par le propriétaire, avec dans la description une phrase de plus que pour du code : <strong>ce qui change pour l'agent</strong>. Par exemple : « l'agent demandera désormais la date de survenance avant les pièces justificatives ».</p>
+<p>Pour une skill importante, on vérifie le changement avant de le fusionner : une story rejouée avec l'ancienne et la nouvelle version, ou les évaluations du chapitre M8 quand la skill vit dans un plugin.</p>
+<h3>Une revue mensuelle de trente minutes</h3>
+<p>Les fichiers partagés se dégradent comme le code, en silence. Une fois par mois, l'équipe passe le registre en revue :</p>
+<ul>
+<li><strong>Ce qui ne sert plus</strong> : une skill que personne n'appelle, une règle que personne ne sait expliquer. Le bilan <code>/doctor</code> signale les extensions inutilisées.</li>
+<li><strong>Ce qui manque</strong> : une erreur que l'agent a refaite deux fois appelle une ligne nouvelle, au bon niveau.</li>
+<li><strong>Ce qui se contredit</strong> : deux fichiers qui disent l'inverse, ou une règle d'équipe qui heurte le socle.</li>
+<li><strong>Ce qui grossit</strong> : un CLAUDE.md qui dépasse deux cents lignes se découpe en règles, chapitre M3.</li>
+</ul>
+<p>La date de la revue s'inscrit dans la dernière colonne du registre. C'est elle qui dit, à un nouveau venu, si ce qu'il lit est encore vrai.</p>
+<h2>Accueillir un nouveau</h2>
+<p>Au chapitre 27, une testeuse qui vient d'arriver comprend une story le matin même. Ce n'est pas un hasard : la story porte ses exigences, ses décisions, ce que fait le système existant, ses scénarios et son hors-périmètre. Tout ce qu'un nouveau doit savoir pour travailler est écrit, versionné, et lisible par lui comme par l'agent. L'accueil consiste surtout à lui montrer où.</p>
+<h3>Ce qu'il reçoit sans rien faire</h3>
+<table>
+<thead>
+<tr>
+<th>De</th>
+<th>Ce qui arrive</th>
+<th>Chapitre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>La DSI, avec son poste</td>
+<td>L'outil à la version de référence, la configuration Bedrock, les paramètres gérés, le CLAUDE.md géré, le plugin du socle, les serveurs MCP fournis</td>
+<td>M1, M4, M7, M8</td>
+</tr>
+<tr>
+<td>Le dépôt, au premier clonage</td>
+<td>Le CLAUDE.md et les règles, les skills, les sous-agents, les hooks, le wiki, la méthode</td>
+<td>M3, M5, M6, M9, M11</td>
+</tr>
+</tbody>
+</table>
+<h3>Ce qu'il fait le premier jour</h3>
+<ol>
+<li><strong>Cloner le dépôt et ouvrir l'outil.</strong> À la première ouverture, l'outil demande s'il fait confiance au dossier : les autorisations, les hooks et les serveurs du projet ne s'appliquent qu'après. On lit <code>.claude/settings.json</code> avec le référent avant d'accepter.</li>
+<li><strong>Se connecter à Jira</strong>, par <code>/mcp</code>, avec sa propre identité.</li>
+<li><strong>Vérifier que tout est là</strong> : <code>/status</code> doit citer les paramètres gérés parmi les sources de réglages, <code>/memory</code> liste les CLAUDE.md chargés, <code>/plugin</code> montre le socle, <code>claude mcp list</code> les serveurs connectés.</li>
+<li><strong>Lire trois documents</strong> : le registre des propriétaires, l'index du wiki, et la story qu'il va prendre.</li>
+<li><strong>Faire sa première story en binôme</strong>, en mode plan, avec le référent ou un développeur de l'équipe. Il voit l'agent poser ses questions, relit son plan, regarde la prérelecture.</li>
+</ol>
+<p>Ses préférences viendront après une semaine, dans <code>CLAUDE.local.md</code> et <code>.claude/settings.local.json</code>, jamais dans les fichiers partagés.</p>
+<h3>Une skill d'accueil</h3>
+<p>Le déroulé se prête à une skill, que le nouveau lance lui-même :</p>
+<pre><code class="language-markdown">---
+name: accueil
+description: Présente l'outillage de l'équipe à une personne qui arrive. À lancer à la main.
+disable-model-invocation: true
+---
+
+Une personne arrive dans l'équipe. En t'appuyant sur CLAUDE.md, le registre des
+propriétaires et wiki/index.md :
+
+1. Explique en une page comment l'équipe travaille avec toi : le circuit d'une
+   story, ce que tu fais, ce que tu ne fais pas, qui relit quoi.
+2. Liste les skills de l'équipe, chacune avec sa propriétaire et son usage.
+3. Vérifie avec moi que les paramètres gérés, le socle et Jira sont en place.
+4. Propose trois pages du wiki à lire en premier, d'après la story qu'on m'a confiée.
+
+Ne modifie aucun fichier.
+</code></pre>
+<p>Elle ne remplace pas le binôme ; elle lui évite de passer la matinée à expliquer où sont les fichiers.</p>
+<h3>Ce que le nouveau doit entendre d'un humain</h3>
+<p>Trois choses ne se délèguent pas à une skill, parce qu'elles engagent la confiance : on n'utilise que des données synthétiques ; quand l'agent rencontre un secret, on s'arrête et on prévient ; et l'on ne fusionne jamais ce qu'on n'a pas relu soi-même. Le socle les impose techniquement ; le référent les dit, le premier jour, à voix haute.</p>
+<h2>De la personne au socle</h2>
+<p>Une skill naît presque toujours sur le poste de quelqu'un, pour régler un problème à lui. Certaines restent là. D'autres servent à un collègue, puis à l'équipe, puis à une équipe voisine. Le chemin est toujours le même, et chaque marche a sa porte.</p>
+<blockquote>
+<p><em>Schéma (version numérique) : les quatre niveaux de diffusion · chacun a sa porte.</em></p>
+</blockquote>
+<h3>Les portes</h3>
+<table>
+<thead>
+<tr>
+<th>Pour passer</th>
+<th>Il faut</th>
+<th>Le geste technique</th>
+<th>Chapitre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>De personnelle à d'équipe</td>
+<td>Qu'une deuxième personne s'en serve ; qu'une propriétaire l'accepte ; qu'elle ait été relue par celui qui sait</td>
+<td>Déplacer le dossier dans <code>.claude/skills/</code>, par demande de fusion</td>
+<td>M5</td>
+</tr>
+<tr>
+<td>D'équipe au catalogue</td>
+<td>Qu'une autre équipe en ait besoin ; qu'elle ne dépende plus d'un détail propre à l'équipe d'origine ; qu'elle ait des évaluations</td>
+<td>L'empaqueter dans un plugin, l'inscrire au catalogue interne</td>
+<td>M8</td>
+</tr>
+<tr>
+<td>Du catalogue au socle</td>
+<td>Qu'elle protège tout le monde ; que la commission sécurité l'accepte ; que le socle tienne toujours en deux pages</td>
+<td>L'ajouter au plugin du socle, activé d'office par les paramètres gérés</td>
+<td>M8</td>
+</tr>
+</tbody>
+</table>
+<p>La deuxième porte est celle qu'on oublie. Une skill d'équipe parle souvent du glossaire, des dossiers, des personnes de l'équipe ; avant de la proposer à d'autres, on retire ces détails ou on les transforme en paramètres.</p>
+<h3>Ne pas copier</h3>
+<p>Le réflexe naturel, quand une équipe voisine veut la skill de préparation des relectures, est de copier le dossier dans son dépôt. Trois mois plus tard, il existe deux versions, chacune corrigée de son côté. Dès qu'une skill sert à deux équipes, elle passe par le catalogue : une seule source, une seule propriétaire, et des versions que chaque équipe reçoit.</p>
+<h3>Descendre aussi</h3>
+<p>Le chemin se parcourt dans les deux sens. Une skill du catalogue que plus personne n'appelle se retire ; une règle du socle devenue inutile en sort, pour que le socle reste court. La revue mensuelle de l'équipe et la revue trimestrielle du catalogue sont les moments prévus pour cela.</p>
+<h3>Ce qui ne monte pas</h3>
+<p>Tout ne gagne pas à être partagé. Une skill qui encode la façon de travailler d'une personne, ses raccourcis, ses habitudes de rédaction, reste personnelle. Une skill qui encode le savoir d'un domaine, la déclaration de sinistre ou la règle de franchise, monte jusqu'à l'équipe, rarement au-delà : d'autres équipes ont d'autres domaines. Ce qui monte jusqu'au catalogue, ce sont surtout les savoir-faire de métier de développement : préparer une relecture, écrire des scénarios, tenir un wiki.</p>
+<h2>Plusieurs équipes, un prestataire, un train</h2>
+<p>À partir du chapitre 22, l'équipe n'est plus seule. Elle entre dans le train Indemnisation, avec ses dépendances envers d'autres équipes, et une équipe du prestataire Horizon s'apprête à travailler avec les mêmes outils. Partager entre équipes pose les mêmes questions qu'au sein d'une équipe, avec une difficulté de plus : personne n'a autorité sur tout.</p>
+<h3>Ce qui se partage à l'échelle du train</h3>
+<table>
+<thead>
+<tr>
+<th>Objet</th>
+<th>Où il vit</th>
+<th>Qui en répond</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Le socle : verrous, consignes communes, contrôles</td>
+<td>Paramètres gérés, CLAUDE.md géré, plugin du socle</td>
+<td>La commission sécurité ; Mathilde et Julien</td>
+</tr>
+<tr>
+<td>Les outils communs</td>
+<td>Le catalogue interne</td>
+<td>Leurs propriétaires, sous l'œil de la DSI</td>
+</tr>
+<tr>
+<td>Le savoir sur les systèmes communs</td>
+<td>Un wiki partagé, à part, pour le système des contrats</td>
+<td>Son propriétaire, avec Gérard pour les pourquoi</td>
+</tr>
+<tr>
+<td>Les conventions de chaque équipe</td>
+<td>Le dépôt de chaque équipe</td>
+<td>Chaque équipe</td>
+</tr>
+<tr>
+<td>Les dépendances et le calendrier</td>
+<td>Jira, par les liens entre tickets</td>
+<td>Les Product Owners du train</td>
+</tr>
+</tbody>
+</table>
+<p>La troisième ligne naît d'une question concrète : le savoir que Gérard transmet sur le système des contrats sert à toutes les équipes qui y touchent. Le laisser dans le wiki d'une seule équipe obligerait les autres à le copier. Il gagne à vivre dans un dépôt à part, que chaque wiki d'équipe cite comme une source.</p>
+<h3>Un dépôt partagé par plusieurs équipes</h3>
+<p>Quand plusieurs équipes travaillent dans le même dépôt, chacune garde ses conventions sans imposer les siennes aux autres : un CLAUDE.md par sous-dossier, au sens du chapitre M3, et des règles limitées à certains chemins par leur en-tête. Le CLAUDE.md racine ne contient que ce qui vaut pour tous, et chaque équipe est propriétaire de son sous-dossier dans le fichier des propriétaires.</p>
+<h3>Un prestataire, les mêmes règles</h3>
+<p>Au chapitre 16, la directrice générale exige que l'équipe d'Horizon travaille sur le compte AWS de la maison, avec le même socle et les mêmes règles que le pilote. Concrètement :</p>
+<ul>
+<li><strong>Les mêmes postes ou les mêmes paramètres gérés</strong>, et donc le même socle, la même configuration Bedrock, les mêmes interdictions.</li>
+<li><strong>Les mêmes circuits</strong> : leurs skills passent par le même catalogue, leurs demandes de fusion par les mêmes relecteurs quand elles touchent le cœur de gestion.</li>
+<li><strong>Leurs sources dans le wiki</strong>, comme au chapitre 17 : leur dossier de rétro-documentation entre comme une source, ingérée et confrontée aux autres.</li>
+<li><strong>Des accès à leur mesure</strong> : les dépôts et les connecteurs auxquels ils ont besoin d'accéder, rien de plus, avec leurs propres identités.</li>
+</ul>
+<h3>Ce qui ne se transmet pas par fichier</h3>
+<p>Au chapitre 22, on propose à Émilie un nouveau poste. Elle le refuse, et propose à la place de former les testeurs d'Horizon. Elle a raison sur un point que ce chapitre ne doit pas faire oublier : une skill transmet une procédure, pas un jugement. Écrire un scénario avant le code, explorer après, savoir quand une story est vraiment finie : cela s'apprend en travaillant à côté de quelqu'un.</p>
+<p>Le dispositif qui en découle est simple. Chaque nouvelle équipe reçoit les fichiers par le socle et le catalogue, et une personne par métier, qui passe deux semaines avec elle. Une communauté de pratique réunit ensuite, une fois par mois, une personne de chaque équipe : les skills qui ont changé, les incidents et leurs leçons, les mesures. C'est là que se décide ce qui monte au catalogue, et ce qui en descend.</p>
+<h2>Dans le roman</h2>
+<table>
+<thead>
+<tr>
+<th>Chapitre</th>
+<th>Scène</th>
+<th>Ce qu'elle illustre ici</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16 — La sécurité au quotidien</td>
+<td>L'équipe d'Horizon travaillera dès janvier sur le compte de la maison, avec le même socle ; elle le recevra en ouvrant l'outil.</td>
+<td>Ce que fournit l'entreprise ; un prestataire, les mêmes règles.</td>
+</tr>
+<tr>
+<td>17 — Le savoir de Gérard</td>
+<td>Horizon verse sa rétro-documentation dans le wiki, comme une source de plus.</td>
+<td>Le savoir sur un système commun, partagé entre équipes.</td>
+</tr>
+<tr>
+<td>18 — Les rôles bougent</td>
+<td>Sofiane empaquette les savoir-faire de l'équipe en skills ; Nadia trouve la sienne fausse, la corrige et en devient propriétaire.</td>
+<td>Le propriétaire est celui qui sait ; le registre des propriétaires.</td>
+</tr>
+<tr>
+<td>22 — L'analyste qui pose les bonnes questions</td>
+<td>La règle « pas de document sans propriétaire ni lecteur » ; Émilie refuse un poste et propose de former les testeurs d'Horizon.</td>
+<td>La colonne <em>Lu par</em> ; ce qui ne se transmet pas par fichier.</td>
+</tr>
+<tr>
+<td>27 — Le sprint d'après</td>
+<td>Une testeuse qui vient d'arriver comprend une story le matin même.</td>
+<td>Un accueil qui repose sur ce qui est écrit et versionné.</td>
+</tr>
+</tbody>
+</table>
+<p>Pour aller plus loin : M3 (niveaux de CLAUDE.md), M4 (niveaux de paramètres), M5 (règles de vie d'une skill), M8 (catalogue et socle), M10 (fichier des propriétaires), M11 (wiki), M13 (communauté de pratique et rétrospectives).</p>
+<h2>Sources</h2>
+<p>Consultées le 22 octobre 2026.</p>
+<ul>
+<li><a href="https://code.claude.com/docs/en/claude-directory">Explorer le dossier .claude</a> — ce qui se versionne, ce qui reste local, et les données que l'outil écrit sur le poste</li>
+<li><a href="https://code.claude.com/docs/en/settings">Paramètres et ordre de priorité</a></li>
+<li><a href="https://code.claude.com/docs/en/memory">Mémoire et fichiers CLAUDE.md</a></li>
+<li><a href="https://code.claude.com/docs/en/sub-agents#enable-persistent-memory">Sous-agents : mémoire persistante</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/org">Gérer les plugins pour une organisation</a></li>
+</ul></article><nav class="pager"><span><a href="f-m11-le-wiki-d-equipe-a-la-karpathy.html">← Le wiki d&#x27;équipe à la Karpathy</a></span><span><a href="f-m13-bonnes-pratiques.html">Bonnes pratiques →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

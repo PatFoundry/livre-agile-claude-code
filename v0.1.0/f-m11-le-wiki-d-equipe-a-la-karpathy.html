@@ -1,0 +1,499 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Le wiki d&#x27;équipe à la Karpathy — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Chapitre M11</div><h1>Le wiki d&#x27;équipe à la Karpathy</h1><h2>Ce que couvre ce chapitre</h2>
+<p>Le CLAUDE.md dit à l'agent comment travailler ; il ne peut pas contenir tout ce que l'équipe sait. Le savoir d'un système ancien, les raisons d'une règle de gestion, les décisions d'architecture et leurs alternatives écartées vivent ailleurs : dans des documents épars, des programmes, et surtout dans la tête de quelques personnes. Ce chapitre décrit une façon de les rassembler, que l'agent tient à jour lui-même : le wiki d'équipe, sur le modèle qu'Andrej Karpathy a publié en avril 2026 sous le nom de <em>LLM Wiki</em>.</p>
+<p>Le roman en montre les deux usages. Au chapitre 17, l'absence d'un seul jour de Gérard, le dernier expert COBOL, coûte une journée à la story la plus critique du sprint : l'agent a lu le code et deviné le sens d'une lettre, plausiblement et à tort. L'équipe décide de traiter la dette de connaissance tout de suite, une heure par jour, en construisant un wiki. Au chapitre 24, l'agent architecte lit ce wiki avant même les exigences, et chaque décision d'architecture y entre sous une forme fixe.</p>
+<p>Rien ici n'est propre à un outil : un wiki de ce type n'est qu'un dossier de fichiers Markdown dans le dépôt, des conventions écrites, et un agent qui les applique. Claude Code suffit ; aucune base de données, aucun moteur de recherche n'est nécessaire à l'échelle d'une équipe.</p>
+<blockquote>
+<p><strong>Ce que le chapitre n'est pas.</strong> Ni une recette de recherche sémantique sur des documents, ni un remplacement de la documentation officielle de la maison. Le wiki est l'outil de travail de l'équipe et de ses agents ; il cite les sources officielles, il ne les remplace pas.</p>
+</blockquote>
+<h2>Le principe</h2>
+<p>La façon la plus répandue de faire travailler un modèle sur des documents consiste à lui donner, à chaque question, les passages qui semblent pertinents. Il refait alors tout le travail de synthèse à chaque fois, et rien ne s'accumule. Karpathy propose l'inverse : l'agent lit chaque source une seule fois, en extrait ce qui compte, et l'intègre à un ensemble de pages qu'il tient à jour. Les liens entre pages sont déjà là, les contradictions déjà signalées. Le wiki s'enrichit à chaque source ajoutée et à chaque question posée.</p>
+<blockquote>
+<p><em>Schéma (version numérique) : trois couches, trois opérations · d'après le LLM Wiki d'Andrej Karpathy.</em></p>
+</blockquote>
+<h3>Trois couches</h3>
+<table>
+<thead>
+<tr>
+<th>Couche</th>
+<th>Ce que c'est</th>
+<th>Qui l'écrit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Les sources brutes</td>
+<td>Les documents d'origine : programmes, spécifications anciennes, comptes rendus, entretiens transcrits. Ils ne sont jamais modifiés ; ils sont la référence.</td>
+<td>Ceux qui les ont produits</td>
+</tr>
+<tr>
+<td>Le wiki</td>
+<td>Des pages Markdown courtes et reliées : une par notion, une par règle, une par décision, une par source.</td>
+<td>L'agent, relu par les humains</td>
+</tr>
+<tr>
+<td>Le schéma</td>
+<td>Un fichier de consignes qui dit comment le wiki est organisé, quel format ont les pages, et ce que l'agent fait à chaque opération.</td>
+<td>L'équipe et l'agent, ensemble, au fil de l'usage</td>
+</tr>
+</tbody>
+</table>
+<h3>Trois opérations</h3>
+<ul>
+<li><strong>Ingérer</strong> : une nouvelle source entre ; l'agent la résume, met à jour toutes les pages qu'elle touche, et note ce qu'elle contredit.</li>
+<li><strong>Interroger</strong> : on pose une question ; l'agent répond à partir des pages, en citant ses sources. Une réponse utile devient une page.</li>
+<li><strong>Contrôler la cohérence</strong> : régulièrement, l'agent cherche les contradictions, les affirmations périmées, les pages isolées, les notions sans page.</li>
+</ul>
+<h3>Pourquoi cela tient</h3>
+<p>Les wikis d'équipe meurent rarement faute de contenu. Ils meurent parce que les tenir à jour coûte plus cher que ce qu'ils rapportent : mettre à jour les renvois, réviser les résumés, noter ce qu'une nouvelle information remet en cause. C'est précisément le travail qu'un agent fait sans se lasser, en touchant quinze fichiers d'un coup. Le partage des rôles suit : aux humains de choisir les sources, de poser les bonnes questions et de juger ce que tout cela signifie ; à l'agent, la tenue des registres.</p>
+<h3>Ce que change le passage à l'équipe</h3>
+<p>Le modèle de Karpathy est d'abord personnel : il lit le wiki, l'agent l'écrit. Dans une équipe, trois règles s'ajoutent, toutes tirées du chapitre 17 :</p>
+<ol>
+<li><strong>Chaque affirmation cite sa source</strong> : un programme et sa ligne, un document et sa page, un entretien et sa date.</li>
+<li><strong>Un humain relit tout ce qui explique un pourquoi.</strong> Gérard relit chaque page qui donne la raison d'une règle ; l'agent peut décrire ce que fait le code, pas décider pourquoi.</li>
+<li><strong>Le wiki vit dans le dépôt</strong>, et chaque modification passe par une demande de fusion, comme le code.</li>
+</ol>
+<h2>Organiser le dépôt du wiki</h2>
+<p>Le wiki est un dossier du dépôt de l'équipe. Il se relit dans GitHub, se modifie par demande de fusion, et son historique est celui de Git.</p>
+<pre><code class="language-text">wiki/
+├── CLAUDE.md          le schéma : conventions et opérations
+├── index.md           le catalogue : une ligne par page
+├── journal.md         l'historique : une entrée par opération
+├── sources/           les sources brutes, jamais modifiées
+│   ├── documents/     spécifications anciennes, notes, dossiers reçus
+│   └── entretiens/    transcriptions relues des séances avec l'expert
+└── pages/
+    ├── notions/       contrat, avenant, adresse du risque…
+    ├── regles/        une règle de gestion par page
+    ├── programmes/    une page par programme COBOL
+    ├── decisions/     une décision d'architecture par page
+    └── resumes/       une page de résumé par source ingérée
+</code></pre>
+<p>Les programmes COBOL ne sont pas copiés : ils restent dans leur propre dépôt, ouvert à l'agent en lecture seule par une règle de permission (chapitre M4). La page d'un programme cite son nom et ses lignes.</p>
+<h3>Le schéma</h3>
+<p>Le fichier <code>wiki/CLAUDE.md</code> est un CLAUDE.md de sous-dossier au sens du chapitre M3 : l'agent le charge dès qu'il travaille dans le wiki, et seulement là. Il décrit les types de pages, leur format, et le déroulé de chaque opération. Le CLAUDE.md principal du projet n'en garde qu'une ligne : « Avant de toucher un programme COBOL ou une règle de gestion, lis <code>wiki/index.md</code>. »</p>
+<h3>Le format d'une page</h3>
+<p>Une page est courte, une notion par page, et commence par un en-tête qui permet à l'agent comme aux humains de savoir ce qu'elle vaut :</p>
+<pre><code class="language-markdown">---
+titre: Indicateur de statut du contrat (zone CT-STAT)
+type: regle
+statut: relu            # brouillon, relu ou contesté
+relu-par: Gérard
+sources:
+  - programme CTR010, lignes 212 à 240
+  - entretien avec Gérard, séance 3
+---
+
+## Ce que fait le code
+…
+
+## Pourquoi
+…  (rédigé d'après l'entretien, relu par Gérard)
+
+## Exceptions connues
+…
+
+## Voir aussi
+- [Avenant](../notions/avenant.md)
+- [Programme CTR010](../programmes/ctr010.md)
+</code></pre>
+<p>L'exemple est fictif ; la structure est celle que le schéma impose. Les liens sont des liens Markdown relatifs, que GitHub affiche et que l'agent suit.</p>
+<h3>L'index et le journal</h3>
+<p>Deux fichiers aident à s'y retrouver quand le wiki grandit. Ils n'ont pas le même rôle.</p>
+<table>
+<thead>
+<tr>
+<th>Fichier</th>
+<th>Organisé par</th>
+<th>Contenu</th>
+<th>Qui s'en sert</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>index.md</code></td>
+<td>Type de page</td>
+<td>Chaque page, son lien, une ligne de résumé, son statut</td>
+<td>L'agent le lit en premier pour savoir quelles pages ouvrir</td>
+</tr>
+<tr>
+<td><code>journal.md</code></td>
+<td>Date</td>
+<td>Une entrée par opération : ingestion, question, contrôle</td>
+<td>L'équipe, pour savoir ce qui a changé ; l'agent, pour savoir ce qu'il a déjà fait</td>
+</tr>
+</tbody>
+</table>
+<p>Une astuce de Karpathy : commencer chaque entrée du journal par un préfixe constant, par exemple <code>## [date] ingestion | Programme CTR010</code>, pour qu'une simple commande <code>grep</code> retrouve les dernières opérations.</p>
+<p>À l'échelle d'une équipe, une centaine de sources et quelques centaines de pages, l'index suffit à l'agent pour trouver ce qu'il cherche. Aucun moteur de recherche n'est nécessaire avant longtemps.</p>
+<h2>Ingérer une source</h2>
+<p>Ingérer, c'est faire entrer une source dans le wiki. Une source à la fois, en restant présent : c'est ainsi que Karpathy procède, et c'est encore plus vrai pour une équipe, où chaque ingestion engage ce que d'autres liront ensuite.</p>
+<h3>Le déroulé</h3>
+<ol>
+<li><strong>Lire le schéma, puis l'index</strong>, pour savoir ce qui existe déjà.</li>
+<li><strong>Lire la source en entier.</strong></li>
+<li><strong>En parler avant d'écrire.</strong> L'agent présente ce que la source apprend, les pages qu'elle touche, ce qu'elle contredit, et les questions qu'elle soulève. L'humain oriente : ce qui compte, ce qui est accessoire.</li>
+<li><strong>Écrire</strong>, une fois l'accord donné : une page de résumé de la source, la mise à jour de chaque page touchée, et les pages qui manquent. Une seule source touche souvent dix à quinze pages.</li>
+<li><strong>Tenir les registres</strong> : l'index, le journal, et la liste des questions ouvertes.</li>
+<li><strong>Proposer</strong> le tout dans une demande de fusion, que relisent les propriétaires.</li>
+</ol>
+<h3>La règle qui aurait évité le chapitre 17</h3>
+<p>L'agent du chapitre 17 a lu le code, trouvé une lettre dans une zone, et en a déduit un sens plausible. Il s'est trompé, et la story a perdu une journée. La règle qui en découle est la plus importante du schéma : <strong>le code dit ce qui se passe, jamais pourquoi.</strong> Quand une page a besoin d'un pourquoi que les sources ne donnent pas, l'agent écrit « Pourquoi : à confirmer » et ajoute la question à <code>wiki/questions.md</code>, avec le nom de qui peut répondre.</p>
+<p>Ce fichier devient l'ordre du jour des séances avec l'expert. Au chapitre 17, Gérard y consacre une heure par jour : l'agent prépare les questions que le code laisse ouvertes, Gérard répond, la transcription relue devient une source, et son ingestion remplace les « à confirmer » par des réponses signées.</p>
+<h3>Une skill pour ne rien oublier</h3>
+<p>Le déroulé est assez stable pour devenir une skill, au sens du chapitre M5 :</p>
+<pre><code class="language-markdown">---
+name: ingerer-source
+description: Ingère une source dans le wiki d'équipe selon wiki/CLAUDE.md. À lancer à la main.
+disable-model-invocation: true
+argument-hint: [chemin de la source ou nom du programme]
+---
+
+Ingère $ARGUMENTS dans le wiki.
+
+1. Lis wiki/CLAUDE.md, puis wiki/index.md.
+2. Lis la source en entier. Avant d'écrire, présente-moi : ce qu'elle apprend,
+   les pages qu'elle touche, ce qu'elle contredit, les questions qu'elle soulève.
+3. Après mon accord : écris la page de résumé, mets à jour les pages touchées,
+   crée celles qui manquent.
+4. Chaque affirmation cite sa source. N'écris aucun « pourquoi » déduit du code :
+   écris « Pourquoi : à confirmer » et ajoute la question à wiki/questions.md.
+5. Signale chaque contradiction dans les deux pages concernées, statut « contesté ».
+6. Mets à jour l'index et ajoute une entrée au journal.
+</code></pre>
+<h3>Ce qui n'entre pas</h3>
+<p>Le wiki est une source de contexte pour tous les agents de l'équipe ; ce qui y entre finit dans leurs conversations. Il ne reçoit donc ni extrait de base de données, ni capture d'écran d'un dossier réel, ni secret : les règles du chapitre 13 s'appliquent aux sources comme au code. Un exemple a besoin d'un contrat ? On le prend dans les jeux de données synthétiques.</p>
+<p>Au chapitre 17, le programme d'Horizon demande à verser son propre dossier de rétro-documentation dans le wiki. La réponse est la bonne : il entre comme une source de plus, ingérée, citée, et confrontée aux autres. Il n'écrase rien.</p>
+<h2>Interroger le wiki</h2>
+<p>Une question au wiki suit toujours le même chemin : l'agent lit l'index, ouvre les pages utiles, répond en citant ce qu'il a lu. Il ne va aux sources brutes que pour vérifier un point précis.</p>
+<h3>Qui pose les questions</h3>
+<table>
+<thead>
+<tr>
+<th>Qui</th>
+<th>Exemple</th>
+<th>Ce que la réponse change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>La Product Owner</td>
+<td>« Un avenant qui change l'adresse du risque prend effet le jour du sinistre : quelle adresse vaut ? »</td>
+<td>Un critère d'acceptation juste du premier coup</td>
+</tr>
+<tr>
+<td>La testeuse</td>
+<td>« Quels contrats font exception à la règle de franchise ? »</td>
+<td>Des scénarios qui couvrent les cas réels</td>
+</tr>
+<tr>
+<td>Le développeur, ou son agent</td>
+<td>« Que fait CTR010 quand la zone CT-STAT est vide ? »</td>
+<td>Un code qui reproduit le comportement attendu</td>
+</tr>
+<tr>
+<td>L'agent architecte</td>
+<td>Il lit tout le wiki avant les exigences</td>
+<td>Une architecture qui part de ce qui existe</td>
+</tr>
+</tbody>
+</table>
+<h3>La forme d'une réponse</h3>
+<p>Le schéma impose une forme simple, qui distingue ce qui est établi de ce qui ne l'est pas :</p>
+<pre><code class="language-text">Réponse : …
+Pages lues : regles/adresse-du-risque.md (relu), notions/avenant.md (relu)
+Ce qui reste à confirmer : le cas des avenants rétroactifs (question 14, pour Gérard)
+</code></pre>
+<p>Une page au statut <em>brouillon</em> ou <em>contesté</em> se signale dans la réponse. Et quand le wiki ne sait pas, l'agent le dit et ajoute la question à la liste ; il ne comble pas le trou avec une hypothèse plausible.</p>
+<h3>Garder les bonnes réponses</h3>
+<p>C'est l'idée la plus féconde de Karpathy : une bonne réponse ne doit pas disparaître dans l'historique d'une conversation. Une comparaison entre deux programmes, la liste des exceptions à une règle, l'explication d'un enchaînement : chacune devient une page, proposée par demande de fusion comme le reste. Les questions de l'équipe enrichissent ainsi le wiki autant que les sources.</p>
+<h3>Brancher le wiki sur le reste du travail</h3>
+<p>Le wiki ne sert que s'il est lu au bon moment. Trois branchements suffisent :</p>
+<ul>
+<li><strong>Le CLAUDE.md du projet</strong> renvoie vers l'index avant toute modification qui touche un programme ancien ou une règle de gestion.</li>
+<li><strong>La skill de préparation des stories</strong> (chapitre M5) consulte les pages des règles concernées et cite leurs liens dans la story.</li>
+<li><strong>L'agent architecte de BMAD</strong> reçoit l'index du wiki parmi ses consignes permanentes, par une personnalisation (chapitre M9). Au chapitre 24, c'est la décision de Julien : l'architecte lit le wiki avant les exigences.</li>
+</ul>
+<h3>Ménager le contexte</h3>
+<p>Une question large peut amener l'agent à ouvrir trente pages. Pour qu'elles n'encombrent pas la conversation principale, on confie la recherche à un sous-agent en lecture seule, au sens du chapitre M5 : il lit, synthétise, et ne rend que la réponse et ses références.</p>
+<h2>Contrôler la cohérence</h2>
+<p>Un wiki qui grandit se dégrade : des pages se contredisent, d'autres sont dépassées par une source plus récente, certaines ne sont reliées à rien. Le contrôle de cohérence est la troisième opération, celle qui garde le tout en état.</p>
+<h3>Ce que l'on cherche</h3>
+<table>
+<thead>
+<tr>
+<th>Problème</th>
+<th>Exemple</th>
+<th>Qui le trouve</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lien cassé</td>
+<td>Une page renvoie vers une page renommée</td>
+<td>Un script</td>
+</tr>
+<tr>
+<td>Page orpheline</td>
+<td>Aucune page ne renvoie vers elle</td>
+<td>Un script</td>
+</tr>
+<tr>
+<td>En-tête incomplet</td>
+<td>Pas de source, pas de statut</td>
+<td>Un script</td>
+</tr>
+<tr>
+<td>Source introuvable</td>
+<td>La page cite un programme ou une séance qui n'existe pas</td>
+<td>Un script</td>
+</tr>
+<tr>
+<td>Contradiction</td>
+<td>Deux pages, ou deux sources, disent l'inverse</td>
+<td>L'agent</td>
+</tr>
+<tr>
+<td>Affirmation périmée</td>
+<td>Une source récente a remplacé une ancienne règle</td>
+<td>L'agent</td>
+</tr>
+<tr>
+<td>Notion sans page</td>
+<td>Un terme revient dans dix pages sans être défini</td>
+<td>L'agent</td>
+</tr>
+<tr>
+<td>« Pourquoi » non relu</td>
+<td>Une explication rédigée par l'agent attend toujours l'expert</td>
+<td>Un script, d'après le statut</td>
+</tr>
+</tbody>
+</table>
+<p>Le partage est celui du chapitre M10 : ce qui peut se vérifier par un programme se vérifie par un programme, à chaque demande de fusion qui touche le wiki ; le jugement est confié à l'agent, lors d'un contrôle périodique.</p>
+<h3>Le contrôle périodique</h3>
+<p>Une fois par semaine, l'agent parcourt le wiki et rend un rapport, sans rien corriger lui-même :</p>
+<pre><code class="language-text">Contrôle la cohérence du wiki selon wiki/CLAUDE.md. Cherche les contradictions
+entre pages et entre sources, les affirmations qu'une source plus récente
+contredit, les notions sans page, les renvois manquants. Pour chaque point :
+les pages concernées, les sources, et la personne qui peut trancher.
+N'en corrige aucun. Ajoute une entrée au journal.
+</code></pre>
+<p>Le rapport est relu en équipe. Les corrections évidentes passent par une demande de fusion ; les autres deviennent des questions.</p>
+<h3>La contradiction de 2011</h3>
+<p>Le premier contrôle du chapitre 17 fait apparaître ce que personne ne savait : deux programmes appliquent différemment la date d'effet d'un avenant, et ce depuis 2011. Ce n'est pas une erreur du wiki, c'est une découverte sur le système. La conduite à tenir suit :</p>
+<ol>
+<li>Les deux pages passent au statut <em>contesté</em>, chacune renvoyant vers l'autre, avec les lignes de code en cause.</li>
+<li>La question va à Gérard pour l'histoire, et au métier pour la règle : laquelle des deux applications est juste ?</li>
+<li>La réponse devient une décision, avec son auteur et sa date, et la story qui corrigera l'un des programmes, si on le corrige.</li>
+</ol>
+<p>L'agent n'a pas à choisir. Son travail était de la trouver, et il l'a trouvée là où quinze ans de lectures humaines ne l'avaient pas vue.</p>
+<h2>Application au legacy : le savoir de Gérard</h2>
+<p>Dans beaucoup de maisons, le système central tient sur quelques personnes qui savent pourquoi il fait ce qu'il fait. Le jour où l'une d'elles est absente, l'agent lit le code et devine. Au chapitre 17, il devine une lettre, plausiblement et à tort, et la story la plus critique du sprint perd une journée. L'équipe inscrit alors au registre une dette de connaissance, et décide de la traiter sans attendre.</p>
+<h3>La méthode en quatre temps</h3>
+<table>
+<thead>
+<tr>
+<th>Temps</th>
+<th>Ce que fait l'agent</th>
+<th>Ce que fait l'expert</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Inventaire</td>
+<td>Ingère les programmes et la documentation existante ; une page par programme, purement descriptive : entrées, sorties, zones, appels</td>
+<td>Rien encore</td>
+</tr>
+<tr>
+<td>2. Questions</td>
+<td>Liste tout ce que le code laisse ouvert, classé par urgence : d'abord les programmes que touchent les prochaines stories</td>
+<td>Relit l'ordre de priorité</td>
+</tr>
+<tr>
+<td>3. Séances</td>
+<td>Pose les questions une à une, demande des exemples, transcrit</td>
+<td>Répond, une heure par jour, puis relit la transcription</td>
+</tr>
+<tr>
+<td>4. Ingestion</td>
+<td>Remplace chaque « à confirmer » par la réponse, signée et datée</td>
+<td>Relit chaque page qui explique un pourquoi</td>
+</tr>
+</tbody>
+</table>
+<p>L'ordre compte. L'agent arrive aux séances en ayant déjà lu tout ce que le code et les documents disent ; il ne fait perdre à l'expert aucune minute sur ce qui est écrit quelque part. C'est la même discipline que celle de l'analyste du chapitre 22, qui lit tout ce que la maison sait avant d'interroger les gestionnaires.</p>
+<h3>Ce que le wiki ne contient pas encore</h3>
+<p>Au chapitre 24, une gestionnaire repère la première anomalie de production : le portail préremplit l'adresse de correspondance au lieu de l'adresse du risque. Gérard le savait depuis trente ans, sans l'avoir jamais écrit, et personne ne le lui avait demandé. L'architecture proposée le lundi reproduisait la même erreur.</p>
+<p>La leçon est double. Un wiki ne contient que les réponses aux questions qu'on a posées ; le savoir tacite remonte par les incidents, et chaque incident de ce genre devient aussitôt une source, une page, et une question de plus. Et le wiki dit ce que l'équipe croit du système ; il faut autre chose pour savoir ce que le système fait.</p>
+<h3>Les tests de caractérisation</h3>
+<p>Cette autre chose, Julien l'impose au retour : des tests de caractérisation. On choisit quarante contrats parmi les pires, ceux qui cumulent avenants, exceptions et historiques tordus, en version synthétique ; on enregistre, champ par champ, la réponse réelle du système ancien ; et le nouveau code doit donner la même. Ces tests en font sortir trois surprises, dont une exigence que personne n'avait imaginée.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Le wiki</th>
+<th>Les tests de caractérisation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ce qu'il dit</td>
+<td>Ce que l'équipe croit, et pourquoi</td>
+<td>Ce que le système fait réellement</td>
+</tr>
+<tr>
+<td>Sa force</td>
+<td>Les raisons, l'histoire, les exceptions expliquées</td>
+<td>Aucune interprétation : des faits</td>
+</tr>
+<tr>
+<td>Sa limite</td>
+<td>Ne contient que ce qu'on a demandé</td>
+<td>Ne dit jamais pourquoi</td>
+</tr>
+</tbody>
+</table>
+<p>Les deux se nourrissent : chaque surprise des tests devient une question pour l'expert, et chaque page du wiki suggère des contrats à ajouter aux tests.</p>
+<h3>Mesurer la dette</h3>
+<p>La dette de connaissance se suit comme une autre : le nombre de « pourquoi » encore à confirmer, la part des pages relues par l'expert, le nombre de programmes que touchent les prochaines stories sans page relue. Quand ces chiffres baissent, l'absence d'un jour de Gérard redevient un simple jour d'absence.</p>
+<h2>Les décisions, et qui tient le wiki</h2>
+<h3>Une décision par page</h3>
+<p>Au chapitre 24, l'agent architecte propose en une heure une architecture complète. Il y glisse une idée séduisante et courante : une copie nocturne du système des contrats. Julien la refuse, en écrivant pourquoi. À partir de là, chaque décision prend une forme fixe, rédigée par l'agent, sauf le nom de qui décide.</p>
+<pre><code class="language-markdown">---
+titre: Pas de copie nocturne du système des contrats
+type: decision
+statut: acceptée        # proposée, acceptée ou remplacée
+decide-par: Julien
+---
+
+## Contexte
+Le portail a besoin des contrats et de leurs avenants à jour.
+
+## Décision
+Le portail interroge le système des contrats au moment de la déclaration.
+
+## Alternatives écartées
+- Copie nocturne : avenants vieux d'un jour au moment du sinistre ; données
+  personnelles copiées une fois de plus ; échec d'un chantier comparable.
+
+## Conséquences
+…
+
+## Sources
+- [Avenant](../notions/avenant.md), [Adresse du risque](../regles/adresse-du-risque.md)
+</code></pre>
+<p>Trois règles accompagnent ce format :</p>
+<ul>
+<li><strong>L'agent rédige, une personne décide.</strong> Le champ <code>decide-par</code> n'est rempli que par un humain, et la chaîne d'intégration refuse une décision acceptée qui ne le porte pas, comme pour les spécifications du chapitre M9.</li>
+<li><strong>On ne supprime pas une décision.</strong> Une décision remplacée passe au statut <em>remplacée</em> et renvoie vers celle qui la remplace. L'histoire des raisons fait partie du savoir.</li>
+<li><strong>Les alternatives écartées comptent autant que la décision.</strong> La prochaine fois qu'un agent sera tenté par une copie nocturne, il lira pourquoi elle a été refusée. C'est ce qui empêche une équipe de rejouer le même débat tous les six mois.</li>
+</ul>
+<h3>Qui tient le wiki</h3>
+<table>
+<thead>
+<tr>
+<th>Rôle</th>
+<th>Responsabilité</th>
+<th>Dans le roman</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Le propriétaire du wiki</td>
+<td>Le schéma, le contrôle hebdomadaire, la priorité des ingestions</td>
+<td>Julien</td>
+</tr>
+<tr>
+<td>L'expert du système ancien</td>
+<td>Relit chaque page qui explique un pourquoi ; répond aux questions</td>
+<td>Gérard</td>
+</tr>
+<tr>
+<td>La Product Owner</td>
+<td>Relit les pages de règles de gestion ; tranche quand deux règles s'opposent</td>
+<td>Nadia</td>
+</tr>
+<tr>
+<td>Celui qui décide</td>
+<td>Signe chaque décision d'architecture</td>
+<td>Julien, ou le comité d'architecture</td>
+</tr>
+<tr>
+<td>Toute l'équipe</td>
+<td>Propose des sources et des questions ; tout passe par une demande de fusion</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>Le fichier des propriétaires du chapitre M10 traduit ce tableau : <code>wiki/pages/regles/</code> exige l'approbation de Nadia, <code>wiki/pages/decisions/</code> celle de Julien, <code>wiki/CLAUDE.md</code> celle du propriétaire du wiki.</p>
+<h3>Quatre précautions</h3>
+<ol>
+<li><strong>Pas de données réelles, pas de secrets.</strong> Le wiki est lu par tous les agents de l'équipe, et par ceux du prestataire quand il y contribue. Les règles du chapitre 13 s'y appliquent comme au code.</li>
+<li><strong>Des pages courtes.</strong> Une page de plus de deux écrans traite sans doute deux sujets ; le contrôle périodique le signale.</li>
+<li><strong>Le schéma évolue.</strong> Karpathy le dit : on le fait évoluer avec l'agent, au fil de l'usage. Chaque changement passe par une demande de fusion, et se note au journal.</li>
+<li><strong>Le wiki ne remplace pas l'expert, il le prolonge.</strong> Il garde ce que Gérard a dit, il ne sait pas ce qu'on ne lui a pas demandé. Tant que l'expert est là, les séances continuent.</li>
+</ol>
+<h2>Dans le roman</h2>
+<table>
+<thead>
+<tr>
+<th>Chapitre</th>
+<th>Scène</th>
+<th>Ce qu'elle illustre ici</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>17 — Le savoir de Gérard</td>
+<td>Un jour d'absence de Gérard coûte une journée : l'agent a deviné le sens d'une lettre. L'équipe traite la dette de connaissance tout de suite, une heure par jour.</td>
+<td>Le code dit ce qui se passe, jamais pourquoi ; les questions ouvertes deviennent l'ordre du jour des séances.</td>
+</tr>
+<tr>
+<td>17 — Le savoir de Gérard</td>
+<td>L'agent ingère les programmes et les documents, interroge Gérard, tient des pages courtes et reliées, chaque affirmation citant sa source ; Gérard relit tout ce qui explique un pourquoi.</td>
+<td>Les trois couches et les trois opérations, adaptées à une équipe.</td>
+</tr>
+<tr>
+<td>17 — Le savoir de Gérard</td>
+<td>Le premier contrôle révèle que deux programmes appliquent différemment la date d'effet d'un avenant depuis 2011 ; Horizon verse sa rétro-documentation comme une source de plus.</td>
+<td>Contrôler la cohérence ; une source externe s'ingère, elle n'écrase rien.</td>
+</tr>
+<tr>
+<td>24 — L'architecte et le mainframe</td>
+<td>L'architecte lit le wiki avant les exigences ; Julien refuse la copie nocturne en écrivant pourquoi ; chaque décision prend une forme fixe.</td>
+<td>Les décisions d'architecture dans le wiki, signées par une personne.</td>
+</tr>
+<tr>
+<td>24 — L'architecte et le mainframe</td>
+<td>L'adresse de correspondance préremplie au lieu de l'adresse du risque ; puis quarante contrats en tests de caractérisation, et trois surprises.</td>
+<td>Ce que le wiki ne contient pas encore ; ce que seuls les tests disent.</td>
+</tr>
+</tbody>
+</table>
+<p>Pour aller plus loin : M3 (CLAUDE.md de sous-dossier), M5 (skills et sous-agents en lecture seule), M9 (personnaliser l'architecte BMAD), M10 (fichier des propriétaires, contrôles déterministes), M13 (bonnes pratiques : le registre des dettes de connaissance).</p>
+<h2>Sources</h2>
+<p>Consultées le 21 octobre 2026.</p>
+<ul>
+<li><a href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f">Andrej Karpathy, <em>LLM Wiki</em>, 4 avril 2026</a> — le texte d'origine du modèle</li>
+<li><a href="https://code.claude.com/docs/en/memory">Claude Code : la mémoire et les fichiers CLAUDE.md</a></li>
+<li><a href="https://code.claude.com/docs/en/skills">Claude Code : les skills</a></li>
+<li><a href="https://www.oreilly.com/library/view/working-effectively-with/0131177052/">Michael Feathers, <em>Working Effectively with Legacy Code</em>, Prentice Hall, 2004</a> — l'origine des tests de caractérisation</li>
+<li><a href="https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions">Michael Nygard, <em>Documenting Architecture Decisions</em>, 2011</a> — le format des décisions d'architecture</li>
+</ul></article><nav class="pager"><span><a href="f-m10-github-et-jira-au-quotidien.html">← GitHub et Jira au quotidien</a></span><span><a href="f-m12-partager-en-equipe.html">Partager en équipe →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

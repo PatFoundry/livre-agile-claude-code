@@ -1,0 +1,455 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Grille de métriques — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Annexe D</div><h1>Grille de métriques</h1><h2>À quoi sert cette annexe</h2>
+<p>Les mesures sont dispersées dans le manuel : le flux au chapitre M10, les signes d'alerte au chapitre M13, la consommation et le coût complet au chapitre M14, la dette de connaissance au chapitre M11. Cette annexe les rassemble en une seule grille, avec pour chacune sa définition, sa source, sa fréquence, un seuil d'alerte de départ et la personne qui la lit.</p>
+<p>Le roman montre ce que vaut une bonne mesure, et ce que coûte une mauvaise. Au chapitre 11, l'agent tire en dix minutes les vrais chiffres d'un sprint, et ils contredisent ce que chacun croyait. Au chapitre 26, l'équipe découvre que sa vélocité a culminé au moment où sa retouche culminait aussi : la mesure qu'on lui demandait récompensait exactement ce qu'il fallait éviter.</p>
+<h3>Cinq règles</h3>
+<p>Chaque indicateur de la grille les respecte, et un indicateur qui en enfreint une n'y entre pas.</p>
+<ol>
+<li><strong>Défini par écrit</strong>, avant d'être calculé : ce qu'on compte, à partir de quand, ce qu'on exclut.</li>
+<li><strong>Calculé sans saisie</strong>, à partir de ce que Jira, GitHub et la télémétrie enregistrent déjà. Personne ne remplit de feuille de temps.</li>
+<li><strong>Mesurant un système, pas des personnes</strong> : par équipe et dans le temps, jamais par développeur.</li>
+<li><strong>Lu par quelqu'un</strong> qui sait ce qu'il en fera. Un indicateur sans lecteur est un indicateur de trop.</li>
+<li><strong>Vérifié à la main</strong>, sur un échantillon, avant qu'on s'y fie, puis chaque trimestre.</li>
+</ol>
+<h2>La grille</h2>
+<p>Les seuils d'alerte sont des points de départ, à ajuster après trois ou quatre itérations de mesure. Un seuil franchi n'est pas une faute : c'est une question à poser en rétrospective.</p>
+<h3>Le flux</h3>
+<table>
+<thead>
+<tr>
+<th>Indicateur</th>
+<th>Source</th>
+<th>Fréquence</th>
+<th>Alerte de départ</th>
+<th>Lu par</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Débit : stories terminées par semaine</td>
+<td>Jira</td>
+<td>Hebdomadaire</td>
+<td>Baisse trois semaines de suite</td>
+<td>L'équipe, la Product Owner</td>
+</tr>
+<tr>
+<td>Temps de traversée : de la création du ticket à la fusion</td>
+<td>Jira, GitHub</td>
+<td>Par itération</td>
+<td>Le 85e centile monte deux itérations de suite</td>
+<td>L'équipe</td>
+</tr>
+<tr>
+<td>Attente avant relecture</td>
+<td>GitHub</td>
+<td>Quotidienne</td>
+<td>Médiane au-delà d'un jour ouvré</td>
+<td>Le tech lead</td>
+</tr>
+<tr>
+<td>Demandes en revue</td>
+<td>GitHub, tableau Jira</td>
+<td>En continu</td>
+<td>Plus de six</td>
+<td>Toute l'équipe</td>
+</tr>
+</tbody>
+</table>
+<h3>La qualité</h3>
+<table>
+<thead>
+<tr>
+<th>Indicateur</th>
+<th>Source</th>
+<th>Fréquence</th>
+<th>Alerte de départ</th>
+<th>Lu par</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Taux de retouche</td>
+<td>Jira</td>
+<td>Par itération</td>
+<td>Hausse deux itérations de suite</td>
+<td>L'équipe, en rétrospective</td>
+</tr>
+<tr>
+<td>Anomalies après fusion, par story</td>
+<td>Jira</td>
+<td>Par itération</td>
+<td>Une story rouge avec une anomalie</td>
+<td>Le tech lead, la testeuse</td>
+</tr>
+<tr>
+<td>Écarts de spécification révélés en démonstration</td>
+<td>Jira, par étiquette</td>
+<td>Par itération</td>
+<td>Plus d'un par itération</td>
+<td>La Product Owner</td>
+</tr>
+</tbody>
+</table>
+<h3>Le coût</h3>
+<table>
+<thead>
+<tr>
+<th>Indicateur</th>
+<th>Source</th>
+<th>Fréquence</th>
+<th>Alerte de départ</th>
+<th>Lu par</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Coût complet par story, médiane</td>
+<td>Télémétrie, GitHub, Jira, forfaits</td>
+<td>Par itération</td>
+<td>Hausse deux itérations de suite</td>
+<td>L'équipe, le contrôle de gestion</td>
+</tr>
+<tr>
+<td>Coût du modèle par story</td>
+<td>Télémétrie</td>
+<td>Par itération</td>
+<td>Une story au-delà du double de la médiane</td>
+<td>Le référent technique</td>
+</tr>
+<tr>
+<td>Écart entre la télémétrie et la facture AWS</td>
+<td>Télémétrie, AWS</td>
+<td>Mensuelle</td>
+<td>Plus de 10 %</td>
+<td>La DSI</td>
+</tr>
+<tr>
+<td>Quotas atteints</td>
+<td>Télémétrie, CloudWatch</td>
+<td>Hebdomadaire</td>
+<td>Des abandons après réessais, plusieurs jours de suite</td>
+<td>La DSI</td>
+</tr>
+</tbody>
+</table>
+<h3>La soutenabilité</h3>
+<table>
+<thead>
+<tr>
+<th>Indicateur</th>
+<th>Source</th>
+<th>Fréquence</th>
+<th>Alerte de départ</th>
+<th>Lu par</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Travail du soir : part des commits faits entre 20 h et 7 h, ou le week-end</td>
+<td>Git</td>
+<td>Par itération</td>
+<td>Plus de 10 %</td>
+<td>Le directeur de projet</td>
+</tr>
+</tbody>
+</table>
+<h3>La connaissance</h3>
+<table>
+<thead>
+<tr>
+<th>Indicateur</th>
+<th>Source</th>
+<th>Fréquence</th>
+<th>Alerte de départ</th>
+<th>Lu par</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>« Pourquoi » encore à confirmer dans le wiki</td>
+<td>Le wiki</td>
+<td>Hebdomadaire</td>
+<td>Stable ou en hausse quatre semaines de suite</td>
+<td>Le propriétaire du wiki</td>
+</tr>
+<tr>
+<td>Programmes anciens touchés par les prochaines stories, sans page relue</td>
+<td>Le wiki, Jira</td>
+<td>Par itération</td>
+<td>Un seul, pour une story rouge</td>
+<td>Le référent technique</td>
+</tr>
+</tbody>
+</table>
+<h3>La sécurité et l'outillage</h3>
+<table>
+<thead>
+<tr>
+<th>Indicateur</th>
+<th>Source</th>
+<th>Fréquence</th>
+<th>Alerte de départ</th>
+<th>Lu par</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Secrets détectés par la chaîne d'intégration</td>
+<td>La chaîne</td>
+<td>En continu</td>
+<td>Un seul</td>
+<td>La sécurité</td>
+</tr>
+<tr>
+<td>Blocages par les hooks du socle</td>
+<td>Télémétrie</td>
+<td>Mensuelle</td>
+<td>Une hausse soudaine</td>
+<td>La sécurité, le référent</td>
+</tr>
+<tr>
+<td>Skills et plugins installés mais inutilisés</td>
+<td>Télémétrie, <code>/doctor</code></td>
+<td>Trimestrielle</td>
+<td>Tout élément inutilisé depuis trois mois</td>
+<td>Leurs propriétaires</td>
+</tr>
+</tbody>
+</table>
+<p>Dix-sept indicateurs, c'est beaucoup pour une équipe. Ceux qui se lisent à chaque itération sont les quatre du chapitre 26 : débit, temps de traversée, taux de retouche, coût complet par story. Les autres attendent qu'on en ait besoin, ou qu'un seuil se déclenche.</p>
+<h2>Les définitions exactes</h2>
+<p>Deux équipes qui mesurent « le temps de traversée » sans l'avoir défini comparent deux choses différentes. Au chapitre 26, les quatre indicateurs sont définis par écrit avant le premier calcul ; voici ces définitions, et celles des deux indicateurs qu'on consulte le plus souvent ensuite.</p>
+<table>
+<thead>
+<tr>
+<th>Indicateur</th>
+<th>Ce qu'on compte</th>
+<th>Bornes</th>
+<th>Ce qu'on exclut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Débit</td>
+<td>Les stories dont le ticket passe à <em>Terminé</em> dans la semaine</td>
+<td>Du lundi 0 h au dimanche 24 h</td>
+<td>Les anomalies, comptées à part ; une story redécoupée compte pour autant de stories</td>
+</tr>
+<tr>
+<td>Temps de traversée</td>
+<td>La durée entre la création du ticket, c'est-à-dire la validation de la story, et la fusion de sa dernière demande</td>
+<td>En jours calendaires ; on publie la médiane et le 85e centile</td>
+<td>Les stories abandonnées</td>
+</tr>
+<tr>
+<td>Taux de retouche</td>
+<td>La part des stories terminées qui ont été rouvertes, ou auxquelles une anomalie a été reliée dans les trente jours suivant la fusion</td>
+<td>Calculé trente jours après la fin de l'itération</td>
+<td>Les anomalies qui relèvent d'une autre story ou d'un autre système</td>
+</tr>
+<tr>
+<td>Coût complet par story</td>
+<td>Le coût du modèle, plus le temps humain estimé par forfaits, multiplié par le taux interne</td>
+<td>Par story terminée ; on publie la médiane</td>
+<td>Rien : c'est sa raison d'être</td>
+</tr>
+<tr>
+<td>Attente avant relecture</td>
+<td>La durée entre l'ouverture de la demande de fusion, hors brouillon, et la première relecture humaine</td>
+<td>En heures ouvrées</td>
+<td>Le commentaire de prérelecture de l'agent</td>
+</tr>
+<tr>
+<td>Travail du soir</td>
+<td>La part des commits dont l'heure d'auteur, à l'heure de Paris, tombe entre 20 h et 7 h, ou le week-end</td>
+<td>Par itération, pour l'équipe entière</td>
+<td>Les commits des automates ; aucun chiffre par personne</td>
+</tr>
+</tbody>
+</table>
+<h3>Quelques précisions</h3>
+<p><strong>Le taux de retouche arrive en retard.</strong> Il faut attendre trente jours pour savoir si une story est revenue. On le publie donc avec une itération de décalage, et l'on n'en tire rien sur l'itération en cours.</p>
+<p><strong>Le temps de traversée se lit au 85e centile autant qu'à la médiane.</strong> La médiane dit ce que vit une story ordinaire ; le 85e centile dit ce que vivent celles qui coincent, et c'est sur elles que l'équipe peut agir.</p>
+<p><strong>Les forfaits du coût complet</strong> sont ceux du chapitre M14 : préparation, tours de relecture, exploration, anomalies. Ils sont convenus avec le contrôle de gestion, vérifiés à la main chaque trimestre sur un échantillon, et ajustés s'ils dérivent.</p>
+<p><strong>Les commits de l'agent</strong> portent comme auteur la personne qui l'a lancé, et l'agent en co-auteur (chapitre M10). Ils comptent donc dans le travail du soir de l'équipe : un agent lancé à 22 h reste un signe que quelqu'un travaillait à 22 h.</p>
+<h3>La prévision</h3>
+<p>Le débit des huit dernières semaines alimente la prévision en fourchette du chapitre M10 : on simule de nombreuses fois le nombre de semaines nécessaires pour finir le reste du périmètre, et l'on publie la durée atteinte dans la moitié des simulations et celle atteinte dans 85 % d'entre elles. Au chapitre 26, la sponsor refuse de donner une date avant deux itérations mesurées : il faut un débit observé pour que la simulation dise quelque chose.</p>
+<h2>Lire les indicateurs ensemble</h2>
+<p>Un indicateur isolé se laisse interpréter dans le sens qui arrange. La leçon du chapitre 26 tient en une matrice : le débit ne dit rien tant qu'on ne sait pas ce qu'il a coûté en retouche.</p>
+<blockquote>
+<p><em>Schéma (version numérique) : débit et retouche · quatre situations, une seule à viser.</em></p>
+</blockquote>
+<h3>D'autres signaux combinés</h3>
+<table>
+<thead>
+<tr>
+<th>Ce qu'on observe</th>
+<th>Ce que cela signifie souvent</th>
+<th>Ce qu'on fait</th>
+<th>Chapitre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L'attente avant relecture et le nombre de demandes en revue montent ensemble</td>
+<td>La relecture est devenue le goulot</td>
+<td>Arrêter de produire, préparer chaque relecture, faire entrer un deuxième relecteur, plafonner la file</td>
+<td>9 ; M13</td>
+</tr>
+<tr>
+<td>Le débit tient, le travail du soir monte</td>
+<td>Le rythme est tenu au prix des soirées</td>
+<td>Réduire l'engagement de l'itération suivante</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Le coût du modèle monte, la retouche ne bouge pas</td>
+<td>Des sessions trop longues, ou un modèle surdimensionné</td>
+<td>Revoir les habitudes de contexte et le choix des modèles</td>
+<td>M13, M14</td>
+</tr>
+<tr>
+<td>Les écarts de spécification et la retouche montent ensemble</td>
+<td>Les stories entrent mal préparées</td>
+<td>Durcir la définition de « prêt » ; plus de temps avec le métier</td>
+<td>22 ; annexe B</td>
+</tr>
+<tr>
+<td>Des anomalies sur les stories qui touchent le système ancien, des « pourquoi » qui ne baissent pas</td>
+<td>Le savoir de l'expert ne passe pas assez vite</td>
+<td>Prioriser les séances sur les programmes des prochaines stories</td>
+<td>17 ; M11</td>
+</tr>
+<tr>
+<td>Le 85e centile du temps de traversée monte, la médiane ne bouge pas</td>
+<td>Quelques stories restent coincées</td>
+<td>Regarder leurs dépendances dans Jira</td>
+<td>22 ; M10</td>
+</tr>
+</tbody>
+</table>
+<p>Ces lectures sont des hypothèses, pas des conclusions. Elles disent où regarder en rétrospective ; c'est l'équipe, chiffres sous les yeux, qui dit ce qui s'est vraiment passé.</p>
+<h2>Ce qu'il ne faut pas mesurer</h2>
+<p>Avec un agent, tout se compte : les lignes, les sessions, les jetons, les demandes de fusion. La plupart de ces chiffres sont faciles à obtenir et trompeurs dès qu'on les prend pour des objectifs. C'est la loi de Goodhart : une mesure qui devient une cible cesse d'être une bonne mesure.</p>
+<table>
+<thead>
+<tr>
+<th>Mesure tentante</th>
+<th>Pourquoi elle trompe</th>
+<th>À la place</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>La vélocité en points d'effort</td>
+<td>Avec un agent, les points disent de moins en moins le temps qu'il faudra ; au chapitre 26, elle culmine avec la retouche</td>
+<td>Le débit, lu avec le taux de retouche</td>
+</tr>
+<tr>
+<td>Les lignes de code produites, la part de code écrite par l'agent</td>
+<td>Récompensent le volume ; un code plus long n'est pas un code meilleur</td>
+<td>Le débit et la retouche</td>
+</tr>
+<tr>
+<td>Le nombre de demandes de fusion</td>
+<td>Au chapitre 9, découper plus fin multiplie les demandes sans réduire le coût de chaque relecture</td>
+<td>Le débit en stories</td>
+</tr>
+<tr>
+<td>Les jetons, les sessions ou le temps passé dans l'outil, par personne</td>
+<td>Mesurent l'usage, pas la valeur ; et transforment l'outil en surveillance</td>
+<td>Le coût complet par story, par équipe</td>
+</tr>
+<tr>
+<td>Un classement des développeurs</td>
+<td>Pousse chacun à optimiser son chiffre au détriment de l'équipe, et à éviter les stories difficiles</td>
+<td>Rien : la grille mesure un système</td>
+</tr>
+<tr>
+<td>La couverture des tests comme objectif</td>
+<td>On écrit des tests qui exécutent le code sans rien vérifier</td>
+<td>Un seuil plancher dans la chaîne, et des scénarios écrits par la recette</td>
+</tr>
+<tr>
+<td>Une comparaison brute entre équipes</td>
+<td>Périmètres, systèmes anciens et pratiques diffèrent ; au chapitre 26, l'agent n'explique qu'un tiers de l'écart avec Horizon</td>
+<td>Chaque équipe comparée à elle-même, dans le temps</td>
+</tr>
+</tbody>
+</table>
+<p>La télémétrie de l'outil sait produire certains de ces chiffres, comme les lignes de code ou le temps actif. Qu'ils existent ne veut pas dire qu'il faut les afficher. Le tableau de bord de l'équipe ne montre que la grille ; le reste sert, au besoin, à comprendre une anomalie de la grille.</p>
+<h2>Mettre en place la grille</h2>
+<h3>En six étapes</h3>
+<ol>
+<li><strong>Commencer par les quatre du chapitre 26</strong> : débit, temps de traversée, taux de retouche, coût complet par story. Les autres viennent quand une question les appelle.</li>
+<li><strong>Écrire les définitions</strong> de la section précédente dans <code>docs/mesures.md</code>, avec un propriétaire, et les faire valider par l'équipe et le contrôle de gestion.</li>
+<li><strong>Faire calculer une première fois par l'agent</strong>, comme au chapitre 11, à partir de Jira, de GitHub et de la télémétrie, en lecture seule.</li>
+<li><strong>Figer le calcul</strong> dans un script relu et versionné, que l'on relance ensuite à chaque itération (chapitre M10). L'agent invente la mesure ; le script la reproduit.</li>
+<li><strong>Vérifier à la main</strong> sur un échantillon de stories, comme le fait l'équipe au chapitre 26, avant de publier quoi que ce soit.</li>
+<li><strong>Publier une page</strong>, pas un portail : les quatre indicateurs sur les huit dernières itérations, les seuils visibles, et la date du calcul.</li>
+</ol>
+<p>La consigne de départ peut tenir en quelques lignes :</p>
+<pre><code class="language-text">Écris un script qui calcule, pour les huit dernières itérations, le débit,
+le temps de traversée (médiane et 85e centile), le taux de retouche et le coût
+complet par story, selon les définitions de docs/mesures.md. Sources : Jira et
+GitHub en lecture seule, et l'export de télémétrie. Aucun chiffre par personne.
+Range-le dans outils/mesures/ avec un README qui explique chaque calcul.
+</code></pre>
+<h3>Le calendrier</h3>
+<table>
+<thead>
+<tr>
+<th>Rythme</th>
+<th>Ce qu'on regarde</th>
+<th>Où, et qui</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Chaque jour</td>
+<td>Les demandes en revue, l'attente avant relecture</td>
+<td>Au point quotidien, toute l'équipe</td>
+</tr>
+<tr>
+<td>Chaque itération</td>
+<td>Les quatre indicateurs, le travail du soir, les écarts de spécification</td>
+<td>En rétrospective, l'équipe et la Product Owner</td>
+</tr>
+<tr>
+<td>Chaque mois</td>
+<td>L'écart avec la facture AWS, les quotas, les blocages du socle</td>
+<td>La DSI et la sécurité</td>
+</tr>
+<tr>
+<td>Chaque trimestre</td>
+<td>Les forfaits du coût complet, les seuils, les indicateurs et les outils inutilisés</td>
+<td>L'équipe et le contrôle de gestion</td>
+</tr>
+</tbody>
+</table>
+<p>La revue trimestrielle a aussi pour rôle de retirer. Un indicateur que personne n'a regardé depuis trois mois sort de la grille ; s'il manque un jour, on saura le recalculer.</p>
+<h2>Renvois</h2>
+<ul>
+<li>M10 — GitHub et Jira : mesurer le flux, prévoir en fourchette</li>
+<li>M11 — Le wiki : la dette de connaissance</li>
+<li>M13 — Bonnes pratiques : les signes d'alerte, la loi de Little</li>
+<li>M14 — Dépannage et coûts : la télémétrie, le coût complet par story, les quotas</li>
+<li>Annexe B — Définitions de « prêt » et de « terminé »</li>
+</ul>
+<p>Source, consultée le 24 octobre 2026 : <a href="https://fr.wikipedia.org/wiki/Loi_de_Goodhart">Loi de Goodhart</a>.</p></article><nav class="pager"><span><a href="f-annexe-c-gabarit-de-specification.html">← Gabarit de spécification</a></span><span><a href="f-annexe-e-politique-d-usage-securite.html">Politique d&#x27;usage sécurité →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

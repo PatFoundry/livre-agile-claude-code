@@ -1,0 +1,692 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Glossaire — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Annexe F</div><h1>Glossaire</h1><h2>Comment lire ce glossaire</h2>
+<p>Le livre parle trois langues à la fois : celle de l'assurance, celle de l'agilité, celle des agents. Ce glossaire les rassemble, en six familles, et donne pour chaque terme une définition courte et l'endroit du livre où il compte le plus.</p>
+<p>Les renvois suivent une convention simple : un numéro seul désigne un chapitre du roman, par exemple <em>17</em> ; un numéro précédé de M désigne un chapitre du manuel, par exemple <em>M11</em> ; une lettre désigne une annexe.</p>
+<p>Quand le livre traduit un terme anglais d'usage courant, le terme anglais figure entre parenthèses, pour qu'on le reconnaisse dans la documentation des outils. Quelques mots sont restés en anglais parce que la profession les emploie ainsi : <em>story</em>, <em>skill</em>, <em>hook</em>, <em>plugin</em>, <em>sprint</em>.</p>
+<p>Les définitions sont celles du livre, pas celles d'un dictionnaire. Elles disent ce que le terme veut dire <em>ici</em>, dans une mutuelle qui travaille avec des agents de développement.</p>
+<h2>Le métier de l'assurance</h2>
+<table>
+<thead>
+<tr>
+<th>Terme</th>
+<th>Définition</th>
+<th>Où</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Adresse du risque</td>
+<td>L'adresse du bien assuré. À ne pas confondre avec l'adresse de correspondance de l'assuré : c'est la première anomalie de production du portail</td>
+<td>24 ; A</td>
+</tr>
+<tr>
+<td>Assuré</td>
+<td>La personne couverte par le contrat. Elle n'est pas forcément le souscripteur, ni le déclarant</td>
+<td>M3 ; A</td>
+</tr>
+<tr>
+<td>Avenant</td>
+<td>Une modification du contrat, qui prend effet à une date donnée. Deux programmes anciens appliquent cette date différemment depuis 2011</td>
+<td>17 ; M11</td>
+</tr>
+<tr>
+<td>COBOL</td>
+<td>Le langage dans lequel est écrit le système des contrats, sur l'ordinateur central de la mutuelle</td>
+<td>17 ; M11</td>
+</tr>
+<tr>
+<td>Déclarant</td>
+<td>La personne qui remplit la déclaration de sinistre. Elle n'est pas forcément l'assuré</td>
+<td>M3 ; A</td>
+</tr>
+<tr>
+<td>Déclaration de sinistre</td>
+<td>La démarche par laquelle on signale un dommage à l'assureur ; le portail du roman la met en ligne</td>
+<td>1 ; C</td>
+</tr>
+<tr>
+<td>Franchise</td>
+<td>La part du dommage qui reste à la charge de l'assuré. Jamais codée en dur : toujours lue dans le contrat</td>
+<td>M3 ; A</td>
+</tr>
+<tr>
+<td>Gestion documentaire</td>
+<td>Le système qui conserve les pièces jointes des dossiers, distinct du système des contrats</td>
+<td>C</td>
+</tr>
+<tr>
+<td>Gestionnaire</td>
+<td>La personne qui instruit le dossier de sinistre et décide. Une déclaration n'est jamais rejetée automatiquement : le gestionnaire tranche</td>
+<td>22 ; A</td>
+</tr>
+<tr>
+<td>Mutuelle</td>
+<td>La société d'assurance à but non lucratif, appartenant à ses adhérents, où se déroule le roman</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Plafond</td>
+<td>Le montant maximal que l'assureur prend en charge pour un sinistre. Comme la franchise, il se lit dans le contrat</td>
+<td>M3 ; A</td>
+</tr>
+<tr>
+<td>Sinistre</td>
+<td>L'événement qui cause le dommage couvert : dégât des eaux, bris de glace, incendie</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Souscripteur</td>
+<td>La personne qui a signé le contrat et en paie la cotisation</td>
+<td>M3</td>
+</tr>
+<tr>
+<td>Système des contrats</td>
+<td>Le système ancien, sur ordinateur central, qui tient les contrats et leurs avenants. Le portail l'interroge sans jamais le contourner</td>
+<td>17, 24 ; M11</td>
+</tr>
+</tbody>
+</table>
+<h2>L'agilité et le pilotage</h2>
+<table>
+<thead>
+<tr>
+<th>Terme</th>
+<th>Définition</th>
+<th>Où</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Débit</td>
+<td>Le nombre de stories terminées par semaine. Avec le taux de retouche, il remplace la vélocité</td>
+<td>26 ; M10, D</td>
+</tr>
+<tr>
+<td>Définition de « prêt » (<em>Definition of Ready</em>)</td>
+<td>Les conditions qu'une story remplit avant d'entrer dans une itération</td>
+<td>10 ; B</td>
+</tr>
+<tr>
+<td>Définition de « terminé » (<em>Definition of Done</em>)</td>
+<td>Les conditions qu'une story remplit avant d'être considérée comme finie</td>
+<td>B</td>
+</tr>
+<tr>
+<td>Demande de fusion (<em>pull request</em>)</td>
+<td>La proposition d'intégrer une branche à la branche principale, qui porte la relecture et les contrôles</td>
+<td>9 ; M10</td>
+</tr>
+<tr>
+<td>Epic</td>
+<td>Un ensemble de stories qui forment un résultat cohérent, livré en plusieurs itérations</td>
+<td>23 ; M9</td>
+</tr>
+<tr>
+<td>Itération, sprint</td>
+<td>La période fixe au terme de laquelle l'équipe livre un incrément</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Loi de Little</td>
+<td>À débit égal, le temps d'attente est proportionnel au nombre d'éléments en cours. D'où la limite du travail en cours</td>
+<td>9 ; M13</td>
+</tr>
+<tr>
+<td>PI Planning</td>
+<td>La séance de planification commune à toutes les équipes d'un train, en début d'incrément de programme</td>
+<td>22</td>
+</tr>
+<tr>
+<td>Prévision en fourchette</td>
+<td>Une estimation de date donnée avec ses probabilités, calculée sur le débit observé plutôt que sur des estimations</td>
+<td>27 ; M10, D</td>
+</tr>
+<tr>
+<td>Product Owner</td>
+<td>La personne qui porte le besoin, priorise et valide les stories. Dans le roman, Nadia</td>
+<td>B, C</td>
+</tr>
+<tr>
+<td>Registre des dettes</td>
+<td>La liste des faiblesses qui ne se corrigent pas en une story : connaissance, vérification, outillage, sécurité</td>
+<td>17 ; M13</td>
+</tr>
+<tr>
+<td>Rétrospective</td>
+<td>La réunion de fin d'itération où l'équipe examine sa façon de travailler. Celle de fin de phase décide de la suite</td>
+<td>11, 20 ; M13</td>
+</tr>
+<tr>
+<td>Story</td>
+<td>Un besoin formulé du point de vue de l'utilisateur, assez petit pour tenir en une itération et, avec un agent, en une session</td>
+<td>M13 ; C</td>
+</tr>
+<tr>
+<td>Story autoportante</td>
+<td>Une story qui se comprend sans aucun autre document ouvert : exigences, décisions, système existant, scénarios, hors-périmètre</td>
+<td>27 ; C</td>
+</tr>
+<tr>
+<td>Taux de retouche</td>
+<td>La part des stories rouvertes, ou suivies d'une anomalie, dans les trente jours qui suivent la fusion</td>
+<td>26 ; D</td>
+</tr>
+<tr>
+<td>Temps de traversée</td>
+<td>La durée entre la création du ticket et la fusion de la story</td>
+<td>26 ; D</td>
+</tr>
+<tr>
+<td>Train (<em>Agile Release Train</em>)</td>
+<td>Le groupe d'équipes qui planifient et livrent ensemble, au rythme commun du cadre SAFe. Ici, le train Indemnisation</td>
+<td>22 ; M12</td>
+</tr>
+<tr>
+<td>Travail en cours, limite du</td>
+<td>Le nombre maximal d'éléments à une étape. Ici, six demandes de fusion en revue au plus</td>
+<td>9 ; M13</td>
+</tr>
+<tr>
+<td>Vélocité</td>
+<td>Le nombre de points d'effort livrés par itération. Avec des agents, elle dit de moins en moins le temps qu'il faudra</td>
+<td>26 ; M13, D</td>
+</tr>
+</tbody>
+</table>
+<h2>L'agent et ses outils</h2>
+<table>
+<thead>
+<tr>
+<th>Terme</th>
+<th>Définition</th>
+<th>Où</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent de développement</td>
+<td>Un modèle de langage qui lit le code, exécute des commandes et modifie des fichiers pour accomplir une tâche, sous le contrôle d'une personne</td>
+<td>M1, M2</td>
+</tr>
+<tr>
+<td>Bac à sable (<em>sandbox</em>)</td>
+<td>L'isolement imposé aux commandes de l'agent : fichiers et hôtes réseau accessibles limités par le système</td>
+<td>M4</td>
+</tr>
+<tr>
+<td>Catalogue interne (<em>marketplace</em>)</td>
+<td>Le dépôt qui liste les plugins approuvés par la maison et d'où les postes les installent</td>
+<td>16 ; M8</td>
+</tr>
+<tr>
+<td>CLAUDE.md</td>
+<td>Le fichier de consignes que l'agent lit au début de chaque session : vocabulaire, principes, façon de travailler</td>
+<td>3 ; M3, A</td>
+</tr>
+<tr>
+<td>CLAUDE.local.md</td>
+<td>Les consignes personnelles d'un développeur pour un projet, jamais versionnées</td>
+<td>M3, M12</td>
+</tr>
+<tr>
+<td>Compaction</td>
+<td>Le résumé automatique d'une conversation devenue trop longue, pour libérer du contexte</td>
+<td>M2, M13</td>
+</tr>
+<tr>
+<td>Connecteur (serveur MCP)</td>
+<td>Un programme qui donne à l'agent accès à un autre système, comme Jira, selon le protocole MCP</td>
+<td>11, 25 ; M7</td>
+</tr>
+<tr>
+<td>Contexte</td>
+<td>Tout ce que l'agent a sous les yeux dans une session : consignes, messages, fichiers lus, sorties de commandes. La ressource la plus précieuse</td>
+<td>M2, M13</td>
+</tr>
+<tr>
+<td>Copie isolée (<em>worktree</em>)</td>
+<td>Une copie de travail séparée du dépôt, qui permet à plusieurs agents de travailler en parallèle sans se gêner</td>
+<td>8 ; M5</td>
+</tr>
+<tr>
+<td>Effort</td>
+<td>Le réglage de la profondeur de raisonnement du modèle, de bas à maximal</td>
+<td>M14</td>
+</tr>
+<tr>
+<td>Hook</td>
+<td>Une action exécutée à coup sûr à un moment précis du travail de l'agent : avant une commande, après une modification, en fin de tour</td>
+<td>13 ; M6</td>
+</tr>
+<tr>
+<td>Mémoire automatique</td>
+<td>Les notes que l'agent tient lui-même d'une session à l'autre, sur le poste</td>
+<td>M3</td>
+</tr>
+<tr>
+<td>Mode plan</td>
+<td>Le mode où l'agent lit et propose un plan sans rien modifier</td>
+<td>M2, M13</td>
+</tr>
+<tr>
+<td>Paramètres gérés</td>
+<td>Les réglages déployés par la DSI sur tous les postes, qu'aucun réglage local ne peut lever</td>
+<td>M4</td>
+</tr>
+<tr>
+<td>Permission, règle de</td>
+<td>Une règle qui autorise, fait demander ou interdit une action de l'agent</td>
+<td>M4</td>
+</tr>
+<tr>
+<td>Plugin</td>
+<td>Un paquet installable qui réunit skills, sous-agents, hooks et connecteurs</td>
+<td>16, 18 ; M8</td>
+</tr>
+<tr>
+<td>Prérelecture</td>
+<td>La préparation de la relecture par un agent qui n'a pas écrit le code ; il prépare, il ne signe pas</td>
+<td>9 ; M5, M10</td>
+</tr>
+<tr>
+<td>Profil d'inférence</td>
+<td>L'identifiant qui achemine les appels au modèle vers un groupe de régions, ici européennes</td>
+<td>M1, M14</td>
+</tr>
+<tr>
+<td>Règle par chemin</td>
+<td>Une consigne de <code>.claude/rules/</code> qui ne se charge que lorsque l'agent touche certains fichiers</td>
+<td>M3, A</td>
+</tr>
+<tr>
+<td>Session</td>
+<td>Une conversation de travail avec l'agent, avec son propre contexte</td>
+<td>M2</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>Un savoir-faire écrit, que l'agent charge quand il en a besoin ou qu'on appelle par son nom</td>
+<td>18 ; M5</td>
+</tr>
+<tr>
+<td>Socle</td>
+<td>L'ensemble des garde-fous communs à toute la maison : consignes, verrous, contrôles, livrés ensemble par la DSI</td>
+<td>16 ; M8, E</td>
+</tr>
+<tr>
+<td>Sous-agent</td>
+<td>Un agent lancé par l'agent principal, avec son propre contexte et ses propres outils, pour une tâche délimitée</td>
+<td>M5</td>
+</tr>
+<tr>
+<td>Télémétrie</td>
+<td>Les métriques et événements que l'outil exporte vers l'observabilité de la maison</td>
+<td>M14</td>
+</tr>
+<tr>
+<td>Transcription</td>
+<td>L'enregistrement complet d'une session, conservé en clair sur le poste, puis effacé</td>
+<td>M12</td>
+</tr>
+</tbody>
+</table>
+<h2>La méthode et la connaissance</h2>
+<table>
+<thead>
+<tr>
+<th>Terme</th>
+<th>Définition</th>
+<th>Où</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architecture, décision d'</td>
+<td>Une décision technique écrite sous une forme fixe : contexte, décision, alternatives écartées, conséquences, et le nom de qui décide</td>
+<td>24 ; M11</td>
+</tr>
+<tr>
+<td>BMAD</td>
+<td>Une méthode libre qui installe dans l'agent des rôles (analyste, chef de produit, architecte, développeuse) et des déroulés de l'idée au code relu</td>
+<td>20 à 27 ; M9</td>
+</tr>
+<tr>
+<td>Brief produit</td>
+<td>Le document d'analyse qui dit quel problème on résout, pour qui, et ce que le produit ne fera pas</td>
+<td>22 ; M9</td>
+</tr>
+<tr>
+<td>Contrôle de cohérence</td>
+<td>L'opération qui cherche dans le wiki les contradictions, les affirmations périmées et les notions sans page</td>
+<td>17 ; M11</td>
+</tr>
+<tr>
+<td>Gherkin</td>
+<td>La syntaxe des scénarios d'acceptation, en phrases du type <em>Étant donné, Quand, Alors</em>, lisibles et exécutables</td>
+<td>10 ; C</td>
+</tr>
+<tr>
+<td>Hors-périmètre</td>
+<td>La rubrique d'une story qui dit ce qu'elle ne fera pas. Née avec l'analyste du chapitre 22</td>
+<td>22 ; C</td>
+</tr>
+<tr>
+<td>Ingestion</td>
+<td>L'opération qui fait entrer une source dans le wiki : résumé, mise à jour des pages touchées, contradictions signalées</td>
+<td>17 ; M11</td>
+</tr>
+<tr>
+<td>Partie figée</td>
+<td>La part d'une spécification que l'humain a décidée et que l'agent ne modifie plus après approbation</td>
+<td>M9 ; C</td>
+</tr>
+<tr>
+<td>PRD (<em>Product Requirements Document</em>)</td>
+<td>Le document d'exigences d'un produit ou d'une phase, que plusieurs personnes doivent approuver</td>
+<td>23 ; M9</td>
+</tr>
+<tr>
+<td>Scénario d'acceptation</td>
+<td>Un exemple exécutable de ce que la story doit faire, écrit avant le code par la recette et le métier, que l'agent ne modifie jamais</td>
+<td>10 ; M13, C</td>
+</tr>
+<tr>
+<td>Schéma du wiki</td>
+<td>Le fichier de consignes qui dit à l'agent comment le wiki est organisé et ce qu'il fait à chaque opération</td>
+<td>M11 ; A</td>
+</tr>
+<tr>
+<td>Sources brutes</td>
+<td>Les documents d'origine que le wiki résume sans jamais les modifier : programmes, documents, entretiens</td>
+<td>17 ; M11</td>
+</tr>
+<tr>
+<td>Spécification d'implémentation</td>
+<td>Le document rédigé par l'agent au début d'une story, approuvé par une personne : questions, fichiers, démarche, vérification, hors-périmètre</td>
+<td>M9, M13 ; C</td>
+</tr>
+<tr>
+<td>Tests de caractérisation</td>
+<td>Des tests qui enregistrent ce que fait réellement un système ancien, pour vérifier que le nouveau fait pareil</td>
+<td>24 ; M11</td>
+</tr>
+<tr>
+<td>Wiki d'équipe (<em>LLM Wiki</em>)</td>
+<td>Un ensemble de pages courtes et reliées, compilé et tenu à jour par l'agent à partir des sources, sur le modèle d'Andrej Karpathy</td>
+<td>17 ; M11</td>
+</tr>
+</tbody>
+</table>
+<h2>La sécurité, la conformité et les coûts</h2>
+<table>
+<thead>
+<tr>
+<th>Terme</th>
+<th>Définition</th>
+<th>Où</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Branche protégée</td>
+<td>La règle qui interdit de modifier la branche principale sans demande de fusion approuvée et contrôles verts</td>
+<td>M10</td>
+</tr>
+<tr>
+<td>Commission sécurité</td>
+<td>L'instance qui adopte la politique d'usage et valide le socle</td>
+<td>16 ; E</td>
+</tr>
+<tr>
+<td>Contrôle obligatoire</td>
+<td>Un contrôle de la chaîne d'intégration sans lequel une demande de fusion ne peut pas être fusionnée. Il est toujours déterministe</td>
+<td>13 ; M10</td>
+</tr>
+<tr>
+<td>Coût complet par story</td>
+<td>Le coût du modèle plus le temps humain passé sur la story, estimé par forfaits</td>
+<td>26 ; M14, D</td>
+</tr>
+<tr>
+<td>Données synthétiques</td>
+<td>Des données fabriquées pour les tests, qui ressemblent aux vraies sans concerner personne. Les seules que les agents utilisent</td>
+<td>13 ; E</td>
+</tr>
+<tr>
+<td>DORA</td>
+<td>Le règlement européen sur la résilience opérationnelle numérique du secteur financier</td>
+<td>22 ; E</td>
+</tr>
+<tr>
+<td>Fichier des propriétaires (<em>CODEOWNERS</em>)</td>
+<td>Le fichier qui dit qui doit approuver une modification, selon les fichiers touchés</td>
+<td>M10</td>
+</tr>
+<tr>
+<td>Fiche réflexe</td>
+<td>Les six gestes à suivre en cas d'incident : arrêter, ne rien effacer, prévenir, contenir, comprendre, apprendre</td>
+<td>E</td>
+</tr>
+<tr>
+<td>Injection d'instructions</td>
+<td>Un texte, lu par l'agent dans un ticket, une page ou un fichier, qui tente de lui donner des ordres</td>
+<td>3 ; M7</td>
+</tr>
+<tr>
+<td>Jeton (<em>token</em>)</td>
+<td>L'unité dans laquelle se comptent le texte envoyé au modèle et celui qu'il produit, et donc le coût</td>
+<td>M14</td>
+</tr>
+<tr>
+<td>Quota</td>
+<td>La limite de débit que le fournisseur de modèles applique par compte, par modèle et par région</td>
+<td>M14</td>
+</tr>
+<tr>
+<td>Registre des exceptions</td>
+<td>La liste des dérogations accordées à la politique, chacune avec sa raison, son périmètre et sa date de fin</td>
+<td>E</td>
+</tr>
+<tr>
+<td>Règle des trois (<em>lethal trifecta</em>)</td>
+<td>Le danger qui naît quand une même session réunit des données sensibles, un contenu non fiable et un moyen de faire sortir l'information</td>
+<td>M7</td>
+</tr>
+<tr>
+<td>RGPD</td>
+<td>Le règlement général sur la protection des données personnelles</td>
+<td>13 ; E</td>
+</tr>
+<tr>
+<td>RSSI</td>
+<td>Le responsable de la sécurité des systèmes d'information. Dans le roman, Bertrand</td>
+<td>E</td>
+</tr>
+<tr>
+<td>Test des quatre minutes</td>
+<td>La vérification qu'on peut retracer l'origine d'une ligne de code, de sa demande à sa relecture, en moins de quatre minutes</td>
+<td>16 ; M10</td>
+</tr>
+<tr>
+<td>Traçabilité</td>
+<td>La capacité à relier chaque changement à son ticket, sa spécification, son approbation et sa relecture</td>
+<td>16 ; M10, E</td>
+</tr>
+</tbody>
+</table>
+<h2>Les personnages et les organisations</h2>
+<p>Tous les personnages et toutes les organisations du roman sont fictifs. Les agents de la méthode BMAD portent les prénoms que leur donne la méthode elle-même.</p>
+<h3>L'équipe et ses proches</h3>
+<table>
+<thead>
+<tr>
+<th>Nom</th>
+<th>Rôle</th>
+<th>Où on le voit surtout</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thomas</td>
+<td>Directeur de projet, narrateur du roman</td>
+<td>Tout le roman</td>
+</tr>
+<tr>
+<td>Julien</td>
+<td>Tech lead ; relecteur principal, puis référent technique du socle</td>
+<td>9, 16, 24</td>
+</tr>
+<tr>
+<td>Sofiane</td>
+<td>Développeur ; il empaquette les savoir-faire de l'équipe et présente la méthode BMAD</td>
+<td>16, 18, 20</td>
+</tr>
+<tr>
+<td>Nadia Benali</td>
+<td>Product Owner ; propriétaire du vocabulaire métier et des stories</td>
+<td>18, 22, 25</td>
+</tr>
+<tr>
+<td>Émilie</td>
+<td>Testeuse ; elle fait des scénarios l'entrée de l'agent, puis forme les testeurs d'Horizon</td>
+<td>10, 22, 27</td>
+</tr>
+<tr>
+<td>Gérard</td>
+<td>Le dernier expert du système des contrats en COBOL</td>
+<td>17, 24</td>
+</tr>
+<tr>
+<td>Sabine</td>
+<td>Gestionnaire de sinistres, interrogée par l'analyste avec Nadia</td>
+<td>22</td>
+</tr>
+</tbody>
+</table>
+<h3>La sécurité et la direction</h3>
+<table>
+<thead>
+<tr>
+<th>Nom</th>
+<th>Rôle</th>
+<th>Où on le voit surtout</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bertrand</td>
+<td>Responsable de la sécurité des systèmes d'information</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Mathilde</td>
+<td>Auditrice sécurité ; elle met l'agent à l'épreuve, puis devient responsable du socle</td>
+<td>3, 16, 22</td>
+</tr>
+<tr>
+<td>La directrice générale</td>
+<td>Elle veut que les garde-fous du pilote deviennent la règle de toute la maison</td>
+<td>16</td>
+</tr>
+<tr>
+<td>La sponsor</td>
+<td>Elle porte le projet devant le comité, et y présente une prévision en fourchette</td>
+<td>26, 27</td>
+</tr>
+</tbody>
+</table>
+<h3>Les organisations</h3>
+<table>
+<thead>
+<tr>
+<th>Nom</th>
+<th>Ce que c'est</th>
+<th>Où</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>La mutuelle</td>
+<td>L'assureur où se déroule le roman</td>
+<td>Tout le roman</td>
+</tr>
+<tr>
+<td>Le train Indemnisation</td>
+<td>Le groupe d'équipes qui livrent ensemble, auquel le portail appartient en phase 2</td>
+<td>22, 25</td>
+</tr>
+<tr>
+<td>Horizon</td>
+<td>Le prestataire dont une équipe rejoint le programme en janvier, avec le même socle</td>
+<td>16, 17, 26</td>
+</tr>
+<tr>
+<td>La DSI</td>
+<td>La direction des systèmes d'information : postes, paramètres gérés, catalogue, compte cloud</td>
+<td>M1, M4, M8</td>
+</tr>
+<tr>
+<td>Le contrôle de gestion</td>
+<td>Il demande la vélocité, et obtient quatre indicateurs</td>
+<td>26</td>
+</tr>
+<tr>
+<td>Le bureau des projets</td>
+<td>Il veut tout dans Jira ; la règle « une information, un seul endroit » lui donne sa part</td>
+<td>25</td>
+</tr>
+</tbody>
+</table>
+<h3>Les agents de la méthode BMAD</h3>
+<table>
+<thead>
+<tr>
+<th>Prénom</th>
+<th>Rôle</th>
+<th>Où</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mary</td>
+<td>L'analyste : recherche, brief produit</td>
+<td>22 ; M9</td>
+</tr>
+<tr>
+<td>John</td>
+<td>Le chef de produit : PRD, epics et stories</td>
+<td>23 ; M9</td>
+</tr>
+<tr>
+<td>Sally</td>
+<td>La designer d'expérience</td>
+<td>M9</td>
+</tr>
+<tr>
+<td>Winston</td>
+<td>L'architecte</td>
+<td>24 ; M9</td>
+</tr>
+<tr>
+<td>Amelia</td>
+<td>La développeuse : implémentation, relecture, rétrospective</td>
+<td>M9</td>
+</tr>
+</tbody>
+</table></article><nav class="pager"><span><a href="f-annexe-e-politique-d-usage-securite.html">← Politique d&#x27;usage sécurité</a></span><span></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

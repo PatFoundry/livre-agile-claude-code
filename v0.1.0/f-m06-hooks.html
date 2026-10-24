@@ -1,0 +1,688 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Hooks — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Chapitre M6</div><h1>Hooks</h1><h2>Ce que couvre ce chapitre</h2>
+<p>Un hook est un programme que l'outil déclenche lui-même, à un moment précis du travail de l'agent : avant une modification, après une commande, à la fin d'une réponse. L'agent ne décide pas de le lancer, ne peut pas l'oublier et ne peut pas le négocier. C'est le troisième étage de la maison, après la consigne du CLAUDE.md (chapitre M3) et le verrou des permissions (chapitre M4) : le contrôle qui examine le contenu de ce que l'agent s'apprête à faire.</p>
+<p>Le roman lui donne sa scène la plus dure. Au chapitre 13, une ligne de journalisation approuvée à une heure et demie du matin a écrit pendant vingt-cinq jours les coordonnées réelles de mille trois cent douze assurés dans une plateforme lisible par des centaines de comptes. Mathilde refuse d'ajouter une simple consigne : « Il nous faut quelque chose qui arrête tout le monde. » Le soir même, un hook refuse toute modification qui journalise un objet complet. Au chapitre 16, ce contrôle entre dans le socle imposé à toute la maison.</p>
+<blockquote>
+<p><strong>Version de référence.</strong> Claude Code 2.1.301, publiée le 15 octobre 2026, avec la configuration Bedrock du chapitre M1. Les événements et les formats d'échange des hooks évoluent souvent ; la <a href="https://code.claude.com/docs/en/hooks">référence officielle</a> fait foi.</p>
+</blockquote>
+<p>Un hook s'exécute avec vos droits, hors du bac à sable. C'est ce qui le rend puissant, et c'est pourquoi la fin du chapitre traite de leur gouvernance autant que de leur écriture.</p>
+<h2>Un événement, une action certaine</h2>
+<p>Un hook associe un événement à une action. Quand l'événement survient, l'outil exécute l'action, à chaque fois, quelle que soit la décision de l'agent. C'est ce qui le distingue des deux étages précédents.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Consigne (M3)</th>
+<th>Règle de permission (M4)</th>
+<th>Hook</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Qui l'applique</td>
+<td>L'agent, s'il y pense</td>
+<td>L'outil</td>
+<td>L'outil</td>
+</tr>
+<tr>
+<td>Ce qu'elle regarde</td>
+<td>Rien : c'est une intention</td>
+<td>Le nom de l'outil et la forme de la demande</td>
+<td>Tout le contenu de l'action : le code à écrire, la commande complète, le résultat</td>
+</tr>
+<tr>
+<td>Ce qu'elle peut faire</td>
+<td>Orienter</td>
+<td>Autoriser, demander, refuser</td>
+<td>Refuser avec une explication, ajouter du contexte, agir à côté : formater, journaliser, prévenir</td>
+</tr>
+</tbody>
+</table>
+<p>Au chapitre 13, aucune règle de permission n'aurait suffi : il fallait lire le code que l'agent s'apprêtait à écrire pour y reconnaître une journalisation dangereuse. C'est exactement ce qu'un hook sait faire.</p>
+<blockquote>
+<p><em>Schéma (version numérique) : les événements les plus utiles · il en existe une trentaine.</em></p>
+</blockquote>
+<h3>Les événements à connaître</h3>
+<p>L'outil en propose une trentaine. Ceux-ci couvrent l'essentiel des besoins d'une équipe.</p>
+<table>
+<thead>
+<tr>
+<th>Événement</th>
+<th>Quand</th>
+<th>Peut-il arrêter ?</th>
+<th>Usage typique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SessionStart</code></td>
+<td>Ouverture, reprise, après une compaction</td>
+<td>Non</td>
+<td>Donner du contexte vivant : la branche, les tickets ouverts</td>
+</tr>
+<tr>
+<td><code>UserPromptSubmit</code></td>
+<td>Avant que la demande parte vers le modèle</td>
+<td>Oui</td>
+<td>Refuser une demande qui contient un secret collé par erreur</td>
+</tr>
+<tr>
+<td><code>PreToolUse</code></td>
+<td>Avant chaque action de l'agent</td>
+<td>Oui</td>
+<td>Refuser une modification ou une commande dangereuse</td>
+</tr>
+<tr>
+<td><code>PostToolUse</code></td>
+<td>Après chaque action réussie</td>
+<td>Non : l'action a eu lieu</td>
+<td>Formater, lancer les tests, journaliser</td>
+</tr>
+<tr>
+<td><code>Stop</code></td>
+<td>Quand l'agent termine sa réponse</td>
+<td>Oui : il reprend le travail</td>
+<td>Vérifier que la suite de tests passe avant de rendre la main</td>
+</tr>
+<tr>
+<td><code>Notification</code></td>
+<td>Quand l'agent attend une réponse</td>
+<td>Non</td>
+<td>Prévenir sur le bureau</td>
+</tr>
+<tr>
+<td><code>ConfigChange</code></td>
+<td>Quand un fichier de paramètres change en cours de session</td>
+<td>Oui</td>
+<td>Tracer ou refuser une modification de configuration</td>
+</tr>
+<tr>
+<td><code>SessionEnd</code></td>
+<td>Fermeture</td>
+<td>Non</td>
+<td>Archiver, nettoyer</td>
+</tr>
+</tbody>
+</table>
+<h3>Cinq sortes d'actions</h3>
+<p>La plupart des hooks lancent une commande, un script qui lit l'événement et répond. Quatre autres formes existent : envoyer l'événement à une adresse web, ce qui convient à un service central de journalisation ; appeler un outil d'un serveur MCP ; demander à un modèle de juger en une question ; ou confier la vérification à un sous-agent, une forme encore expérimentale.</p>
+<p>Pour un garde-fou, préférez la commande : elle donne toujours la même réponse au même cas, elle ne coûte rien en jetons, et un auditeur peut la relire. Un jugement par modèle peut compléter, jamais remplacer.</p>
+<h2>Écrire un premier hook</h2>
+<p>Un hook se déclare dans un fichier de paramètres, sous la clé <code>hooks</code>, en trois niveaux : l'événement, un filtre qui dit pour quels outils, puis la ou les actions. Celui-ci refuse tout <code>git push</code> forcé :</p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;PreToolUse&quot;: [
+      {
+        &quot;matcher&quot;: &quot;Bash&quot;,
+        &quot;hooks&quot;: [
+          {
+            &quot;type&quot;: &quot;command&quot;,
+            &quot;if&quot;: &quot;Bash(git push *)&quot;,
+            &quot;command&quot;: &quot;${CLAUDE_PROJECT_DIR}/.claude/hooks/refuser-push-force.sh&quot;,
+            &quot;args&quot;: []
+          }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<p>Le filtre <code>matcher</code> retient les commandes du shell ; le champ <code>if</code>, écrit comme une règle de permission, ne lance le script que pour un <code>git push</code>. <code>${CLAUDE_PROJECT_DIR}</code> désigne la racine du projet, d'où que la session ait été lancée. La présence de <code>args</code>, même vide, fait lancer le script directement, sans passer par un shell, ce qui évite les soucis de guillemets dans les chemins.</p>
+<p>Le script, rangé dans <code>.claude/hooks/</code> et rendu exécutable avec <code>chmod +x</code> :</p>
+<pre><code class="language-bash">#!/bin/bash
+COMMANDE=$(jq -r '.tool_input.command')
+
+if echo &quot;$COMMANDE&quot; | grep -qE -- '--force|--force-with-lease| -f( |$)'; then
+  echo &quot;Refusé : pas de push forcé. Ouvrez une demande de fusion.&quot; &gt;&amp;2
+  exit 2
+fi
+
+exit 0
+</code></pre>
+<h3>Ce que le script reçoit</h3>
+<p>L'outil transmet l'événement en JSON sur l'entrée standard. On y trouve toujours l'identifiant de la session, le dossier de travail et le nom de l'événement. Pour une action de l'agent s'ajoutent <code>tool_name</code> et <code>tool_input</code>, dont le contenu dépend de l'outil :</p>
+<table>
+<thead>
+<tr>
+<th>Outil</th>
+<th>Champs utiles de <code>tool_input</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Bash</code></td>
+<td><code>command</code> : la commande complète</td>
+</tr>
+<tr>
+<td><code>Edit</code></td>
+<td><code>file_path</code>, <code>old_string</code> (le texte remplacé), <code>new_string</code> (le texte qui le remplace)</td>
+</tr>
+<tr>
+<td><code>Write</code></td>
+<td><code>file_path</code>, <code>content</code> (le fichier entier)</td>
+</tr>
+</tbody>
+</table>
+<h3>Ce que le script répond</h3>
+<table>
+<thead>
+<tr>
+<th>Sortie</th>
+<th>Effet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code 0</td>
+<td>Rien à signaler. L'action suit son cours normal, y compris les demandes d'autorisation : ce n'est pas une approbation.</td>
+</tr>
+<tr>
+<td>Code 2</td>
+<td>Refus. Le texte écrit sur la sortie d'erreur est transmis à l'agent, qui peut corriger sa copie.</td>
+</tr>
+<tr>
+<td>Tout autre code</td>
+<td>Erreur du hook, signalée mais <strong>non bloquante</strong> : l'action continue.</td>
+</tr>
+<tr>
+<td>Code 0 et un objet JSON</td>
+<td>Contrôle plus fin : refuser, faire demander, ajouter du contexte.</td>
+</tr>
+</tbody>
+</table>
+<p>Le troisième cas est le piège classique : un script qui échoue avec le code 1, l'usage habituel sous Unix, laisse passer l'action. Un garde-fou doit sortir avec le code 2, et se protéger contre ses propres pannes (section sur la gouvernance).</p>
+<p>La forme JSON permet par exemple de refuser en expliquant, ou de renvoyer la décision à l'humain :</p>
+<pre><code class="language-json">{
+  &quot;hookSpecificOutput&quot;: {
+    &quot;hookEventName&quot;: &quot;PreToolUse&quot;,
+    &quot;permissionDecision&quot;: &quot;ask&quot;,
+    &quot;permissionDecisionReason&quot;: &quot;Cette commande touche à la base de recette.&quot;
+  }
+}
+</code></pre>
+<h3>Où le déclarer</h3>
+<table>
+<thead>
+<tr>
+<th>Emplacement</th>
+<th>Portée</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>~/.claude/settings.json</code></td>
+<td>Vous, dans tous vos projets</td>
+</tr>
+<tr>
+<td><code>.claude/settings.json</code></td>
+<td>Le projet, pour toute l'équipe une fois versionné</td>
+</tr>
+<tr>
+<td><code>.claude/settings.local.json</code></td>
+<td>Vous, dans ce projet</td>
+</tr>
+<tr>
+<td>Paramètres gérés</td>
+<td>Tous les postes ; personne ne peut les retirer</td>
+</tr>
+<tr>
+<td>Un plugin</td>
+<td>Ceux qui l'installent (chapitre M8)</td>
+</tr>
+<tr>
+<td>L'en-tête d'une skill ou d'un sous-agent</td>
+<td>Le temps de leur utilisation (chapitre M5)</td>
+</tr>
+</tbody>
+</table>
+<p>Les hooks de tous les niveaux s'additionnent ; quand plusieurs répondent au même événement, ils s'exécutent en parallèle, et le refus l'emporte.</p>
+<h3>Vérifier et tester</h3>
+<p><code>/hooks</code> liste tous les hooks en vigueur, avec leur origine. Pour tester un script sans attendre que l'agent le déclenche, donnez-lui un événement à la main :</p>
+<pre><code class="language-bash">echo '{&quot;tool_name&quot;:&quot;Bash&quot;,&quot;tool_input&quot;:{&quot;command&quot;:&quot;git push -f origin main&quot;}}' \
+  | .claude/hooks/refuser-push-force.sh; echo &quot;code : $?&quot;
+</code></pre>
+<p>Le résultat attendu est le message de refus, suivi de <code>code : 2</code>. Les modifications des fichiers de paramètres sont prises en compte sans redémarrer la session.</p>
+<h2>Formater et vérifier à chaque modification</h2>
+<p>Le premier usage d'un hook n'a rien de sécuritaire : il évite que l'équipe passe ses relectures à commenter des espaces et des imports. Après chaque modification de fichier par l'agent, un hook <code>PostToolUse</code> lance le formateur du projet sur ce fichier.</p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;PostToolUse&quot;: [
+      {
+        &quot;matcher&quot;: &quot;Edit|Write&quot;,
+        &quot;hooks&quot;: [
+          {
+            &quot;type&quot;: &quot;command&quot;,
+            &quot;command&quot;: &quot;${CLAUDE_PROJECT_DIR}/.claude/hooks/formater.sh&quot;,
+            &quot;args&quot;: [],
+            &quot;timeout&quot;: 30
+          }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<pre><code class="language-bash">#!/bin/bash
+FICHIER=$(jq -r '.tool_input.file_path')
+
+case &quot;$FICHIER&quot; in
+  *.java)            google-java-format --replace &quot;$FICHIER&quot; ;;
+  *.ts|*.tsx|*.json) npx prettier --write &quot;$FICHIER&quot; ;;
+esac
+
+exit 0
+</code></pre>
+<p>Le script ne bloque jamais : il sort toujours avec le code 0. Quand il réussit, rien ne s'affiche ; on le constate dans le fichier, reformaté.</p>
+<h3>Rendre les erreurs à l'agent</h3>
+<p>Un hook <code>PostToolUse</code> ne peut pas défaire une action, puisqu'elle a déjà eu lieu. Il peut en revanche signaler un problème : s'il sort avec le code 2, son message d'erreur est transmis à l'agent, qui corrige dans la foulée. C'est la bonne place pour un contrôle rapide sur le seul fichier modifié, comme l'analyse statique du projet :</p>
+<pre><code class="language-bash">#!/bin/bash
+FICHIER=$(jq -r '.tool_input.file_path')
+[[ &quot;$FICHIER&quot; == *.java ]] || exit 0
+
+if ! SORTIE=$(checkstyle -c config/checkstyle.xml &quot;$FICHIER&quot; 2&gt;&amp;1); then
+  echo &quot;$SORTIE&quot; &gt;&amp;2
+  exit 2
+fi
+exit 0
+</code></pre>
+<h3>Ne pas rendre la main tant que les tests échouent</h3>
+<p>Un hook <code>Stop</code> intervient quand l'agent s'apprête à terminer sa réponse. S'il sort avec le code 2, l'agent reprend le travail avec le message reçu. On s'en sert pour exiger que les tests unitaires passent avant que la main revienne à l'humain.</p>
+<pre><code class="language-bash">#!/bin/bash
+ENTREE=$(cat)
+# Deuxième passage d'affilée : laisser l'agent s'arrêter.
+if [ &quot;$(echo &quot;$ENTREE&quot; | jq -r '.stop_hook_active')&quot; = &quot;true&quot; ]; then
+  exit 0
+fi
+
+if ! SORTIE=$(mvn -q test 2&gt;&amp;1); then
+  echo &quot;Des tests échouent. Corrige-les avant de terminer :&quot; &gt;&amp;2
+  echo &quot;$SORTIE&quot; | tail -40 &gt;&amp;2
+  exit 2
+fi
+exit 0
+</code></pre>
+<p>La vérification de <code>stop_hook_active</code> évite une boucle sans fin : quand l'agent a déjà été relancé une fois par ce hook, on le laisse s'arrêter et rendre compte. L'outil force d'ailleurs l'arrêt après huit relances consécutives.</p>
+<h3>Garder la boucle rapide</h3>
+<p>Un hook bloquant s'exécute à chaque action concernée, et l'agent l'attend. Trois règles :</p>
+<ul>
+<li><strong>Viser le fichier, pas le projet.</strong> Formater ou analyser un fichier prend une fraction de seconde ; relancer toute la construction à chaque modification ralentit tout.</li>
+<li><strong>Réserver les contrôles longs à <code>Stop</code>.</strong> Les tests passent une fois par réponse, pas après chaque ligne.</li>
+<li><strong>Lancer en arrière-plan ce qui n'a pas à décider.</strong> Avec <code>"async": true</code>, une notification ou un envoi de statistiques s'exécute sans retenir l'agent.</li>
+</ul>
+<p>Une limite à garder en tête : <code>Edit|Write</code> ne voit que les outils d'édition. Un fichier modifié par une commande du shell, un <code>sed</code> par exemple, passe à côté. Pour un contrôle qui doit tout voir, un hook <code>Stop</code> peut examiner l'ensemble des fichiers modifiés avec <code>git status --porcelain</code>.</p>
+<h2>Arrêter les données personnelles et les secrets</h2>
+<p>C'est le hook du chapitre 13. Il examine le code que l'agent s'apprête à écrire et refuse toute instruction de journalisation qui manipule un objet complet ou un champ de données personnelles. Le refus arrive avant que le fichier soit modifié, et son message dit à l'agent quoi faire à la place.</p>
+<h3>Le script</h3>
+<p>Écrit en Python pour fonctionner à l'identique sur tous les postes :</p>
+<pre><code class="language-python">#!/usr/bin/env python3
+import json, re, sys
+
+entree = json.load(sys.stdin)
+outil = entree.get(&quot;tool_input&quot;, {})
+if not outil.get(&quot;file_path&quot;, &quot;&quot;).endswith(&quot;.java&quot;):
+    sys.exit(0)
+
+texte = outil.get(&quot;new_string&quot;) or outil.get(&quot;content&quot;) or &quot;&quot;
+APPEL = re.compile(r&quot;\b(log|logger)\.(trace|debug|info|warn|error)\(&quot;, re.I)
+SENSIBLE = re.compile(
+    r&quot;\b(declaration|contrat|assure|requete|reponse|nom|prenom|adresse&quot;
+    r&quot;|telephone|email|courriel|iban|dateNaissance)\b&quot;, re.I)
+
+for ligne in texte.splitlines():
+    if APPEL.search(ligne) and SENSIBLE.search(ligne):
+        print(&quot;Modification refusée : journalisation d'un objet susceptible &quot;
+              &quot;de contenir des données personnelles. Journalisez l'identifiant &quot;
+              &quot;technique de la déclaration et le code d'erreur.&quot;, file=sys.stderr)
+        sys.exit(2)
+
+sys.exit(0)
+</code></pre>
+<p>Il lit le texte nouveau, <code>new_string</code> pour une modification ou <code>content</code> pour un fichier entier, et cherche les lignes qui à la fois appellent le journal et nomment un objet ou un champ sensible. Un identifiant technique comme <code>idDeclaration</code> passe, puisqu'il ne forme pas le mot <code>declaration</code> à lui seul.</p>
+<p>Le contrôle est volontairement grossier. Il refuse parfois à tort, et l'agent reformule ; il laisse passer un appel écrit sur plusieurs lignes. C'est acceptable parce qu'il n'est pas seul : au chapitre 13, Mathilde le place entre une consigne et un test de la chaîne d'intégration.</p>
+<h3>Le déploiement</h3>
+<p>Le script est déposé par la DSI à côté du fichier de paramètres gérés, et déclaré dans ce fichier :</p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;PreToolUse&quot;: [
+      {
+        &quot;matcher&quot;: &quot;Edit|Write&quot;,
+        &quot;hooks&quot;: [
+          {
+            &quot;type&quot;: &quot;command&quot;,
+            &quot;command&quot;: &quot;python3&quot;,
+            &quot;args&quot;: [&quot;/etc/claude-code/hooks/journaux-sans-donnees.py&quot;],
+            &quot;timeout&quot;: 10,
+            &quot;onFailure&quot;: &quot;block&quot;
+          }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<p>Deux détails comptent. Un hook des paramètres gérés ne peut être désactivé par aucun réglage du poste ou du projet. Et <code>onFailure: "block"</code> transforme toute panne du hook, script introuvable, Python absent, délai dépassé, en refus : un garde-fou qui tombe en panne ne doit pas laisser tout passer.</p>
+<h3>Trois niveaux, trois portées</h3>
+<table>
+<thead>
+<tr>
+<th>Niveau</th>
+<th>Où</th>
+<th>Ce qu'il arrête</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Une consigne</td>
+<td>Le CLAUDE.md : jamais de nom, d'adresse, de téléphone, de courriel ni de numéro de contrat dans un journal</td>
+<td>L'agent qui la lit et la suit</td>
+</tr>
+<tr>
+<td>Un hook</td>
+<td>Les paramètres gérés</td>
+<td>Toute modification faite par l'agent, sur tout poste</td>
+</tr>
+<tr>
+<td>Un test</td>
+<td>La chaîne d'intégration : les journaux des scénarios ne doivent contenir aucune donnée personnelle</td>
+<td>Toute demande de fusion, qu'elle vienne d'un humain ou de l'agent (chapitre M10)</td>
+</tr>
+</tbody>
+</table>
+<p>Le troisième niveau est le seul qui arrête Julien. La faille la plus ancienne du chapitre 13, il l'avait écrite lui-même, sans agent, un mardi à 15 heures.</p>
+<h3>Les secrets</h3>
+<p>Le même schéma vaut pour les secrets : un hook <code>PreToolUse</code> sur <code>Edit|Write</code> qui refuse un texte contenant une clé d'accès, un en-tête de clé privée ou un mot de passe en clair. Plutôt que d'écrire ses propres expressions, branchez-y le détecteur de secrets que la DSI utilise déjà dans la chaîne d'intégration : les deux contrôles parlent alors le même langage.</p>
+<p>Un hook <code>UserPromptSubmit</code> peut aussi refuser une demande dans laquelle quelqu'un a collé un secret par erreur. Elle ne part pas vers le modèle, mais son texte reste dans l'historique local de la session : ce n'est pas un moyen d'effacer, seulement de ne pas transmettre.</p>
+<h2>Bloquer les actions risquées</h2>
+<p>Le chapitre M4 a posé les interdictions qui se décrivent par un nom d'outil et un chemin. Un hook prend le relais quand la décision dépend d'autre chose : du contenu, de l'état du dépôt, de la branche courante.</p>
+<table>
+<thead>
+<tr>
+<th>Besoin</th>
+<th>Règle de permission</th>
+<th>Hook</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interdire un outil, une commande, un chemin</td>
+<td>Oui, et c'est le plus simple</td>
+<td>Possible, mais inutile</td>
+</tr>
+<tr>
+<td>Décider selon le contenu de la modification</td>
+<td>Non</td>
+<td>Oui</td>
+</tr>
+<tr>
+<td>Décider selon l'état du dépôt : le fichier existe-t-il, quelle est la branche ?</td>
+<td>Non</td>
+<td>Oui</td>
+</tr>
+<tr>
+<td>Expliquer à l'agent comment faire autrement</td>
+<td>Message générique</td>
+<td>Message libre</td>
+</tr>
+<tr>
+<td>Tenir quel que soit le mode de l'agent</td>
+<td>Oui pour une interdiction</td>
+<td>Oui pour un refus</td>
+</tr>
+</tbody>
+</table>
+<p>Un refus de hook tient dans tous les modes, y compris celui qui saute les demandes d'autorisation. En revanche, un hook qui répond « autoriser » ne lève jamais une interdiction posée dans les paramètres.</p>
+<h3>Un exemple : les migrations de base</h3>
+<p>Dans un projet qui versionne son schéma de base de données, une migration déjà appliquée ne se modifie jamais : on en écrit une nouvelle. Aucune règle de permission ne sait l'exprimer, puisqu'il faut autoriser la création d'un fichier et interdire la modification du même chemin. Un hook le fait en quelques lignes :</p>
+<pre><code class="language-bash">#!/bin/bash
+FICHIER=$(jq -r '.tool_input.file_path')
+
+case &quot;$FICHIER&quot; in
+  */db/migration/V*.sql)
+    if [ -e &quot;$FICHIER&quot; ]; then
+      echo &quot;Refusé : une migration existante ne se modifie pas. Créez-en une nouvelle.&quot; &gt;&amp;2
+      exit 2
+    fi ;;
+esac
+exit 0
+</code></pre>
+<p>Déclaré sur <code>PreToolUse</code> avec le filtre <code>Edit|Write</code>, il laisse l'agent créer <code>V14__ajout_date_decouverte.sql</code> et l'empêche de retoucher <code>V13</code>.</p>
+<h3>D'autres cas courants</h3>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Ce que fait le hook</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Une commande vise la base de recette (<code>psql</code>, <code>sqlplus</code>)</td>
+<td>Renvoie la décision à l'humain, avec <code>permissionDecision: "ask"</code></td>
+</tr>
+<tr>
+<td>Un commit sur la branche principale</td>
+<td>Refuse, et rappelle de créer une branche par story</td>
+</tr>
+<tr>
+<td>Une suppression récursive hors du dossier de travail</td>
+<td>Refuse</td>
+</tr>
+<tr>
+<td>Un outil MCP qui écrit dans Jira</td>
+<td>Renvoie à l'humain, avec le filtre <code>mcp__jira__.*</code> (chapitre M7)</td>
+</tr>
+<tr>
+<td>Une modification en dehors de la zone prévue par le plan</td>
+<td>Signale l'écart à l'agent, qui demande avant de continuer</td>
+</tr>
+</tbody>
+</table>
+<h3>Ce qu'un hook ne voit pas</h3>
+<p>Un hook examine ce que l'agent demande à un outil de faire. Il ne voit pas ce que fait ensuite un programme lancé par cette commande : un script Python qui écrit dans un fichier protégé passe sous son regard. Le bac à sable du chapitre M4 reste la seule protection qui agit au niveau du système.</p>
+<p>Le filtre <code>if</code> est lui aussi une commodité, pas une frontière : quand l'outil ne sait pas analyser une commande, il lance le hook quoi qu'il arrive. Le script doit donc refaire sa propre vérification, comme ceux de ce chapitre.</p>
+<h2>Journaliser : savoir après coup</h2>
+<p>La troisième question de Bertrand, au chapitre 16, est la plus difficile : comment sait-on, après coup, ce que l'agent a fait ? Plusieurs sources y répondent, chacune pour une part.</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Ce qu'elle trace</th>
+<th>Chapitre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CloudTrail</td>
+<td>Chaque appel au modèle : qui, quand, quel modèle</td>
+<td>M1</td>
+</tr>
+<tr>
+<td>Un hook de journalisation</td>
+<td>Chaque action de l'agent sur le poste : quel fichier, quelle commande</td>
+<td>M6</td>
+</tr>
+<tr>
+<td>L'historique Git et GitHub</td>
+<td>Chaque modification fusionnée, son auteur, son approbation</td>
+<td>M10</td>
+</tr>
+<tr>
+<td>La télémétrie de l'outil</td>
+<td>L'usage, les jetons, les coûts, par personne et par équipe</td>
+<td>M14</td>
+</tr>
+<tr>
+<td>L'historique local des sessions</td>
+<td>Toute la conversation, pendant trente jours, sur le poste</td>
+<td>M2</td>
+</tr>
+</tbody>
+</table>
+<p>Le hook comble le trou du milieu : entre l'appel au modèle et la demande de fusion, que s'est-il passé sur le poste ?</p>
+<h3>Un journal sobre</h3>
+<p>Ce hook ajoute une ligne par action de l'agent dans un fichier local, que l'agent de collecte de la DSI envoie à la plateforme de journaux :</p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;PostToolUse&quot;: [
+      {
+        &quot;matcher&quot;: &quot;Edit|Write|Bash&quot;,
+        &quot;hooks&quot;: [
+          {
+            &quot;type&quot;: &quot;command&quot;,
+            &quot;command&quot;: &quot;jq -c '{date: (now|todate), session: .session_id, outil: .tool_name, fichier: .tool_input.file_path, commande: .tool_input.command}' &gt;&gt; ~/.claude/journal-actions.jsonl&quot;,
+            &quot;async&quot;: true
+          }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<p>Il ne retient que le nom de l'outil, le fichier et la commande. Pas le contenu des modifications, pas le résultat des commandes. Ce choix est délibéré : le chapitre 13 commence par une plateforme de journaux remplie de données personnelles. Un journal d'audit qui recopierait tout ce que l'agent lit et écrit deviendrait la prochaine fuite.</p>
+<p>L'option <code>async</code> fait tourner le hook en arrière-plan : l'agent ne l'attend pas.</p>
+<h3>Envoyer directement à un service central</h3>
+<p>Un hook de type <code>http</code> envoie l'événement à une adresse web, sans script. C'est pratique pour un service d'audit commun à toutes les équipes, mais l'événement part en entier, contenu des modifications et résultat des commandes compris : le service qui le reçoit doit filtrer avant de conserver. Dans les paramètres gérés, la clé <code>allowedHttpHookUrls</code> limite les adresses que les hooks ont le droit de joindre, et <code>httpHookAllowedEnvVars</code> les variables qu'ils peuvent glisser dans leurs en-têtes, un jeton d'accès par exemple.</p>
+<h3>Tracer la configuration elle-même</h3>
+<p>L'événement <code>ConfigChange</code> survient quand un fichier de paramètres ou une skill change pendant une session. Un hook peut le consigner, ou refuser la modification en sortant avec le code 2, sauf pour les paramètres gérés, que rien ne bloque. C'est la réponse à la question de Bertrand appliquée à la configuration elle-même : savoir si quelqu'un a desserré les règles en cours de route.</p>
+<h2>Gouverner les hooks</h2>
+<p>Un hook est du code qui s'exécute sur le poste, avec les droits de la personne, hors du bac à sable, à chaque événement. C'est ce qui le rend utile, et c'est ce qui le rend dangereux.</p>
+<h3>Le hook d'un dépôt est du code exécuté chez vous</h3>
+<p>Un <code>.claude/settings.json</code> reçu avec un dépôt peut déclarer des hooks. Les hooks des fichiers de paramètres ne demandent pas la même approbation que les autorisations : ils s'appliquent dès qu'un dossier parent a été approuvé, et dans une exécution non interactive avec <code>claude -p</code>, même sans approbation. Avant de lancer l'outil dans un dépôt que vous n'avez pas écrit, lisez ses hooks comme vous liriez un script d'installation.</p>
+<p>Dans la chaîne d'intégration, où l'outil tourne en mode non interactif sur des branches que n'importe qui peut proposer, trois options neutralisent les hooks du dépôt :</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Effet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--setting-sources user</code></td>
+<td>Ignore les fichiers de paramètres du projet.</td>
+</tr>
+<tr>
+<td><code>--bare</code></td>
+<td>Ne charge ni hooks, ni skills, ni plugins, ni serveurs MCP du projet.</td>
+</tr>
+<tr>
+<td><code>--settings '{"disableAllHooks": true}'</code></td>
+<td>Coupe tous les hooks pour cette exécution, sauf ceux des paramètres gérés.</td>
+</tr>
+</tbody>
+</table>
+<p>Le chapitre M10 y revient pour les relectures automatiques sur GitHub.</p>
+<h3>Ce que l'entreprise impose</h3>
+<p>Les hooks des paramètres gérés s'exécutent toujours : aucun réglage du poste ni du projet ne les désactive. C'est là que vivent les garde-fous du socle, comme celui du chapitre 13.</p>
+<p>La clé <code>allowManagedHooksOnly</code> va plus loin : elle bloque tous les autres hooks, personnels, de projet ou de plugin. Le poste devient prévisible, mais l'équipe perd au passage son formateur et ses contrôles rapides. La voie moyenne consiste à distribuer les hooks utiles dans un plugin que les paramètres gérés activent d'office : ses hooks restent autorisés. C'est ainsi que le socle du chapitre 16 atteint toutes les équipes de la maison (chapitre M8).</p>
+<h3>Les pannes</h3>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Effet par défaut</th>
+<th>Parade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Le script sort avec le code 1</td>
+<td>L'action continue</td>
+<td>Sortir avec le code 2 pour refuser</td>
+</tr>
+<tr>
+<td>Le script est introuvable, ou l'interpréteur absent</td>
+<td>L'action continue</td>
+<td><code>"onFailure": "block"</code> sur tout hook de sécurité</td>
+</tr>
+<tr>
+<td>Le hook dépasse son délai</td>
+<td>L'action continue ; le délai par défaut est de dix minutes</td>
+<td>Un <code>timeout</code> explicite, court, et <code>onFailure: "block"</code></td>
+</tr>
+<tr>
+<td>Une sortie JSON mal formée</td>
+<td>Erreur non bloquante</td>
+<td>Construire le JSON avec <code>jq</code> ou un vrai langage, jamais par concaténation</td>
+</tr>
+<tr>
+<td>Un profil de shell qui affiche du texte</td>
+<td>Le JSON du hook est ignoré</td>
+<td>N'afficher du texte que dans les shells interactifs</td>
+</tr>
+</tbody>
+</table>
+<p>Pour voir ce qu'un hook a réellement fait, lancez l'outil avec <code>claude --debug</code> : le journal de débogage contient la sortie, les erreurs et le code de retour de chaque hook. Dans une session, Ctrl+O ouvre l'historique détaillé, où apparaissent les refus.</p>
+<h3>Avant de déployer un hook de sécurité</h3>
+<ol>
+<li><strong>Il refuse avec le code 2</strong>, et son message dit à l'agent quoi faire à la place.</li>
+<li><strong>Il bloque s'il tombe en panne</strong>, avec <code>onFailure: "block"</code> et un délai explicite.</li>
+<li><strong>Il a été testé à la main</strong> avec au moins deux événements : un qui passe, un qui est refusé.</li>
+<li><strong>Il a des tests à lui</strong>, dans le dépôt du socle, joués par la chaîne d'intégration : c'est du code.</li>
+<li><strong>Il a une propriétaire</strong>, Mathilde pour les hooks de sécurité, et change par demande de fusion, comme les skills du chapitre M5.</li>
+<li><strong>Il ne journalise rien de sensible</strong> lui-même.</li>
+</ol>
+<h2>Dans le roman</h2>
+<table>
+<thead>
+<tr>
+<th>Chapitre</th>
+<th>Scène</th>
+<th>Ce qu'elle illustre ici</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>13 — Mercredi noir</td>
+<td>Mercredi, 9 heures : vingt-cinq jours de coordonnées réelles dans les journaux de recette ; le CLAUDE.md interdisait les secrets dans le code et ne disait rien des journaux.</td>
+<td>Une consigne ne couvre que ce à quoi on a pensé.</td>
+</tr>
+<tr>
+<td>13 — Mercredi noir</td>
+<td>Mercredi, 15 heures : Mathilde refuse « une consigne de plus » et pose trois niveaux ; le hook arrête l'agent net, et l'agent réécrit sa ligne avec l'identifiant de la déclaration.</td>
+<td>Le hook de contrôle des journaux, déployé dans les paramètres gérés.</td>
+</tr>
+<tr>
+<td>13 — Mercredi noir</td>
+<td>Julien écrit à la main une ligne fautive ; le test de la chaîne d'intégration passe au rouge en quatre minutes.</td>
+<td>Le niveau qui arrête aussi les humains.</td>
+</tr>
+<tr>
+<td>13 — Mercredi noir</td>
+<td>Vendredi : six causes, dont quatre antérieures à l'agent ; Bertrand rend les trois niveaux obligatoires pour toute la maison.</td>
+<td>Un garde-fou se pense pour tout le monde, pas pour l'agent seul.</td>
+</tr>
+<tr>
+<td>16 — La sécurité au quotidien</td>
+<td>Mathilde recense les garde-fous ; le socle répond à trois questions : le droit, le verrou, la trace.</td>
+<td>Le journal des actions, et des hooks distribués à toutes les équipes.</td>
+</tr>
+</tbody>
+</table>
+<p>Pour aller plus loin : M7 (MCP, et les hooks sur ses outils), M8 (plugins : distribuer les hooks du socle), M10 (GitHub : le contrôle de la chaîne d'intégration), M13 (bonnes pratiques : journaliser sans exposer), M14 (télémétrie et coûts).</p>
+<h2>Sources</h2>
+<p>Consultées le 19 octobre 2026.</p>
+<ul>
+<li><a href="https://code.claude.com/docs/en/hooks-guide">Automatiser des actions avec les hooks</a></li>
+<li><a href="https://code.claude.com/docs/en/hooks">Référence des hooks : événements, entrées, sorties, codes de retour</a></li>
+<li><a href="https://code.claude.com/docs/en/permissions#extend-permissions-with-hooks">Configurer les permissions : hooks et règles</a></li>
+<li><a href="https://code.claude.com/docs/en/permissions#what-runs-before-you-trust-a-folder">Ce qui s'exécute avant l'approbation d'un dossier</a></li>
+<li><a href="https://code.claude.com/docs/en/settings-reference">Référence des paramètres : allowManagedHooksOnly, disableAllHooks</a></li>
+<li><a href="https://github.com/anthropics/claude-code/blob/main/examples/hooks/bash_command_validator_example.py">Exemple de validation de commandes, dépôt officiel</a></li>
+</ul></article><nav class="pager"><span><a href="f-m05-skills-et-sous-agents.html">← Skills et sous-agents</a></span><span><a href="f-m07-mcp.html">MCP →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

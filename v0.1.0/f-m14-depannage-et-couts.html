@@ -1,0 +1,580 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dépannage et coûts — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Chapitre M14</div><h1>Dépannage et coûts</h1><h2>Ce que couvre ce chapitre</h2>
+<p>Ce dernier chapitre du manuel sert quand quelque chose ne va pas : un agent qui refuse de démarrer, une règle qui ne s'applique pas, un connecteur muet, une facture qui surprend. Il propose un ordre de diagnostic, les erreurs les plus fréquentes avec la configuration de référence, la façon de lire la consommation à trois niveaux, le calcul du coût complet d'une story, le choix des modèles, et les limites de débit de Bedrock.</p>
+<p>Le roman y touche deux fois. Au chapitre 11, la veille d'une rétrospective tendue, Thomas demande à l'agent de tirer les vrais chiffres du sprint de Jira et de GitHub ; il lui faut dix minutes, et ils contredisent ce que chacun croyait. Au chapitre 26, le contrôle de gestion veut comparer la vélocité de l'équipe à celle d'Horizon ; l'équipe découvre que le coût du modèle pèse peu face au temps humain de chaque erreur, et remplace les points d'effort par quatre indicateurs, dont le coût complet par story.</p>
+<blockquote>
+<p><strong>Version de référence.</strong> Claude Code 2.1.301, publiée le 15 octobre 2026, avec la configuration Bedrock du chapitre M1 : région <code>eu-west-3</code>, profils d'inférence européens, compte AWS dédié. Les messages d'erreur cités sont ceux de cette version ; ils évoluent, leur logique beaucoup moins.</p>
+</blockquote>
+<p>Une règle traverse tout le chapitre : on diagnostique de bas en haut. Avant de soupçonner l'agent, on vérifie la version, le fournisseur, l'identité, les réglages ; la plupart des pannes s'arrêtent là.</p>
+<h2>Dépanner avec méthode</h2>
+<p>Quand l'outil ne fait pas ce qu'on attend, la tentation est de reformuler la consigne. C'est rarement la bonne piste : la cause se trouve presque toujours dans une couche plus basse, et une même consigne reformulée trois fois ne répare pas une identité AWS expirée.</p>
+<blockquote>
+<p><em>Schéma (version numérique) : l'ordre du diagnostic · les trois couches les plus fréquentes en couleur.</em></p>
+</blockquote>
+<h3>Ce que l'on regarde à chaque couche</h3>
+<ol>
+<li><strong>Le poste et la version.</strong> <code>claude --version</code> doit afficher la version de référence ; les paramètres gérés refusent de démarrer une version plus ancienne que le minimum fixé (chapitre M1).</li>
+<li><strong>Le fournisseur.</strong> <code>/status</code> affiche le fournisseur, la région résolue et sa provenance, les modèles en usage. <code>aws sts get-caller-identity</code> confirme l'identité AWS, et donc que la session SSO n'a pas expiré.</li>
+<li><strong>Les réglages.</strong> <code>/status</code> liste aussi les sources de réglages appliquées ; les paramètres gérés doivent y figurer. <code>/permissions</code> montre chaque règle et le fichier d'où elle vient ; <code>/memory</code> les CLAUDE.md chargés.</li>
+<li><strong>Les extensions.</strong> <code>/hooks</code>, <code>/mcp</code> et l'onglet <em>Errors</em> de <code>/plugin</code> disent ce qui est en place et ce qui a échoué (chapitres M6 à M8).</li>
+<li><strong>Le contexte.</strong> <code>/context</code> montre ce qui occupe la place ; une session trop longue explique bien des comportements étranges (chapitre M13).</li>
+<li><strong>Le journal.</strong> Lancé avec <code>claude --debug-file /tmp/claude-debug.log</code>, ou après <code>/debug</code> dans la session, l'outil écrit le détail de ce qu'il a fait : réglages lus, hooks déclenchés et leurs codes de sortie, connexions, erreurs de télémétrie.</li>
+</ol>
+<h3>Le bilan automatique</h3>
+<p><code>/doctor</code> passe en revue l'installation, les erreurs de réglages, les extensions installées mais inutilisées et le CLAUDE.md du projet, et propose des corrections. C'est le premier réflexe quand on ne sait pas par où commencer.</p>
+<h3>À qui remonter</h3>
+<table>
+<thead>
+<tr>
+<th>La cause est dans</th>
+<th>On s'adresse à</th>
+<th>Avec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Les paramètres gérés, le socle, le compte AWS</td>
+<td>La DSI</td>
+<td>La sortie de <code>/status</code> et l'extrait du journal</td>
+</tr>
+<tr>
+<td>Les fichiers du dépôt</td>
+<td>Le référent technique</td>
+<td>Le fichier en cause et le comportement observé</td>
+</tr>
+<tr>
+<td>L'outil lui-même</td>
+<td>L'éditeur, par l'intermédiaire de la DSI</td>
+<td><code>/feedback</code>, qui prépare avec un fournisseur tiers une archive expurgée de la session dans <code>~/.claude/feedback-bundles/</code></td>
+</tr>
+</tbody>
+</table>
+<p>Avant de transmettre un journal ou une archive, on le relit : un journal peut contenir des chemins, des noms de serveurs, des extraits de commandes.</p>
+<h2>Les erreurs fréquentes</h2>
+<p>Les tableaux qui suivent rassemblent les pannes les plus courantes avec la configuration de référence. Les pannes propres aux hooks, aux serveurs MCP et aux plugins sont détaillées dans leurs chapitres, M6, M7 et M8.</p>
+<h3>Démarrage et version</h3>
+<table>
+<thead>
+<tr>
+<th>Symptôme</th>
+<th>Cause probable</th>
+<th>Remède</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L'outil refuse de démarrer et cite une version minimale</td>
+<td>Le poste a une version plus ancienne que celle exigée par les paramètres gérés</td>
+<td>Mettre à jour par le canal de la DSI ; les mises à jour automatiques sont coupées (M1)</td>
+</tr>
+<tr>
+<td>L'outil refuse de démarrer et cite un fichier de paramètres gérés illisible</td>
+<td>Le JSON déployé est invalide</td>
+<td>Corriger le fichier ; une seule entrée invalide, elle, est ignorée sans bloquer le reste</td>
+</tr>
+<tr>
+<td>L'outil refuse de démarrer faute de bac à sable</td>
+<td>Sur Linux, <code>bubblewrap</code> ou <code>socat</code> manque, et <code>failIfUnavailable</code> est actif</td>
+<td>Installer les deux paquets (M4)</td>
+</tr>
+</tbody>
+</table>
+<h3>Bedrock et identité</h3>
+<table>
+<thead>
+<tr>
+<th>Symptôme</th>
+<th>Cause probable</th>
+<th>Remède</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>AWS authentication failed</em>, ou erreur d'identifiants expirés</td>
+<td>La session SSO a expiré</td>
+<td><code>aws sso login --profile &lt;profil&gt;</code> ; <code>awsAuthRefresh</code> peut le faire automatiquement (M1)</td>
+</tr>
+<tr>
+<td>Des onglets de connexion s'ouvrent en boucle</td>
+<td>Un proxy ou un VPN interrompt le parcours SSO dans le navigateur</td>
+<td>Retirer <code>awsAuthRefresh</code> et se connecter à la main avant de lancer l'outil</td>
+</tr>
+<tr>
+<td><em>AWS default-chain credential resolve timed out</em></td>
+<td>Une étape de la chaîne d'identifiants attend une saisie qu'elle ne peut pas recevoir</td>
+<td>Se connecter avant ; ou relever <code>CLAUDE_CODE_AWS_CHAIN_RESOLVE_TIMEOUT_MS</code></td>
+</tr>
+<tr>
+<td><code>AccessDeniedException</code></td>
+<td>La politique IAM ne couvre pas l'appel : <code>InvokeModelWithResponseStream</code>, les profils d'inférence, ou les deux actions d'abonnement</td>
+<td>Comparer avec la politique du chapitre M1</td>
+</tr>
+<tr>
+<td>Le modèle n'est pas accessible</td>
+<td>Le formulaire d'usage n'a pas été soumis pour ce compte, ou le modèle n'est pas activé</td>
+<td>Le soumettre dans la console Bedrock, une fois par compte</td>
+</tr>
+<tr>
+<td><em>on-demand throughput isn't supported</em></td>
+<td>Un identifiant de modèle nu au lieu d'un profil d'inférence</td>
+<td>Utiliser le profil européen, <code>eu.anthropic.…</code></td>
+</tr>
+<tr>
+<td>Erreur 400 sur un identifiant <code>eu.</code></td>
+<td>Le profil européen n'est pas activé dans toutes les régions de son groupe</td>
+<td>Vérifier avec <code>aws bedrock list-inference-profiles --region eu-west-3</code></td>
+</tr>
+<tr>
+<td><em>Switched to … because … is not available</em></td>
+<td>Le modèle a été désactivé en cours de session ; l'outil bascule sur un modèle voisin</td>
+<td>Vérifier l'accès au modèle ; ou fixer une chaîne de repli explicite (section sur les modèles)</td>
+</tr>
+<tr>
+<td><em>unable to get local issuer certificate</em></td>
+<td>Un proxy d'inspection TLS dont le certificat racine n'est pas connu de l'outil</td>
+<td>Déclarer le certificat de la maison avec <code>NODE_EXTRA_CA_CERTS</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Réglages et permissions</h3>
+<table>
+<thead>
+<tr>
+<th>Symptôme</th>
+<th>Cause probable</th>
+<th>Remède</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Un réglage du projet n'a aucun effet</td>
+<td>Le dossier n'a pas été approuvé, ou un réglage géré le contredit</td>
+<td>Accepter la confiance du dossier ; <code>/status</code> et <code>/permissions</code> disent quelle source l'emporte</td>
+</tr>
+<tr>
+<td>Une action est refusée sans demande</td>
+<td>Une règle <code>deny</code>, souvent issue des paramètres gérés</td>
+<td><code>/permissions</code> nomme la règle et son fichier ; une interdiction gérée ne se lève pas localement</td>
+</tr>
+<tr>
+<td>Une commande échoue sur le réseau</td>
+<td>Le bac à sable n'autorise pas cet hôte</td>
+<td>Demander l'ajout de l'hôte à la liste gérée (M4)</td>
+</tr>
+<tr>
+<td>Une variable de télémétrie du dépôt est ignorée</td>
+<td>Les variables d'export ne se règlent pas depuis les fichiers du projet</td>
+<td>Les placer dans les paramètres gérés (section suivante)</td>
+</tr>
+</tbody>
+</table>
+<h3>Contexte et débit</h3>
+<table>
+<thead>
+<tr>
+<th>Symptôme</th>
+<th>Cause probable</th>
+<th>Remède</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L'agent oublie une consigne, refait une erreur corrigée</td>
+<td>Le contexte est trop chargé</td>
+<td><code>/clear</code> et une meilleure consigne de départ (M13)</td>
+</tr>
+<tr>
+<td>Les réponses ralentissent, puis des erreurs 429 ou <em>ThrottlingException</em></td>
+<td>Le quota de débit Bedrock est atteint</td>
+<td>L'outil réessaie seul ; si cela persiste, voir la section sur les quotas</td>
+</tr>
+<tr>
+<td>Les jetons de cache restent à zéro dans <code>/usage</code></td>
+<td>Le cache de requêtes n'est pas disponible pour ce modèle ou cette région</td>
+<td>Vérifier la disponibilité dans la documentation de Bedrock</td>
+</tr>
+<tr>
+<td>La skill d'implémentation de BMAD s'arrête net</td>
+<td><code>uv</code> est absent du poste</td>
+<td>Installer <code>uv</code> (M9)</td>
+</tr>
+</tbody>
+</table>
+<h2>Lire la consommation</h2>
+<p>La consommation se lit à trois niveaux, qui ne répondent pas à la même question.</p>
+<table>
+<thead>
+<tr>
+<th>Niveau</th>
+<th>Question</th>
+<th>Outil</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Le poste</td>
+<td>Que coûte la session en cours, et pourquoi ?</td>
+<td><code>/usage</code>, <code>/context</code></td>
+</tr>
+<tr>
+<td>L'équipe et la maison</td>
+<td>Qui consomme quoi, sur quels modèles, pour quelles tâches ?</td>
+<td>La télémétrie de l'outil, exportée vers l'observabilité de la maison</td>
+</tr>
+<tr>
+<td>La facture</td>
+<td>Combien la maison paie-t-elle, et à qui l'imputer ?</td>
+<td>Les outils de coût d'AWS, sur le compte dédié du chapitre M1</td>
+</tr>
+</tbody>
+</table>
+<h3>Sur le poste</h3>
+<p>Le bloc <em>Session</em> de <code>/usage</code> donne le coût estimé de la session, le détail des jetons par modèle et une ligne sur le cache de requêtes : la part des jetons d'entrée servie depuis le cache, les ratés, et si le cache est encore chaud. Un taux de cache bas sur une longue session signale souvent des pauses trop longues ou un contexte qui change sans cesse. L'estimation est calculée au prix public, sauf si les paramètres gérés fixent les tarifs de la maison avec <code>modelPricing</code>.</p>
+<p>Pour comprendre une habitude plutôt qu'une session, <code>/insights</code> analyse les sessions récentes du poste et produit un rapport sur les points de friction : demandes mal comprises, corrections répétées. Il consomme lui-même des jetons ; on le lance avant une rétrospective, pas tous les jours.</p>
+<h3>Par la télémétrie</h3>
+<p>L'outil exporte des métriques et des événements au format OpenTelemetry. Avec Bedrock, c'est le seul moyen d'obtenir des chiffres par équipe et par tâche : les tableaux de bord de l'éditeur ne voient pas cette consommation. Ces lignes s'ajoutent au bloc <code>env</code> des paramètres gérés du chapitre M4 :</p>
+<pre><code class="language-json">{
+  &quot;env&quot;: {
+    &quot;CLAUDE_CODE_ENABLE_TELEMETRY&quot;: &quot;1&quot;,
+    &quot;OTEL_METRICS_EXPORTER&quot;: &quot;otlp&quot;,
+    &quot;OTEL_LOGS_EXPORTER&quot;: &quot;otlp&quot;,
+    &quot;OTEL_EXPORTER_OTLP_PROTOCOL&quot;: &quot;grpc&quot;,
+    &quot;OTEL_EXPORTER_OTLP_ENDPOINT&quot;: &quot;https://otel.mutuelle.intra:4317&quot;,
+    &quot;OTEL_RESOURCE_ATTRIBUTES&quot;: &quot;team.id=portail-sinistres,cost_center=IND-042&quot;,
+    &quot;OTEL_METRICS_INCLUDE_REPOSITORY&quot;: &quot;true&quot;,
+    &quot;OTEL_LOG_TOOL_DETAILS&quot;: &quot;1&quot;
+  }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Donnée</th>
+<th>Ce qu'elle donne</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude_code.cost.usage</code></td>
+<td>Le coût estimé, en dollars, par modèle, par équipe, et selon l'origine de la requête : conversation principale, sous-agent ou tâche de fond</td>
+</tr>
+<tr>
+<td><code>claude_code.token.usage</code></td>
+<td>Les jetons, distingués en entrée, sortie, lecture et écriture du cache</td>
+</tr>
+<tr>
+<td>L'événement <code>api_request</code></td>
+<td>Chaque appel au modèle, avec son coût et ses jetons</td>
+</tr>
+<tr>
+<td>Les événements <code>api_error</code> et <code>api_retries_exhausted</code></td>
+<td>Les échecs et les quotas atteints</td>
+</tr>
+<tr>
+<td>L'événement <code>tool_result</code></td>
+<td>Chaque outil utilisé ; avec <code>OTEL_LOG_TOOL_DETAILS</code>, la branche et le commit des <code>git commit</code></td>
+</tr>
+</tbody>
+</table>
+<p>Les noms d'agents, de skills, de plugins et de serveurs MCP figurent sur ces données quand <code>OTEL_LOG_TOOL_DETAILS</code> est actif : c'est ce que les chapitres M7 et M8 utilisent pour savoir quels connecteurs et quels plugins servent vraiment. La même variable fait apparaître des commandes et des chemins de fichiers ; le collecteur est donc interne, son accès restreint, et la décision revient au RSSI.</p>
+<p>Trois réglages restent à leur valeur par défaut, c'est-à-dire désactivés : <code>OTEL_LOG_USER_PROMPTS</code>, <code>OTEL_LOG_ASSISTANT_RESPONSES</code> et <code>OTEL_LOG_RAW_API_BODIES</code>. Ils feraient entrer dans la télémétrie le contenu des conversations, et donc potentiellement des données que le chapitre 13 a appris à tenir à distance.</p>
+<h3>Côté AWS</h3>
+<p>Le compte AWS dédié rend la facture lisible : tout ce que Bedrock y facture vient de l'outil. Les outils de suivi des coûts d'AWS donnent le total par jour et par modèle ; les métriques Bedrock de CloudWatch, le nombre d'appels, de jetons et de rejets pour dépassement de quota.</p>
+<p>Pour imputer la dépense à chaque équipe sans dépendre de la télémétrie, on crée un profil d'inférence applicatif par équipe, étiqueté pour l'imputation des coûts, et les paramètres gérés de chaque groupe de postes orientent les modèles vers lui avec <code>modelOverrides</code>.</p>
+<h3>Rapprocher les deux</h3>
+<p>La télémétrie estime ; AWS facture. Une fois par mois, on rapproche le total de la télémétrie et la facture du compte dédié. Un écart persistant vient le plus souvent des tarifs : on règle alors <code>modelPricing</code> sur la grille Bedrock de la région, pour que les chiffres vus par les équipes correspondent à ce que paie la maison.</p>
+<h2>Le coût complet par story</h2>
+<p>Au chapitre 26, l'équipe abandonne les points d'effort et adopte quatre indicateurs, définis par écrit et calculés sans saisie. Trois viennent du circuit décrit au chapitre M10 ; le quatrième est celui de ce chapitre.</p>
+<table>
+<thead>
+<tr>
+<th>Indicateur</th>
+<th>Définition</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Débit</td>
+<td>Stories terminées par semaine</td>
+<td>Jira</td>
+</tr>
+<tr>
+<td>Temps de traversée</td>
+<td>De la création du ticket à la fusion</td>
+<td>Jira et GitHub</td>
+</tr>
+<tr>
+<td>Taux de retouche</td>
+<td>Part des stories rouvertes ou suivies d'une anomalie reliée</td>
+<td>Jira</td>
+</tr>
+<tr>
+<td>Coût complet par story</td>
+<td>Le coût du modèle plus le temps humain passé sur la story</td>
+<td>La télémétrie, GitHub, Jira, et des forfaits convenus</td>
+</tr>
+</tbody>
+</table>
+<h3>Le coût du modèle d'une story</h3>
+<p>Une story laisse deux traces dans la télémétrie. Les sessions de développement ont commité sur sa branche : avec <code>OTEL_LOG_TOOL_DETAILS</code>, l'événement <code>tool_result</code> de chaque <code>git commit</code> porte le nom de la branche, et donc la clé du ticket. Les exécutions de la chaîne d'intégration, comme la prérelecture, reçoivent la clé dans <code>OTEL_RESOURCE_ATTRIBUTES</code>, que le workflow tire du nom de la branche. Le coût du modèle d'une story est la somme des événements <code>api_request</code> de ces sessions et de ces exécutions.</p>
+<h3>Le temps humain, sans feuille de temps</h3>
+<p>Personne ne saisit ses heures par story, et personne ne le fera. On estime le temps humain à partir de ce que les outils enregistrent déjà, avec des forfaits convenus entre l'équipe et le contrôle de gestion :</p>
+<table>
+<thead>
+<tr>
+<th>Activité</th>
+<th>Ce qu'on compte</th>
+<th>Forfait, par exemple</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Préparation</td>
+<td>Une story prête</td>
+<td>1 h 30, plus pour une story rouge</td>
+</tr>
+<tr>
+<td>Relecture</td>
+<td>Le nombre de tours de relecture dans GitHub</td>
+<td>30 min par tour, 1 h en rouge</td>
+</tr>
+<tr>
+<td>Exploration</td>
+<td>Une story fusionnée</td>
+<td>30 min, 1 h en rouge</td>
+</tr>
+<tr>
+<td>Retouche</td>
+<td>Le nombre d'anomalies reliées après la fusion</td>
+<td>2 h par anomalie</td>
+</tr>
+</tbody>
+</table>
+<p>Les forfaits sont faux pour chaque story prise isolément, et justes en moyenne. Au chapitre 26, l'équipe vérifie sa reconstitution à la main sur un échantillon de stories avant de s'y fier ; c'est la même vérification qu'on refait chaque trimestre pour ajuster les forfaits.</p>
+<h3>Un exemple</h3>
+<p>Les chiffres sont illustratifs ; l'ordre de grandeur est celui que l'équipe découvre au chapitre 26.</p>
+<table>
+<thead>
+<tr>
+<th>Poste</th>
+<th>Calcul</th>
+<th>Montant</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modèle</td>
+<td>Sessions et prérelecture de la branche</td>
+<td>6 €</td>
+</tr>
+<tr>
+<td>Préparation</td>
+<td>1 h 30</td>
+<td>120 €</td>
+</tr>
+<tr>
+<td>Relecture</td>
+<td>2 tours × 30 min</td>
+<td>80 €</td>
+</tr>
+<tr>
+<td>Exploration</td>
+<td>30 min</td>
+<td>40 €</td>
+</tr>
+<tr>
+<td>Retouche</td>
+<td>1 anomalie × 2 h</td>
+<td>160 €</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td>Temps humain à 80 € de l'heure</td>
+<td><strong>406 €</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Le modèle compte pour moins de 2 % du total. L'anomalie, à elle seule, coûte plus de vingt-cinq fois toutes les sessions de la story. C'est le constat du chapitre 26 : le coût du modèle se révèle négligeable à côté du temps humain que coûte chaque erreur, et la façon la plus sûre de faire baisser le coût complet est de faire baisser la retouche.</p>
+<h3>Ce que l'indicateur ne doit pas devenir</h3>
+<p>Le coût complet par story mesure un système de travail, pas des personnes. On le suit par équipe et dans le temps, jamais par développeur : un relecteur qui demande un deuxième tour sur une story rouge fait monter le coût et baisser le risque. Et l'on compare avec prudence : au chapitre 26, la comparaison avec Horizon, sur un périmètre comparable, n'attribue à l'agent qu'un tiers de l'écart ; le reste tient à l'équipe, à ses pratiques et à son périmètre.</p>
+<p>Comme les mesures de flux du chapitre M10, le calcul se confie une fois à l'agent, puis se fige dans un script relu et versionné, qu'on relance à chaque itération.</p>
+<h2>Choisir les modèles et l'effort</h2>
+<p>La configuration de référence met deux modèles à disposition, par leurs profils d'inférence européens : Opus 5.5 et Sonnet 5.5. Les paramètres gérés les figent, et la liste <code>availableModels</code> interdit les autres (chapitre M1). Ce figeage a aussi un effet sur la facture : sans lui, l'outil prendrait par défaut le modèle Opus sur Bedrock, au tarif Opus, pour tout le travail.</p>
+<h3>Quel modèle pour quel travail</h3>
+<table>
+<thead>
+<tr>
+<th>Travail</th>
+<th>Modèle</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Questions sur le code, exploration</td>
+<td>Sonnet</td>
+<td>Moyen</td>
+</tr>
+<tr>
+<td>Implémentation d'une story préparée</td>
+<td>Sonnet</td>
+<td>Haut</td>
+</tr>
+<tr>
+<td>Prérelecture dans la chaîne d'intégration</td>
+<td>Sonnet</td>
+<td>Haut</td>
+</tr>
+<tr>
+<td>Planification d'une story complexe, architecture, diagnostic difficile</td>
+<td>Opus</td>
+<td>Haut ou très haut</td>
+</tr>
+<tr>
+<td>Recherche simple confiée à un sous-agent</td>
+<td>Sonnet, ou un modèle plus léger si la DSI l'active</td>
+<td>Bas</td>
+</tr>
+</tbody>
+</table>
+<p>Le réflexe recommandé : commencer avec Sonnet, passer à Opus pour planifier, ou quand Sonnet échoue deux fois sur le même problème. <code>/model</code> change de modèle en cours de session. L'alias <code>opusplan</code> automatise ce partage : Opus en mode plan, Sonnet pour l'exécution. C'est un bon choix par défaut pour une équipe qui planifie chaque story, comme le recommande le chapitre M13.</p>
+<h3>L'effort</h3>
+<p>L'effort règle la profondeur de raisonnement : bas, moyen, haut, très haut, maximal. Les deux modèles de référence raisonnent toujours ; seul le niveau se règle, avec <code>/effort</code> en cours de session. Un effort bas suffit à renommer, reformater, répondre à une question simple ; un effort élevé se justifie pour planifier et pour les problèmes que le premier essai n'a pas résolus. Les paramètres gérés peuvent plafonner l'effort de toute la maison avec <code>maxEffortLevel</code>.</p>
+<h3>Les tâches de fond</h3>
+<p>L'outil fait aussi de petites requêtes pour lui-même : titres de session, résumés. Sur Bedrock, il utilise pour cela le modèle Sonnet par défaut, faute de savoir si un modèle plus léger est activé. Si la DSI active un modèle Haiku dans le compte et le fixe avec <code>ANTHROPIC_DEFAULT_HAIKU_MODEL</code>, ces tâches coûtent moins cher, sans effet sur le travail lui-même.</p>
+<h3>Quand un modèle n'est plus disponible</h3>
+<p>Si l'accès à un modèle est retiré en cours de session, l'outil bascule de lui-même sur une version voisine et le signale. Une chaîne de repli explicite, dans les paramètres, rend ce comportement prévisible :</p>
+<pre><code class="language-json">{
+  &quot;fallbackModel&quot;: [&quot;sonnet&quot;]
+}
+</code></pre>
+<p>En cas de surcharge d'Opus, la session continue alors sur Sonnet pour le reste du tour, et revient à Opus au message suivant.</p>
+<h2>Quotas et limites sur Bedrock</h2>
+<p>Bedrock limite le débit de chaque compte, modèle par modèle et région par région : un nombre de jetons et un nombre de requêtes par minute. Une équipe seule les atteint rarement ; un train entier, des agents en parallèle et une chaîne d'intégration qui lance une prérelecture à chaque commit, si.</p>
+<h3>Reconnaître un quota atteint</h3>
+<ul>
+<li>Dans la session, les réponses ralentissent ; l'outil réessaie seul, avec des délais croissants, après une erreur 429 ou <em>ThrottlingException</em>.</li>
+<li>Dans la télémétrie, l'événement <code>api_retries_exhausted</code> signale les requêtes abandonnées après plusieurs essais.</li>
+<li>Dans CloudWatch, la métrique des appels rejetés pour dépassement de quota monte, sur le modèle et la région concernés.</li>
+</ul>
+<p>La façon dont Bedrock décompte les jetons sur les quotas n'est pas celle de la facture : une requête peut peser sur le quota davantage que ce qu'elle consomme réellement. La documentation de Bedrock sur le décompte des jetons et les quotas en donne les règles.</p>
+<h3>Dimensionner</h3>
+<p>Pour une demande d'augmentation de quota, l'éditeur donne des repères par personne, qui diminuent avec la taille de l'équipe parce que tout le monde ne travaille pas au même moment :</p>
+<table>
+<thead>
+<tr>
+<th>Taille de l'équipe</th>
+<th>Jetons par minute et par personne</th>
+<th>Requêtes par minute et par personne</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5 à 20 personnes</td>
+<td>100 000 à 150 000</td>
+<td>2,5 à 3,5</td>
+</tr>
+<tr>
+<td>20 à 50 personnes</td>
+<td>50 000 à 75 000</td>
+<td>1,25 à 1,75</td>
+</tr>
+<tr>
+<td>50 à 100 personnes</td>
+<td>25 000 à 35 000</td>
+<td>0,62 à 0,87</td>
+</tr>
+</tbody>
+</table>
+<p>Un train de quarante développeurs vise donc de l'ordre de deux à trois millions de jetons par minute, à répartir entre les modèles selon leur usage. Ces repères valent pour un usage courant ; une formation qui fait travailler trente personnes en même temps, ou un PI Planning où chaque équipe lance ses agents d'analyse, demande davantage.</p>
+<h3>Les leviers</h3>
+<table>
+<thead>
+<tr>
+<th>Levier</th>
+<th>Effet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Les profils d'inférence européens</td>
+<td>Répartissent les requêtes entre les régions européennes du groupe, au lieu de tout faire peser sur <code>eu-west-3</code></td>
+</tr>
+<tr>
+<td>Une demande d'augmentation</td>
+<td>Dans la console des quotas d'AWS, par modèle et par région, justifiée par l'usage mesuré</td>
+</tr>
+<tr>
+<td>Les niveaux de service</td>
+<td><code>ANTHROPIC_BEDROCK_SERVICE_TIER</code> à <code>flex</code> pour les travaux qui peuvent attendre, comme le contrôle hebdomadaire du wiki ; <code>priority</code> pour ce qui ne le peut pas, à un tarif plus élevé. Leur disponibilité varie selon le modèle et la région</td>
+</tr>
+<tr>
+<td>La concurrence dans la chaîne d'intégration</td>
+<td>Les groupes de concurrence du chapitre M10 évitent deux prérelectures simultanées sur la même demande de fusion</td>
+</tr>
+<tr>
+<td>Le contexte court</td>
+<td>Une session au contexte chargé envoie de grosses requêtes ; la discipline du chapitre M13 soulage aussi les quotas</td>
+</tr>
+</tbody>
+</table>
+<h3>Une précaution de calendrier</h3>
+<p>Une augmentation de quota prend du temps. On la demande avant d'élargir l'usage à une nouvelle équipe, et l'on garde une marge pour les jours de forte activité : un quota atteint un matin de démonstration coûte plus cher, en temps humain, que toute la marge d'un mois.</p>
+<h2>Dans le roman</h2>
+<table>
+<thead>
+<tr>
+<th>Chapitre</th>
+<th>Scène</th>
+<th>Ce qu'elle illustre ici</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>11 — Rétro sous tension</td>
+<td>La veille de la rétrospective, l'agent tire en dix minutes les vrais chiffres du sprint de Jira et de GitHub : l'attente avant relecture, les anomalies après fusion, la part du travail faite le soir.</td>
+<td>Lire ce que les outils enregistrent déjà, plutôt que ce que chacun croit.</td>
+</tr>
+<tr>
+<td>26 — La vélocité est morte</td>
+<td>La vélocité a culminé avec la retouche ; le coût du modèle pèse peu face au temps humain de chaque erreur ; quatre indicateurs remplacent les points, vérifiés à la main sur un échantillon.</td>
+<td>Le coût complet par story ; mesurer un système, pas des personnes.</td>
+</tr>
+<tr>
+<td>26 — La vélocité est morte</td>
+<td>La comparaison avec Horizon n'attribue à l'agent qu'un tiers de l'écart ; la sponsor refuse de donner une date avant deux itérations mesurées.</td>
+<td>Comparer avec prudence ; prévoir à partir de mesures.</td>
+</tr>
+</tbody>
+</table>
+<p>Pour aller plus loin : M1 (configuration Bedrock et figeage des modèles), M4 (paramètres gérés), M6 à M8 (pannes des hooks, des serveurs et des plugins), M10 (mesures de flux), M13 (contexte court, maîtrise des coûts).</p>
+<h2>Pour finir</h2>
+<p>Le manuel s'arrête ici. Les outils de ces quatorze chapitres changeront plus vite que ce livre : les versions citées seront dépassées, des commandes renommées, des réglages remplacés. Ce qui devrait durer, ce sont les gestes qu'ils servent : écrire ce qui compte là où l'agent le lit, verrouiller ce qui doit tenir, relire ce qui entre, et mesurer avant de conclure.</p>
+<h2>Sources</h2>
+<p>Consultées le 23 octobre 2026.</p>
+<ul>
+<li><a href="https://code.claude.com/docs/en/amazon-bedrock">Claude Code sur Amazon Bedrock : configuration et dépannage</a></li>
+<li><a href="https://code.claude.com/docs/en/monitoring-usage">Claude Code : télémétrie OpenTelemetry</a></li>
+<li><a href="https://code.claude.com/docs/en/costs">Claude Code : maîtriser les coûts</a></li>
+<li><a href="https://code.claude.com/docs/en/model-config">Claude Code : configuration des modèles</a></li>
+<li><a href="https://docs.aws.amazon.com/bedrock/latest/userguide/quotas-token-burndown.html">Amazon Bedrock : décompte des jetons et quotas</a></li>
+<li><a href="https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html">Amazon Bedrock : profils d'inférence</a></li>
+<li><a href="https://github.com/aws-solutions-library-samples/guidance-for-claude-code-with-amazon-bedrock/blob/main/assets/docs/MONITORING.md">AWS : supervision de Claude Code avec Amazon Bedrock</a></li>
+</ul></article><nav class="pager"><span><a href="f-m13-bonnes-pratiques.html">← Bonnes pratiques</a></span><span><a href="f-annexe-a-modele-de-claude-md.html">Modèle de CLAUDE.md →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

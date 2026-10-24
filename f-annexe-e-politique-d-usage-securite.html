@@ -1,0 +1,295 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Politique d&#x27;usage sécurité — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="" data-current="latest" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Annexe E</div><h1>Politique d&#x27;usage sécurité</h1><h2>À quoi sert cette annexe</h2>
+<p>Au chapitre 16, la commission sécurité veut que les garde-fous du pilote deviennent la règle de toute la maison. Julien pose une condition avant qu'on écrive une ligne : le socle tiendra en deux pages. Cette annexe en donne la partie lisible par tous, la politique d'usage, telle qu'une direction peut la signer et qu'un nouvel arrivant peut la lire en dix minutes.</p>
+<p>Elle complète, sans les répéter, les réglages techniques du manuel. La politique dit ce qui est permis et ce qui ne l'est pas ; les paramètres gérés, les hooks et la chaîne d'intégration le font respecter. Chaque article renvoie donc au contrôle qui le traduit, et un article sans contrôle possible doit au moins désigner qui le vérifie.</p>
+<blockquote>
+<p><strong>Un modèle, pas un texte juridique.</strong> Cette politique est écrite pour la mutuelle fictive du roman et pour la configuration de référence. Elle s'adapte avec le RSSI, le délégué à la protection des données et le service juridique, et ne remplace aucun de leurs avis.</p>
+</blockquote>
+<p>Trois choix d'écriture la rendent applicable :</p>
+<ul>
+<li><strong>Des articles courts</strong>, à l'indicatif : « l'agent ne fusionne pas » plutôt que « il est recommandé de ne pas laisser l'agent fusionner ».</li>
+<li><strong>Peu d'interdits, tous vérifiables</strong> : une règle qu'on ne peut pas contrôler devient une règle que personne ne respecte.</li>
+<li><strong>Une responsabilité humaine nommée à chaque étape</strong> : l'outil prépare, une personne répond.</li>
+</ul>
+<h2>La politique</h2>
+<h3>Politique d'usage des agents de développement</h3>
+<p><strong>Article 1 — Objet et périmètre.</strong> La présente politique encadre l'usage des agents de développement assistés par l'intelligence artificielle dans le développement des applications de la mutuelle. Elle s'applique à toute personne qui les utilise, collaborateur ou prestataire, sur tout projet, quel que soit l'environnement.</p>
+<p><strong>Article 2 — Outils autorisés.</strong> Seule la configuration fournie par la DSI est autorisée : l'agent installé dans la version de référence, relié au service de modèles du compte cloud dédié, hébergé dans l'Union européenne. Aucun autre service d'intelligence artificielle ne reçoit de code, de document ou de donnée de la mutuelle. Aucun compte personnel n'est utilisé à titre professionnel.</p>
+<p><strong>Article 3 — Données.</strong> Les agents ne travaillent que sur des données synthétiques. Aucune donnée réelle d'adhérent ou d'assuré, aucune donnée de santé, aucun secret n'entre dans un dépôt, une consigne, un connecteur, un wiki ou une conversation avec l'agent. Toute base utilisée par un agent a vu son anonymisation vérifiée par la sécurité. Les journaux produits par le code ne contiennent aucune donnée personnelle.</p>
+<p><strong>Article 4 — Ce que l'agent peut faire.</strong> L'agent lit et modifie le code dans le dépôt où il travaille, exécute les commandes autorisées dans un environnement isolé, et consulte les connecteurs approuvés. Il ne pousse pas sur la branche principale, ne fusionne pas, ne modifie pas les scénarios d'acceptation, n'accède pas à internet hors des hôtes autorisés, et ne fonctionne jamais sans demande d'autorisation.</p>
+<p><strong>Article 5 — Responsabilité humaine.</strong> Tout changement produit avec un agent est relu, approuvé et assumé par une personne. Celle qui fusionne répond du changement comme si elle l'avait écrit, et sait l'expliquer. Toute spécification est approuvée nommément avant l'implémentation.</p>
+<p><strong>Article 6 — Extensions.</strong> Les skills, sous-agents, hooks, plugins et connecteurs partagés proviennent du catalogue interne. Chacun a un propriétaire, une version figée, et a été relu par la sécurité avant publication. L'installation d'une extension extérieure au catalogue est interdite.</p>
+<p><strong>Article 7 — Traçabilité.</strong> Chaque changement porte la clé du ticket qui l'a motivé et indique la contribution d'un agent. On doit pouvoir retracer, en quelques minutes, l'origine de toute ligne de code : la demande, la spécification, la personne qui a approuvé, la relecture. Les actions des agents sont journalisées sans le contenu des échanges.</p>
+<p><strong>Article 8 — Incidents.</strong> Toute personne qui constate qu'un agent a vu un secret ou une donnée réelle, a agi hors du périmètre attendu, ou a été détourné par un contenu qu'il a lu, arrête la session et prévient la sécurité sans délai, selon la fiche réflexe en vigueur. On ne supprime aucune trace avant l'accord de la sécurité.</p>
+<p><strong>Article 9 — Formation.</strong> L'accès aux agents est ouvert après une formation qui couvre cette politique, les limites des agents et la fiche réflexe. Un rappel a lieu à chaque évolution majeure du socle.</p>
+<p><strong>Article 10 — Exceptions.</strong> Une exception se demande par écrit à la sécurité, avec sa raison, son périmètre et sa durée. Elle est accordée pour une durée limitée et inscrite au registre des exceptions.</p>
+<p><strong>Article 11 — Gouvernance.</strong> La commission sécurité adopte et révise la politique. Une responsable du socle et un référent technique en assurent l'application. La politique est revue tous les six mois, et à chaque changement majeur de l'outil ou du cadre réglementaire.</p>
+<p><em>Adoptée par la commission sécurité le [date]. Responsable du socle : [nom]. Référent technique : [nom].</em></p>
+<h2>Ce que chaque article devient techniquement</h2>
+<p>Une politique qu'aucun réglage ne soutient repose sur la bonne volonté. Le tableau suivant relie chaque article aux contrôles décrits dans le manuel. Là où aucun contrôle n'existe, la dernière colonne nomme qui vérifie.</p>
+<table>
+<thead>
+<tr>
+<th>Article</th>
+<th>Contrôles techniques</th>
+<th>Vérifié aussi par</th>
+<th>Chapitre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 — Périmètre</td>
+<td>La télémétrie recense les sessions par équipe</td>
+<td>La DSI, chaque mois</td>
+<td>M14</td>
+</tr>
+<tr>
+<td>2 — Outils autorisés</td>
+<td>Fournisseur imposé, modèles et version figés, mises à jour coupées ; compte cloud dédié dont les règles d'organisation interdisent les régions hors de l'Union ; postes qui ne joignent pas les services d'IA extérieurs</td>
+<td>La DSI</td>
+<td>M1, M4</td>
+</tr>
+<tr>
+<td>3 — Données</td>
+<td>Interdictions de lecture des fichiers de secrets ; lecture bloquée hors des dossiers de travail ; identifiants masqués dans le bac à sable ; hook qui refuse les données personnelles ; test des journaux et détection de secrets dans la chaîne ; transcriptions effacées après quatorze jours ; aucun contenu d'échange dans la télémétrie</td>
+<td>La sécurité, pour toute base utilisée par un agent</td>
+<td>M4, M6, M7, M10, M12, M14</td>
+</tr>
+<tr>
+<td>4 — Ce que l'agent peut faire</td>
+<td>Mode avec demande d'autorisation imposé, modes sans demande désactivés ; scénarios protégés en écriture ; bac à sable avec liste d'hôtes gérée ; lecture web limitée aux hôtes internes ; branche principale protégée</td>
+<td>Le référent technique</td>
+<td>M4, M10</td>
+</tr>
+<tr>
+<td>5 — Responsabilité humaine</td>
+<td>Approbation des propriétaires obligatoire ; contrôle de la ligne <em>Approuvé par</em> dans la chaîne</td>
+<td>Le relecteur, qui sait expliquer</td>
+<td>M10, M13</td>
+</tr>
+<tr>
+<td>6 — Extensions</td>
+<td>Catalogues autorisés limités au Git interne ; chargement de plugins hors catalogue refusé ; serveurs MCP limités à la liste gérée ; plugins à commande et modules extérieurs refusés</td>
+<td>La sécurité, à chaque publication au catalogue</td>
+<td>M7, M8</td>
+</tr>
+<tr>
+<td>7 — Traçabilité</td>
+<td>Mention de l'agent dans chaque commit ; clé Jira contrôlée par la chaîne ; journal des actions par hook ; télémétrie</td>
+<td>Le test des quatre minutes, chaque trimestre</td>
+<td>M6, M10, M14</td>
+</tr>
+<tr>
+<td>8 — Incidents</td>
+<td>Journaux et télémétrie conservés ; hook qui signale tout changement de configuration en cours de session</td>
+<td>La sécurité</td>
+<td>M6, M14</td>
+</tr>
+<tr>
+<td>9 — Formation</td>
+<td>Accès ouvert par la DSI après la formation, par groupe d'annuaire</td>
+<td>Le responsable de chaque équipe</td>
+<td>M12</td>
+</tr>
+<tr>
+<td>10 — Exceptions</td>
+<td>Des paramètres gérés propres au groupe concerné, avec une date de fin</td>
+<td>Le registre des exceptions, revu par la sécurité</td>
+<td>M4</td>
+</tr>
+<tr>
+<td>11 — Gouvernance</td>
+<td>Les paramètres gérés et le socle versionnés, modifiés par demande de fusion relue par la sécurité</td>
+<td>La commission, tous les six mois</td>
+<td>M8</td>
+</tr>
+</tbody>
+</table>
+<h3>Ce qu'aucun réglage ne garantit</h3>
+<p>Trois engagements de la politique échappent à tout contrôle automatique, et c'est assumé :</p>
+<ul>
+<li><strong>Comprendre ce qu'on fusionne</strong> (article 5). Le relecteur est seul juge ; la revue et la rétrospective le soutiennent.</li>
+<li><strong>Signaler un incident</strong> (article 8). Aucune machine ne remplace la personne qui dit : l'agent vient de lire quelque chose qu'il n'aurait pas dû voir.</li>
+<li><strong>Ne pas contourner</strong> : copier du code dans un outil non autorisé, depuis un autre poste. Les postes isolés le rendent difficile ; seule la formation, et la confiance, le rendent improbable.</li>
+</ul>
+<h2>Ce que la politique demande à chacun</h2>
+<p>Une politique se lit mieux par rôle que par article. Chacun y trouve ce qu'on attend de lui, et ce qu'on lui garantit en retour.</p>
+<table>
+<thead>
+<tr>
+<th>Rôle</th>
+<th>Ce qu'on attend de lui</th>
+<th>Ce qu'on lui garantit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Développeur, collaborateur ou prestataire</td>
+<td>Utiliser la seule configuration fournie ; ne travailler que sur des données synthétiques ; relire et assumer ce qu'il soumet ; signaler tout incident</td>
+<td>Un outil dont les verrous le protègent de l'erreur la plus coûteuse ; le droit de s'arrêter et de prévenir sans reproche</td>
+</tr>
+<tr>
+<td>Relecteur</td>
+<td>Ne fusionner que ce qu'il sait expliquer ; relire à la profondeur que demande le risque</td>
+<td>Des demandes de fusion préparées, une file plafonnée, le droit de refuser</td>
+</tr>
+<tr>
+<td>Product Owner</td>
+<td>Valider nommément les stories et les règles de gestion ; trancher les questions ouvertes</td>
+<td>Un agent qui n'invente pas de règle et lui pose les questions</td>
+</tr>
+<tr>
+<td>Testeuse</td>
+<td>Écrire les scénarios avant le code ; explorer après le vert</td>
+<td>Des scénarios que personne d'autre ne peut modifier</td>
+</tr>
+<tr>
+<td>Référent technique</td>
+<td>Tenir le CLAUDE.md, les règles et les hooks du projet ; vérifier l'article 4</td>
+<td>Le soutien de la sécurité pour tout réglage sensible</td>
+</tr>
+<tr>
+<td>Responsable du socle</td>
+<td>Garder le socle court, à jour et appliqué ; tenir le registre des exceptions</td>
+<td>Un mandat de la commission, et le dernier mot sur ce qui entre dans le socle</td>
+</tr>
+<tr>
+<td>DSI</td>
+<td>Déployer la configuration, les paramètres gérés et le catalogue ; ouvrir les accès après formation</td>
+<td>Une politique qui dit exactement ce qu'il faut verrouiller</td>
+</tr>
+<tr>
+<td>Sécurité</td>
+<td>Relire les extensions, les bases utilisées par un agent, les exceptions ; traiter les incidents</td>
+<td>Des journaux et une traçabilité suffisants pour enquêter</td>
+</tr>
+<tr>
+<td>Délégué à la protection des données</td>
+<td>Valider la classification des données et les durées de conservation</td>
+<td>Aucune donnée réelle dans les outils des agents</td>
+</tr>
+</tbody>
+</table>
+<p>La deuxième colonne de la première ligne compte plus qu'il n'y paraît. Au chapitre 13, la ligne fautive la plus ancienne avait été écrite à la main, sans agent : chercher un coupable aurait désigné la mauvaise cible, et rien appris. Une politique de sécurité qui punit le signalement obtient le silence.</p>
+<h2>La fiche réflexe en cas d'incident</h2>
+<p>L'article 8 renvoie à une fiche qui doit tenir sur une page, être affichée, et pouvoir être suivie par quelqu'un qui n'a jamais eu d'incident. La voici.</p>
+<blockquote>
+<p><em>Schéma (version numérique) : la fiche réflexe · à afficher près des postes.</em></p>
+</blockquote>
+<h3>Ce qu'on dit en prévenant</h3>
+<p>Quoi, quand, sur quel poste, dans quel dépôt et sur quelle branche, avec quelle story ; et ce qui a déjà été fait. Pas d'interprétation, pas de capture contenant la donnée en cause : la sécurité viendra la voir sur place.</p>
+<h3>Selon la situation</h3>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Premiers gestes, en plus des trois communs</th>
+<th>Qui d'autre prévenir</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L'agent a lu ou affiché un secret</td>
+<td>Considérer le secret comme exposé et le faire changer, même si rien n'est sorti du poste</td>
+<td>Le propriétaire du secret</td>
+</tr>
+<tr>
+<td>L'agent a rencontré une donnée réelle d'assuré</td>
+<td>Ne pas pousser la branche ; noter d'où venait la donnée</td>
+<td>Le délégué à la protection des données, qui apprécie s'il y a violation au sens du RGPD et les délais qui s'ensuivent</td>
+</tr>
+<tr>
+<td>L'agent a modifié un fichier hors de son périmètre, ou lancé une commande inattendue</td>
+<td>Ne rien pousser ; relever l'état du dépôt avec <code>git status</code></td>
+<td>Le référent technique</td>
+</tr>
+<tr>
+<td>Un contenu lu par l'agent contenait des instructions qui l'ont détourné</td>
+<td>Noter la source : ticket, page, fichier, demande de fusion</td>
+<td>Le propriétaire de la source</td>
+</tr>
+<tr>
+<td>Une consommation ou un coût anormal</td>
+<td>Ce n'est pas un incident de sécurité : arrêter la session suffit</td>
+<td>La DSI</td>
+</tr>
+</tbody>
+</table>
+<h3>Après l'incident</h3>
+<p>La revue se fait sans recherche de coupable, et se termine par une seule question : à quel niveau empêche-t-on que cela se reproduise ? Une consigne dans le CLAUDE.md, un hook, une interdiction dans les paramètres, un contrôle de la chaîne, ou le socle, selon l'échelle du chapitre M13. Le chapitre 13 du roman en donne la forme : trois niveaux de protection superposés, la consigne, le hook et le contrôle de la chaîne.</p>
+<h2>Le cadre réglementaire et la révision</h2>
+<h3>Les textes qui la fondent</h3>
+<p>Trois règlements européens au moins pèsent sur une politique de ce type dans une mutuelle. La liste n'est pas exhaustive : le secteur de l'assurance a ses propres autorités et ses propres exigences, que le service juridique ajoute.</p>
+<table>
+<thead>
+<tr>
+<th>Texte</th>
+<th>Ce qu'il demande, pour ce qui nous occupe</th>
+<th>Articles de la politique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Le RGPD</td>
+<td>Ne traiter que les données nécessaires ; documenter les traitements ; notifier une violation de données à caractère personnel à l'autorité de contrôle dans les soixante-douze heures quand elle présente un risque</td>
+<td>3, 8</td>
+</tr>
+<tr>
+<td>DORA, règlement sur la résilience opérationnelle numérique du secteur financier, applicable depuis janvier 2025</td>
+<td>Gérer le risque lié aux technologies et aux prestataires tiers ; pouvoir retracer et expliquer les changements ; déclarer les incidents majeurs</td>
+<td>2, 7, 8, 11</td>
+</tr>
+<tr>
+<td>Le règlement européen sur l'intelligence artificielle, dont l'obligation de maîtrise de l'IA s'applique depuis février 2025</td>
+<td>Que les personnes qui utilisent des systèmes d'IA aient un niveau suffisant de compétence</td>
+<td>9</td>
+</tr>
+</tbody>
+</table>
+<p>DORA a une conséquence pratique souvent oubliée : le fournisseur de cloud et le service de modèles sont des prestataires tiers de technologies, à inscrire comme tels dans le registre que tient la mutuelle. Au chapitre 22, c'est aussi DORA qui fait choisir à l'équipe le niveau le plus complet de la méthode : il faut pouvoir montrer ce qui a été décidé, et par qui.</p>
+<h3>Réviser la politique</h3>
+<p>La politique est versionnée dans le dépôt du socle, à côté des paramètres gérés qu'elle justifie. Elle change par une demande de fusion relue par la sécurité et, pour les articles qui engagent des droits, par le service juridique. Outre la revue semestrielle de l'article 11, cinq événements déclenchent une révision :</p>
+<ul>
+<li>une version majeure de l'outil ou de son mode de déploiement ;</li>
+<li>un nouveau fournisseur de modèles, ou une nouvelle région ;</li>
+<li>un nouvel usage, comme un agent qui travaille sans personne devant l'écran dans la chaîne d'intégration ;</li>
+<li>un incident significatif ;</li>
+<li>une évolution du cadre réglementaire.</li>
+</ul>
+<p>La règle de Julien vaut pour la politique comme pour le socle : si elle ne tient plus en deux pages, c'est qu'elle a commencé à décrire des réglages au lieu de dire ce qui est permis.</p>
+<h2>Renvois</h2>
+<ul>
+<li>M1 — Installer : la configuration de référence et le compte dédié</li>
+<li>M4 — Paramètres et permissions : les verrous et les paramètres gérés</li>
+<li>M6 — Hooks : données personnelles, secrets, journal des actions</li>
+<li>M7 — MCP : les connecteurs et leurs risques</li>
+<li>M8 — Plugins : le catalogue interne et le socle</li>
+<li>M10 — GitHub et Jira : branche protégée, contrôles obligatoires, traçabilité</li>
+<li>M12 et M13 — Partager en équipe, bonnes pratiques : formation, revue sans reproche</li>
+<li>M14 — Dépannage et coûts : la télémétrie sans contenu</li>
+<li>Annexe A — Modèle de CLAUDE.md ; Annexe B — Définitions de « prêt » et de « terminé »</li>
+</ul>
+<h2>Sources</h2>
+<p>Consultées le 24 octobre 2026.</p>
+<ul>
+<li><a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj">Règlement (UE) 2016/679, règlement général sur la protection des données</a></li>
+<li><a href="https://eur-lex.europa.eu/eli/reg/2022/2554/oj">Règlement (UE) 2022/2554, résilience opérationnelle numérique du secteur financier (DORA)</a></li>
+<li><a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj">Règlement (UE) 2024/1689, règlement sur l'intelligence artificielle</a></li>
+<li><a href="https://www.cnil.fr/fr/notifier-une-violation-de-donnees-personnelles">CNIL, notifier une violation de données personnelles</a></li>
+</ul></article><nav class="pager"><span><a href="f-annexe-d-grille-de-metriques.html">← Grille de métriques</a></span><span><a href="f-annexe-f-glossaire.html">Glossaire →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

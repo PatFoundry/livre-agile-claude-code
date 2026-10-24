@@ -1,0 +1,640 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Installer Claude Code — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="" data-current="latest" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Chapitre M1</div><h1>Installer Claude Code</h1><h2>Ce que couvre ce chapitre</h2>
+<p>Ce chapitre vous mène d'un poste vierge à une première session Claude Code qui passe par Amazon Bedrock, en région européenne, sans abonnement chez l'éditeur. C'est la configuration que l'équipe du portail sinistres adopte au chapitre 2 du roman, et celle que le reste du manuel suppose.</p>
+<p>Il a deux lecteurs. L'administrateur cloud prépare une fois pour toutes le compte AWS, les droits et la connexion par l'annuaire (section « La configuration de référence »). Le développeur installe l'outil sur son poste, le branche et vérifie qu'il fonctionne (toutes les autres sections). Dans une petite équipe, c'est souvent la même personne ; lisez alors le chapitre dans l'ordre.</p>
+<blockquote>
+<p><strong>Version de référence.</strong> Claude Code 2.1.301, publiée le 15 octobre 2026. Les commandes, les noms de variables et les identifiants de modèles changent vite. La version en ligne de ce manuel est mise à jour à chaque évolution notable ; en cas d'écart, la <a href="https://code.claude.com/docs/en/setup">documentation officielle</a> fait foi.</p>
+</blockquote>
+<p>Ce chapitre met en œuvre les deux premiers points du cadre d'usage que Thomas et Julien présentent au RSSI : les modèles via Bedrock sur un compte dédié, puis la connexion par l'annuaire avec des versions figées. Les règles imposées sur chaque poste (secrets, commandes réseau, validation humaine) relèvent du chapitre M4.</p>
+<h2>Choisir sa surface</h2>
+<p>Avec Amazon Bedrock, trois surfaces fonctionnent sans réserve : le terminal, l'extension VS Code et le plugin JetBrains. Le même moteur tourne derrière chacune ; elles partagent la configuration rangée dans le dossier <code>~/.claude/</code> de l'utilisateur.</p>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Ce que c'est</th>
+<th>Avec la configuration de référence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Terminal</td>
+<td>La commande <code>claude</code>, lancée dans le dossier du projet. Toutes les fonctions y sont.</td>
+<td>Oui. C'est la surface de référence de ce manuel.</td>
+</tr>
+<tr>
+<td>Extension VS Code</td>
+<td>Un panneau graphique dans l'éditeur : diffs côte à côte, plans annotables, historique des sessions. Elle s'installe aussi dans Cursor et les autres dérivés de VS Code.</td>
+<td>Oui, après avoir coché le réglage <em>Disable Login Prompt</em>. L'extension embarque sa propre copie de l'outil.</td>
+</tr>
+<tr>
+<td>Plugin JetBrains</td>
+<td>Pour IntelliJ IDEA, PyCharm, WebStorm, GoLand et les autres IDE de l'éditeur. Il lance <code>claude</code> dans le terminal intégré et affiche les diffs dans l'IDE.</td>
+<td>Oui. Il n'embarque rien : il faut installer l'outil en ligne de commande d'abord, et il en hérite la configuration.</td>
+</tr>
+<tr>
+<td>Application de bureau</td>
+<td>L'onglet <em>Code</em> de l'application Claude, sans terminal.</td>
+<td>Seulement avec l'édition dédiée aux fournisseurs tiers (<em>Claude Desktop on 3P</em>). L'application standard exige un abonnement.</td>
+</tr>
+<tr>
+<td>Web et mobile</td>
+<td>Des sessions qui tournent sur l'infrastructure de l'éditeur, pilotables depuis un navigateur ou un téléphone.</td>
+<td>Non. Elles exigent un compte claude.ai et exécutent votre code hors de chez vous.</td>
+</tr>
+</tbody>
+</table>
+<p>Dans une équipe Java comme celle du roman, le choix se fait souvent par l'IDE : IntelliJ pour les développeurs, VS Code pour les profils qui touchent surtout aux spécifications et aux tests. Installez l'outil en ligne de commande sur tous les postes de toute façon : c'est lui que vous utiliserez pour diagnostiquer un problème.</p>
+<p>Passer par Bedrock retire aussi quelques fonctions, qui reposent sur les serveurs de l'éditeur : la recherche web (l'outil qui lit une page à partir d'une adresse précise reste disponible), les sessions dans le cloud, le contrôle à distance depuis un téléphone, l'extension Chrome et la dictée vocale. Pour un RSSI, chaque fonction absente est une porte de sortie en moins ; c'est l'argument que Julien avance au chapitre 2.</p>
+<h2>Préparer le poste</h2>
+<p>Un poste de développeur récent convient presque toujours ; le point qui bloque, en entreprise, c'est le réseau.</p>
+<table>
+<thead>
+<tr>
+<th>Élément</th>
+<th>Minimum requis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Système</td>
+<td>macOS 13 ; Windows 10 1809 ou Windows Server 2019 ; Ubuntu 20.04, Debian 10 ou Alpine 3.19</td>
+</tr>
+<tr>
+<td>Matériel</td>
+<td>4 Go de mémoire, processeur x64 ou ARM64</td>
+</tr>
+<tr>
+<td>Shell</td>
+<td>Bash, Zsh, PowerShell ou CMD</td>
+</tr>
+<tr>
+<td>Git</td>
+<td>Indispensable pour travailler sur un dépôt. Sous Windows natif, installez Git for Windows : l'agent utilise alors Git Bash, sinon PowerShell.</td>
+</tr>
+<tr>
+<td>AWS CLI</td>
+<td>Version 2, pour la connexion par l'annuaire. Facultative si les identifiants arrivent autrement.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Windows : natif ou WSL ?</strong> L'outil fonctionne directement sous Windows, sans droits d'administrateur. Préférez WSL 2 si vos chaînes de compilation sont Linux ou si vous voulez isoler les commandes de l'agent dans un bac à sable : cette isolation n'existe pas sous Windows natif. Dans WSL, on installe et on lance tout depuis le terminal Linux.</p>
+<p><strong>Le réseau.</strong> Avec Bedrock, le poste n'a pas besoin de joindre les serveurs de l'éditeur pour fonctionner. Il doit joindre :</p>
+<ul>
+<li>les points d'accès AWS de la région choisie : <code>bedrock-runtime</code> pour les requêtes au modèle, <code>bedrock</code> pour la liste des profils d'inférence, <code>sts</code> pour vérifier les identifiants ;</li>
+<li>ceux d'IAM Identity Center, si la connexion passe par l'annuaire : le portail d'accès AWS de l'entreprise et le service <code>oidc</code> de sa région ;</li>
+<li>votre serveur Git et votre miroir de paquets, s'ils sont internes.</li>
+</ul>
+<p>Deux exceptions sont à connaître. L'installeur natif et la mise à jour automatique téléchargent depuis <code>downloads.claude.ai</code> ; sur un poste isolé, on désactive les mises à jour et on distribue l'outil soi-même (voir « Installer selon son système »). L'outil qui lit une page web interroge <code>api.anthropic.com</code> pour vérifier le domaine, sauf si le paramètre <code>skipWebFetchPreflight</code> vaut <code>true</code>.</p>
+<p><strong>Proxy et certificats.</strong> L'outil lit les variables <code>HTTPS_PROXY</code>, <code>HTTP_PROXY</code> et <code>NO_PROXY</code>, mais ne gère pas les proxys SOCKS. Derrière un proxy qui inspecte le trafic chiffré, l'installation native lit le magasin de certificats du système ; sinon, indiquez le certificat racine de l'entreprise dans <code>NODE_EXTRA_CA_CERTS</code>. Pour un proxy qui exige une authentification NTLM ou Kerberos, passez par une passerelle (voir « Les alternatives »).</p>
+<p>Rangez ces variables dans le bloc <code>env</code> des paramètres plutôt que dans le profil du shell : c'est le seul endroit qui atteint aussi l'extension VS Code et les sessions lancées en arrière-plan.</p>
+<h2>Installer selon son système</h2>
+<p>La bonne méthode dépend moins du système que de la façon dont votre entreprise gère ses postes.</p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Méthode</th>
+<th>Mises à jour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Poste connecté, usage individuel</td>
+<td>Installeur natif, canal <em>stable</em></td>
+<td>Automatiques, en arrière-plan</td>
+</tr>
+<tr>
+<td>Parc macOS géré</td>
+<td>Homebrew, paquet <code>claude-code</code> (canal stable)</td>
+<td>Manuelles, ou confiées à l'outil</td>
+</tr>
+<tr>
+<td>Parc Windows géré</td>
+<td>WinGet</td>
+<td>Manuelles, ou confiées à l'outil</td>
+</tr>
+<tr>
+<td>Parc Linux géré</td>
+<td>Dépôts apt, dnf ou apk signés par l'éditeur</td>
+<td>Avec les mises à jour du système</td>
+</tr>
+<tr>
+<td>Poste isolé, avec miroir interne</td>
+<td>Paquet npm via le miroir, ou dépôt apt ou dnf recopié</td>
+<td>Par l'équipe poste de travail, version figée</td>
+</tr>
+</tbody>
+</table>
+<h3>Installeur natif</h3>
+<p>Il ne demande ni droits d'administrateur ni Node.js. Ajoutez <code>stable</code> pour suivre le canal qui a environ une semaine de recul et écarte les versions à régression majeure.</p>
+<pre><code class="language-bash"># macOS, Linux, WSL
+curl -fsSL https://claude.ai/install.sh | bash -s stable
+</code></pre>
+<pre><code class="language-powershell"># Windows PowerShell
+&amp; ([scriptblock]::Create((irm https://claude.ai/install.ps1))) stable
+</code></pre>
+<p>Pour installer une version précise, remplacez <code>stable</code> par son numéro, par exemple <code>2.1.301</code>. Le canal choisi à l'installation devient celui des mises à jour automatiques.</p>
+<h3>Gestionnaires de paquets</h3>
+<pre><code class="language-bash"># macOS : le paquet claude-code suit le canal stable
+brew install --cask claude-code
+</code></pre>
+<pre><code class="language-powershell"># Windows
+winget install Anthropic.ClaudeCode
+</code></pre>
+<p>Sous Debian, Ubuntu, Fedora, RHEL ou Alpine, l'éditeur publie des dépôts signés, avec un canal <em>stable</em> et un canal <em>latest</em>. Avant d'importer la clé de signature, vérifiez son empreinte : <code>31DD DE24 DDFA B679 F42D 7BD2 BAA9 29FF 1A7E CACE</code>. Ces installations ne se mettent pas à jour seules.</p>
+<h3>Poste isolé : passer par le miroir interne</h3>
+<p>C'est le cas du roman : les postes de l'équipe ne voient que Bedrock, le serveur Git et le miroir des bibliothèques. Le paquet npm convient bien, car il passe par le miroir comme n'importe quelle dépendance. Il exige Node.js 22 ou plus récent.</p>
+<pre><code class="language-bash">npm install -g @anthropic-ai/claude-code@2.1.301
+</code></pre>
+<p>N'utilisez jamais <code>sudo</code> avec cette commande ; en cas d'erreur de droits, configurez un dossier npm global dans le répertoire de l'utilisateur. Une autre voie consiste à recopier le dépôt apt ou dnf de l'éditeur dans votre gestionnaire de dépôts, ce qui garde la vérification de signature.</p>
+<h3>Vérifier l'installation</h3>
+<p>Ouvrez un nouveau terminal, puis :</p>
+<pre><code class="language-bash">claude --version   # affiche par exemple : 2.1.301 (Claude Code)
+claude doctor      # santé de l'installation, paramètres invalides, mises à jour
+</code></pre>
+<p>Si le shell répond que <code>claude</code> est introuvable, le dossier d'installation (<code>~/.local/bin</code> pour l'installeur natif) n'est pas dans le <code>PATH</code>. Les binaires macOS sont signés par l'éditeur et notariés par Apple, ceux de Windows signés par l'éditeur ; chaque version publie aussi un manifeste de sommes de contrôle signé, que l'équipe sécurité peut vérifier.</p>
+<h3>Ajouter l'IDE</h3>
+<ul>
+<li><strong>VS Code</strong> (version 1.94 ou plus) : cherchez « Claude Code » dans le panneau des extensions, éditeur Anthropic. Les dérivés qui n'accèdent pas à la place de marché de Microsoft la trouvent sur Open VSX.</li>
+<li><strong>JetBrains</strong> : installez le plugin « Claude Code » depuis la JetBrains Marketplace, puis redémarrez l'IDE. Si le plugin ne trouve pas <code>claude</code>, indiquez son chemin complet dans <em>Settings → Tools → Claude Code</em>.</li>
+</ul>
+<h2>La configuration de référence : Bedrock en région européenne</h2>
+<p>La configuration tient en six étapes. L'administrateur cloud prépare les cinq premières une fois pour toute l'équipe ; chaque développeur n'intervient qu'aux deux dernières, sur son poste, en dix minutes.</p>
+<blockquote>
+<p><em>Schéma (version numérique) : configuration de référence · poste, compte AWS dédié, régions européennes.</em></p>
+</blockquote>
+<p>Le développeur se connecte par l'annuaire (1), puis Claude Code envoie ses requêtes à Bedrock (2), qui les fait traiter dans une région européenne (3). CloudTrail garde la trace de chaque appel ; le poste ne joint rien d'autre que le réseau interne.</p>
+<h3>1. Un compte AWS dédié</h3>
+<p>Créez dans AWS Organizations un compte réservé à Claude Code, comme le recommande la documentation de l'éditeur. Vous y gagnez des coûts isolés dans Cost Explorer, des quotas qui ne concurrencent aucune autre application, et un journal CloudTrail que l'équipe sécurité peut lire sans voir le reste.</p>
+<p>Choisissez ensuite la région source, celle depuis laquelle partent les requêtes. Dans le roman, c'est <code>eu-west-3</code> (Paris), où la mutuelle héberge déjà son extranet.</p>
+<blockquote>
+<p><strong>Piège fréquent.</strong> Si votre organisation bloque les régions non autorisées par une politique de contrôle de service (SCP), le profil européen échouera dès qu'il enverra une requête vers une autre région. Autorisez Bedrock dans toutes les régions de destination du profil.</p>
+</blockquote>
+<h3>2. Ouvrir l'accès aux modèles</h3>
+<p>Dans la console Bedrock, ouvrez le catalogue de modèles, choisissez un modèle Anthropic et remplissez le formulaire de cas d'usage. On le fait une fois par compte, et l'accès est accordé dès l'envoi. Avec AWS Organizations, le compte de gestion peut le soumettre une seule fois pour tous les comptes rattachés, par l'API <code>PutUseCaseForModelAccess</code>.</p>
+<p>Bedrock fixe ses critères d'accès modèle par modèle. Certains sont ouverts à tous les clients, comme Sonnet 5, Opus 4.7, Opus 4.8, Haiku 4.5 et les modèles Fable ; pour les autres, dont Opus 5.5 et Sonnet 5.5, vérifiez dans la console.</p>
+<h3>3. Choisir le profil d'inférence européen</h3>
+<p>Les modèles Claude récents ne s'appellent pas directement : on passe par un profil d'inférence, dont le préfixe dit où la requête peut être traitée.</p>
+<table>
+<thead>
+<tr>
+<th>Préfixe</th>
+<th>Où la requête est traitée</th>
+<th>Pour la configuration de référence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eu.</code></td>
+<td>Dans les régions européennes d'AWS</td>
+<td>Oui</td>
+</tr>
+<tr>
+<td><code>global.</code></td>
+<td>Dans n'importe quelle région commerciale du monde</td>
+<td>Non</td>
+</tr>
+<tr>
+<td><code>us.</code>, <code>jp.</code>, <code>au.</code>, <code>apac.</code></td>
+<td>Dans une autre zone géographique</td>
+<td>Non</td>
+</tr>
+</tbody>
+</table>
+<p>Le profil <code>eu.</code> répartit la charge entre les régions européennes listées sur la fiche de chaque modèle : Francfort, Paris, Irlande, Milan, Espagne, Stockholm, et selon les modèles Londres ou Zurich. Ces deux dernières sont hors de l'Union européenne ; votre délégué à la protection des données doit le savoir avant de signer. S'il les refuse, voyez la variante à la fin de l'étape 4. Vérifiez aussi les tarifs : un profil géographique n'est pas toujours facturé au même prix que le profil mondial.</p>
+<p>Pour lister les profils réellement disponibles depuis votre région :</p>
+<pre><code class="language-bash">aws bedrock list-inference-profiles --region eu-west-3 --type-equals SYSTEM_DEFINED
+</code></pre>
+<p>Au 16 octobre 2026, les deux identifiants utiles sont <code>eu.anthropic.claude-opus-5-5</code> et <code>eu.anthropic.claude-sonnet-5-5</code>.</p>
+<h3>4. Donner les droits IAM</h3>
+<p>La politique ci-dessous autorise l'appel des modèles Anthropic à travers les seuls profils européens. Elle reprend les actions que demande la documentation de l'éditeur, en restreignant les ressources ; testez-la sur un poste avant de la généraliser.</p>
+<pre><code class="language-json">{
+  &quot;Version&quot;: &quot;2012-10-17&quot;,
+  &quot;Statement&quot;: [
+    {
+      &quot;Sid&quot;: &quot;InvoquerClaudeEnEurope&quot;,
+      &quot;Effect&quot;: &quot;Allow&quot;,
+      &quot;Action&quot;: [
+        &quot;bedrock:InvokeModel&quot;,
+        &quot;bedrock:InvokeModelWithResponseStream&quot;,
+        &quot;bedrock:GetInferenceProfile&quot;
+      ],
+      &quot;Resource&quot;: [
+        &quot;arn:aws:bedrock:eu-west-3:*:inference-profile/eu.anthropic.*&quot;,
+        &quot;arn:aws:bedrock:eu-*::foundation-model/anthropic.*&quot;
+      ]
+    },
+    {
+      &quot;Sid&quot;: &quot;ListerLesProfils&quot;,
+      &quot;Effect&quot;: &quot;Allow&quot;,
+      &quot;Action&quot;: &quot;bedrock:ListInferenceProfiles&quot;,
+      &quot;Resource&quot;: &quot;*&quot;
+    }
+  ]
+}
+</code></pre>
+<p>La seconde ressource du premier bloc est indispensable : un profil européen appelle le modèle dans d'autres régions, et chacune vérifie le droit. Pour la toute première activation d'un modèle, la documentation ajoute aussi les droits <code>aws-marketplace:ViewSubscriptions</code> et <code>aws-marketplace:Subscribe</code>, limités aux appels qui passent par Bedrock.</p>
+<h4>Variante : exclure Londres et Zurich</h4>
+<p>Une règle ne peut pas retirer une région d'un profil européen. Bedrock vérifie le droit dans chaque région de destination du profil ; si une seule est refusée, toutes les requêtes qui passent par ce profil échouent, même vers les régions autorisées. Pour tenir Londres et Zurich à l'écart, il faut donc renoncer au profil <code>eu.</code> et faire traiter les requêtes dans une seule région.</p>
+<p>Bedrock le permet par son point d'accès Mantle, dans les régions européennes qui acceptent l'appel en région unique : à ce jour l'Irlande (<code>eu-west-1</code>) et Stockholm (<code>eu-north-1</code>), pas Paris. Trois contreparties sont à peser. La région source passe de Paris à Dublin. Un point d'accès régional est facturé environ 10 % de plus que le point d'accès mondial. Enfin, les modèles servis par Mantle dépendent de ce que votre compte a reçu : confirmez-les avec votre interlocuteur AWS.</p>
+<p>Côté AWS, cette politique de contrôle de service (SCP), attachée au compte dédié, rend l'exclusion impossible à contourner :</p>
+<pre><code class="language-json">{
+  &quot;Version&quot;: &quot;2012-10-17&quot;,
+  &quot;Statement&quot;: [
+    {
+      &quot;Sid&quot;: &quot;RefuserLondresEtZurich&quot;,
+      &quot;Effect&quot;: &quot;Deny&quot;,
+      &quot;Action&quot;: [&quot;bedrock:*&quot;, &quot;bedrock-mantle:*&quot;],
+      &quot;Resource&quot;: &quot;*&quot;,
+      &quot;Condition&quot;: {
+        &quot;StringEquals&quot;: { &quot;aws:RequestedRegion&quot;: [&quot;eu-west-2&quot;, &quot;eu-central-2&quot;] }
+      }
+    },
+    {
+      &quot;Sid&quot;: &quot;RefuserLesProfilsMultiregions&quot;,
+      &quot;Effect&quot;: &quot;Deny&quot;,
+      &quot;Action&quot;: &quot;bedrock:InvokeModel*&quot;,
+      &quot;Resource&quot;: &quot;*&quot;,
+      &quot;Condition&quot;: {
+        &quot;Null&quot;: { &quot;bedrock:InferenceProfileArn&quot;: &quot;false&quot; }
+      }
+    },
+    {
+      &quot;Sid&quot;: &quot;MantleEnIrlandeSeulement&quot;,
+      &quot;Effect&quot;: &quot;Deny&quot;,
+      &quot;Action&quot;: &quot;bedrock-mantle:*&quot;,
+      &quot;Resource&quot;: &quot;*&quot;,
+      &quot;Condition&quot;: {
+        &quot;StringNotEquals&quot;: { &quot;aws:RequestedRegion&quot;: &quot;eu-west-1&quot; }
+      }
+    }
+  ]
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Bloc</th>
+<th>Effet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RefuserLondresEtZurich</code></td>
+<td>Aucune action Bedrock ne peut viser Londres ou Zurich, ni directement ni comme destination d'un profil.</td>
+</tr>
+<tr>
+<td><code>RefuserLesProfilsMultiregions</code></td>
+<td>Aucun appel ne passe par un profil multirégion, qu'il soit <code>eu.</code> ou <code>global.</code>.</td>
+</tr>
+<tr>
+<td><code>MantleEnIrlandeSeulement</code></td>
+<td>Le point d'accès Mantle n'est utilisable qu'en Irlande.</td>
+</tr>
+</tbody>
+</table>
+<p>Dans l'ensemble d'autorisations de l'étape 5, remplacez la politique ci-dessus par les droits <code>bedrock-mantle:CreateInference</code> et <code>bedrock-mantle:CountTokens</code>, limités à la région <code>eu-west-1</code>. Côté poste, les paramètres gérés deviennent :</p>
+<pre><code class="language-json">{
+  &quot;allowedProviders&quot;: [&quot;mantle&quot;],
+  &quot;env&quot;: {
+    &quot;CLAUDE_CODE_USE_MANTLE&quot;: &quot;1&quot;,
+    &quot;AWS_REGION&quot;: &quot;eu-west-1&quot;,
+    &quot;ANTHROPIC_MODEL&quot;: &quot;anthropic.claude-sonnet-5-5&quot;
+  },
+  &quot;availableModels&quot;: [
+    &quot;anthropic.claude-sonnet-5-5&quot;,
+    &quot;anthropic.claude-opus-5-5&quot;
+  ]
+}
+</code></pre>
+<p>Sur Mantle, les identifiants de modèles ne portent pas de préfixe géographique. Au premier lancement, <code>/status</code> doit afficher le fournisseur <em>Amazon Bedrock (Mantle)</em>. Testez la SCP sur un compte d'essai avant de l'appliquer : une erreur de condition bloque toute l'équipe.</p>
+<h3>5. Se connecter par l'annuaire</h3>
+<p>Reliez IAM Identity Center à l'annuaire de l'entreprise (Entra ID, Okta ou Active Directory). Créez un ensemble d'autorisations qui porte la politique ci-dessus, puis affectez-le, sur le compte dédié, au groupe de l'équipe projet. Personne ne reçoit de clé d'accès permanente : AWS déconseille les clés d'utilisateur IAM pour ce type d'usage, et réserve les clés API Bedrock à longue durée à l'exploration.</p>
+<p>Chaque développeur crée une fois son profil, puis se connecte au début de sa journée :</p>
+<pre><code class="language-bash">aws configure sso                         # une fois : profil « claude-bedrock »
+aws sso login --profile claude-bedrock    # chaque jour, dans le navigateur
+</code></pre>
+<p>Dans CloudTrail, chaque appel à Bedrock porte alors le nom de la personne qui l'a fait. C'est le « chaque requête porte un nom » que Thomas promet au RSSI.</p>
+<h3>6. Brancher Claude Code</h3>
+<p>Pour un premier essai, l'assistant intégré suffit. Lancez <code>claude</code>, choisissez <em>3rd-party platform</em> puis <em>Amazon Bedrock</em>. Il détecte vos profils AWS, demande la région, vérifie quels modèles votre compte peut appeler et propose de les figer. Il enregistre le résultat dans <code>~/.claude/settings.json</code> ; la commande <code>/setup-bedrock</code> le rouvre plus tard.</p>
+<p>Pour une équipe, écrivez la configuration vous-même, afin qu'elle soit identique partout. Voici le fichier de paramètres de l'utilisateur, <code>~/.claude/settings.json</code> :</p>
+<pre><code class="language-json">{
+  &quot;env&quot;: {
+    &quot;CLAUDE_CODE_USE_BEDROCK&quot;: &quot;1&quot;,
+    &quot;AWS_PROFILE&quot;: &quot;claude-bedrock&quot;,
+    &quot;AWS_REGION&quot;: &quot;eu-west-3&quot;,
+    &quot;ANTHROPIC_MODEL&quot;: &quot;eu.anthropic.claude-sonnet-5-5&quot;,
+    &quot;ANTHROPIC_DEFAULT_SONNET_MODEL&quot;: &quot;eu.anthropic.claude-sonnet-5-5&quot;,
+    &quot;ANTHROPIC_DEFAULT_OPUS_MODEL&quot;: &quot;eu.anthropic.claude-opus-5-5&quot;
+  },
+  &quot;awsAuthRefresh&quot;: &quot;aws sso login --profile claude-bedrock&quot;
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Ligne</th>
+<th>Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE_CODE_USE_BEDROCK</code></td>
+<td>Fait passer toutes les requêtes par Bedrock.</td>
+</tr>
+<tr>
+<td><code>AWS_PROFILE</code></td>
+<td>Désigne le profil de connexion par l'annuaire. Dans les paramètres, il ne fuit pas vers les autres programmes du poste.</td>
+</tr>
+<tr>
+<td><code>AWS_REGION</code></td>
+<td>Fixe la région source ; une région <code>eu-*</code> fait choisir le préfixe <code>eu.</code>.</td>
+</tr>
+<tr>
+<td><code>ANTHROPIC_MODEL</code></td>
+<td>Modèle de départ des sessions. Sans lui, elles démarrent sur Opus, facturé plus cher ; on passe à Opus à la demande avec <code>/model</code>.</td>
+</tr>
+<tr>
+<td><code>ANTHROPIC_DEFAULT_…_MODEL</code></td>
+<td>Ce que désignent les alias <code>sonnet</code> et <code>opus</code> (voir « Figer les versions »).</td>
+</tr>
+<tr>
+<td><code>awsAuthRefresh</code></td>
+<td>Relance la connexion quand la session AWS expire.</td>
+</tr>
+</tbody>
+</table>
+<p>Si des onglets de connexion s'ouvrent en boucle, c'est souvent qu'un VPN ou un proxy coupe le flux du navigateur : retirez <code>awsAuthRefresh</code> et lancez <code>aws sso login</code> avant <code>claude</code>.</p>
+<p>Dans VS Code, cochez <em>Disable Login Prompt</em> dans les réglages de l'extension : elle lit ensuite le même fichier <code>~/.claude/settings.json</code>. Le plugin JetBrains, lui, n'a rien à régler.</p>
+<h2>Figer les versions</h2>
+<p>Une équipe qui livre doit savoir quel modèle et quelle version de l'outil ont produit son code. Sans gel, les deux bougent sous vos pieds.</p>
+<p><strong>Les modèles.</strong> Les alias <code>opus</code> et <code>sonnet</code> pointent vers des modèles par défaut, inscrits dans l'outil, qui changent avec ses versions. En les fixant par <code>ANTHROPIC_DEFAULT_OPUS_MODEL</code> et <code>ANTHROPIC_DEFAULT_SONNET_MODEL</code>, c'est vous qui décidez quand l'équipe change de modèle. Les tâches de fond, comme le titrage des sessions, utilisent alors le modèle de départ ; pour les confier à un modèle moins cher, fixez aussi <code>ANTHROPIC_DEFAULT_HAIKU_MODEL</code> avec un identifiant que votre compte peut appeler. Pour interdire tout autre modèle, listez les modèles permis dans <code>availableModels</code> et ajoutez <code>enforceAvailableModels</code>.</p>
+<p><strong>L'outil.</strong> Quatre réglages, du plus souple au plus strict :</p>
+<table>
+<thead>
+<tr>
+<th>Besoin</th>
+<th>Réglage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Recevoir les mises à jour avec une semaine de recul</td>
+<td><code>"autoUpdatesChannel": "stable"</code></td>
+</tr>
+<tr>
+<td>Ne jamais redescendre sous une version</td>
+<td><code>"minimumVersion": "2.1.301"</code></td>
+</tr>
+<tr>
+<td>Distribuer soi-même les versions, sans aucune mise à jour par l'outil</td>
+<td>Variable <code>DISABLE_UPDATES</code> à <code>1</code></td>
+</tr>
+<tr>
+<td>Refuser de démarrer hors d'une plage de versions</td>
+<td><code>requiredMinimumVersion</code> et <code>requiredMaximumVersion</code></td>
+</tr>
+</tbody>
+</table>
+<p>Ne confondez pas <code>DISABLE_UPDATES</code> avec <code>DISABLE_AUTOUPDATER</code> : la seconde n'arrête que la vérification en arrière-plan, et laisse un développeur lancer <code>claude update</code>.</p>
+<h3>Imposer la configuration à tous les postes</h3>
+<p>Tout ce qui précède peut vivre dans les paramètres de chaque utilisateur, mais un utilisateur peut les modifier. Pour en faire une règle, placez-les dans le fichier de paramètres gérés, que l'outil applique au-dessus de tous les autres et que personne ne peut écraser depuis son poste.</p>
+<table>
+<thead>
+<tr>
+<th>Système</th>
+<th>Emplacement du fichier <code>managed-settings.json</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>macOS</td>
+<td><code>/Library/Application Support/ClaudeCode/</code></td>
+</tr>
+<tr>
+<td>Linux et WSL</td>
+<td><code>/etc/claude-code/</code></td>
+</tr>
+<tr>
+<td>Windows</td>
+<td><code>C:\Program Files\ClaudeCode\</code></td>
+</tr>
+</tbody>
+</table>
+<p>On peut aussi le distribuer par un profil de configuration macOS ou une clé de registre Windows, via Jamf, Intune ou une stratégie de groupe. Voici le fichier de référence du roman :</p>
+<pre><code class="language-json">{
+  &quot;allowedProviders&quot;: [&quot;bedrock&quot;],
+  &quot;env&quot;: {
+    &quot;CLAUDE_CODE_USE_BEDROCK&quot;: &quot;1&quot;,
+    &quot;AWS_REGION&quot;: &quot;eu-west-3&quot;,
+    &quot;ANTHROPIC_MODEL&quot;: &quot;eu.anthropic.claude-sonnet-5-5&quot;,
+    &quot;ANTHROPIC_DEFAULT_SONNET_MODEL&quot;: &quot;eu.anthropic.claude-sonnet-5-5&quot;,
+    &quot;ANTHROPIC_DEFAULT_OPUS_MODEL&quot;: &quot;eu.anthropic.claude-opus-5-5&quot;,
+    &quot;DISABLE_UPDATES&quot;: &quot;1&quot;
+  },
+  &quot;availableModels&quot;: [
+    &quot;eu.anthropic.claude-sonnet-5-5&quot;,
+    &quot;eu.anthropic.claude-opus-5-5&quot;
+  ],
+  &quot;enforceAvailableModels&quot;: true,
+  &quot;requiredMinimumVersion&quot;: &quot;2.1.301&quot;
+}
+</code></pre>
+<p>La première ligne mérite qu'on s'y arrête. <code>allowedProviders</code> limite les fournisseurs qu'un poste géré peut utiliser : avec la seule valeur <code>bedrock</code>, un développeur ne peut plus se connecter avec un abonnement personnel. C'est exactement l'incident qui ouvre le chapitre 2. Le profil AWS, propre à chacun, reste dans les paramètres de l'utilisateur.</p>
+<p>Ce fichier est aussi celui où vivront les interdictions de lecture, les règles sur les commandes et le bac à sable. Le chapitre M4 les détaille. Pour vérifier qu'il est appliqué, lancez <code>/status</code> : la ligne <em>Setting sources</em> doit mentionner <code>Enterprise managed settings (file)</code>.</p>
+<h2>Les alternatives</h2>
+<p>Bedrock n'est pas un choix universel : c'est le bon choix quand AWS est déjà un fournisseur qualifié de l'entreprise. Ailleurs, une autre option sera plus simple.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Quand la choisir</th>
+<th>Ce qui change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Abonnement Team ou Enterprise de l'éditeur</td>
+<td>Vous voulez tout, sans infrastructure : application de bureau, web, sessions dans le cloud, tableau de bord d'usage. C'est l'option que l'éditeur recommande à la plupart des organisations.</td>
+<td>Connexion par <code>/login</code> avec l'authentification unique de l'entreprise. L'éditeur devient un fournisseur à qualifier, ce que la mutuelle voulait éviter.</td>
+</tr>
+<tr>
+<td>Claude Platform on AWS</td>
+<td>Vous voulez acheter via AWS Marketplace tout en appelant l'API de l'éditeur, avec la recherche web.</td>
+<td>Variable <code>CLAUDE_CODE_USE_ANTHROPIC_AWS</code> ; les requêtes partent vers l'éditeur.</td>
+</tr>
+<tr>
+<td>Google Cloud (Agent Platform, ex-Vertex AI)</td>
+<td>Votre entreprise est sur Google Cloud.</td>
+<td>Variable <code>CLAUDE_CODE_USE_VERTEX</code> et identifiants Google Cloud.</td>
+</tr>
+<tr>
+<td>Microsoft Foundry</td>
+<td>Votre entreprise est sur Azure et Entra ID.</td>
+<td>Variable <code>CLAUDE_CODE_USE_FOUNDRY</code> ; connexion par Entra ID possible.</td>
+</tr>
+<tr>
+<td>Point d'accès Mantle de Bedrock</td>
+<td>Votre compte AWS a reçu des modèles servis au format natif de l'éditeur.</td>
+<td>Variable <code>CLAUDE_CODE_USE_MANTLE</code>, des droits IAM propres et une liste de modèles distincte.</td>
+</tr>
+<tr>
+<td>Passerelle devant le fournisseur</td>
+<td>Il vous faut des budgets par équipe, un suivi centralisé ou une authentification que l'outil ne gère pas, comme un proxy NTLM.</td>
+<td>Le poste parle à la passerelle, qui parle à Bedrock. L'éditeur propose la sienne, <em>Claude apps gateway</em>, à héberger soi-même.</td>
+</tr>
+</tbody>
+</table>
+<p>Un critère tranche souvent : la qualification du fournisseur. Au chapitre 2, Thomas commence par chercher un abonnement d'entreprise chez l'éditeur ; Julien lui fait remarquer qu'AWS est déjà inscrit au registre DORA de la mutuelle. Six semaines d'instruction deviennent trois jours.</p>
+<h2>Premier lancement</h2>
+<p>La première session a un seul but : prouver que la chaîne fonctionne, sans rien modifier. On la lance donc en mode plan, où l'agent lit et propose, mais n'écrit rien.</p>
+<ol>
+<li>Ouvrez un terminal dans le dossier d'un dépôt que vous connaissez bien, connectez-vous, puis lancez l'outil :</li>
+</ol>
+<p><code>bash
+   aws sso login --profile claude-bedrock
+   claude --permission-mode plan</code>
+2. L'outil vous demande si vous faites confiance aux fichiers de ce dossier. Un dépôt peut contenir des réglages qui déclenchent des commandes ; ne répondez oui que pour un code dont vous connaissez l'origine.
+3. Tapez <code>/status</code> et contrôlez trois lignes : le fournisseur (<em>Amazon Bedrock</em>), la région (<code>eu-west-3</code>) et les sources de paramètres, qui doivent inclure les paramètres gérés s'ils sont déployés.
+4. Tapez <code>/model</code> : seuls les modèles européens autorisés doivent apparaître.
+5. Posez une première question qui n'engage rien, par exemple : « Explique-moi l'organisation de ce projet en dix lignes, sans rien modifier. » L'agent ouvre des fichiers, puis répond.
+6. Tapez <code>/usage</code> pour voir les jetons consommés et le coût de la session, puis <code>/exit</code> pour quitter.</p>
+<p>Demandez enfin à l'administrateur de retrouver votre appel côté AWS, avec votre nom. Si c'est le cas, la promesse faite au RSSI est tenue de bout en bout.</p>
+<p>Trois différences surprennent les habitués d'un abonnement. Il n'y a pas de <code>/logout</code> : l'identité vient du profil AWS, et l'on change de compte en changeant de profil. La touche Maj+Tab fait défiler les modes de permission ; une session peut, selon la version et les réglages, démarrer dans un mode qui agit sans demander, d'où le mode plan imposé ici. Enfin, l'agent ne cherche pas sur internet : donnez-lui l'adresse exacte d'une documentation s'il en a besoin.</p>
+<p>Le chapitre M2 reprend ces premiers pas en détail : sessions, mode plan, validation des actions, gestion du contexte et retour arrière.</p>
+<h2>Vérifier, dépanner</h2>
+<p>Un poste est prêt quand les sept points suivants sont cochés. Gardez cette liste pour l'arrivée de chaque nouveau membre de l'équipe.</p>
+<ul>
+<li>[ ] <code>claude --version</code> affiche la version de référence de l'équipe.</li>
+<li>[ ] <code>claude doctor</code> ne signale aucune erreur.</li>
+<li>[ ] <code>/status</code> indique Amazon Bedrock, la région <code>eu-west-3</code> et les paramètres gérés.</li>
+<li>[ ] <code>/model</code> ne propose que les modèles européens autorisés.</li>
+<li>[ ] Une question posée en mode plan reçoit une réponse.</li>
+<li>[ ] L'appel apparaît côté AWS, au nom du développeur.</li>
+<li>[ ] Dans l'IDE, le panneau s'ouvre sans demander de connexion.</li>
+</ul>
+<p>Les pannes de la première installation se ressemblent d'une entreprise à l'autre.</p>
+<table>
+<thead>
+<tr>
+<th>Symptôme</th>
+<th>Cause probable</th>
+<th>Remède</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude</code> introuvable après l'installation</td>
+<td>Le dossier d'installation n'est pas dans le <code>PATH</code>.</td>
+<td>Ouvrir un nouveau terminal ; ajouter <code>~/.local/bin</code> au <code>PATH</code>.</td>
+</tr>
+<tr>
+<td>Accès refusé sur <code>bedrock:InvokeModel</code></td>
+<td>Droit manquant sur le modèle dans une région de destination, ou SCP qui bloque cette région.</td>
+<td>Vérifier les deux ressources de la politique IAM et les régions autorisées par l'organisation.</td>
+</tr>
+<tr>
+<td>Erreur « on-demand throughput isn't supported »</td>
+<td>Identifiant de modèle nu au lieu d'un profil d'inférence.</td>
+<td>Utiliser l'identifiant préfixé <code>eu.</code>.</td>
+</tr>
+<tr>
+<td>Le modèle est refusé au démarrage</td>
+<td>Modèle non activé sur le compte, ou absent des profils de la région.</td>
+<td>Lister les profils, remplir le formulaire d'accès.</td>
+</tr>
+<tr>
+<td>Jeton de session absent, invalide ou expiré</td>
+<td>La session IAM Identity Center a expiré.</td>
+<td>Relancer <code>aws sso login</code>, ou configurer <code>awsAuthRefresh</code>.</td>
+</tr>
+<tr>
+<td>Onglets de connexion qui s'ouvrent en boucle</td>
+<td>Un VPN ou un proxy coupe le flux du navigateur.</td>
+<td>Retirer <code>awsAuthRefresh</code> ; se connecter avant de lancer l'outil.</td>
+</tr>
+<tr>
+<td>« unable to get local issuer certificate »</td>
+<td>Proxy qui inspecte le trafic chiffré.</td>
+<td>Installer le certificat racine dans le magasin du système, ou le désigner dans <code>NODE_EXTRA_CA_CERTS</code>.</td>
+</tr>
+<tr>
+<td><code>/status</code> affiche <code>us-east-1</code></td>
+<td>Aucune région définie : l'outil retombe sur sa valeur par défaut.</td>
+<td>Renseigner <code>AWS_REGION</code>.</td>
+</tr>
+<tr>
+<td>VS Code réclame une connexion</td>
+<td>Le réglage <em>Disable Login Prompt</em> n'est pas coché, ou l'éditeur n'a pas hérité des variables du shell.</td>
+<td>Cocher le réglage ; ranger la configuration dans <code>~/.claude/settings.json</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Pour toute autre panne, <code>claude --debug</code> écrit un journal détaillé dans <code>~/.claude/debug/</code>. Le chapitre M14 couvre les erreurs d'usage et la lecture de la consommation.</p>
+<h2>Dans le roman</h2>
+<table>
+<thead>
+<tr>
+<th>Chapitre</th>
+<th>Scène</th>
+<th>Ce qu'elle illustre ici</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2 — Le RSSI dit non</td>
+<td>Mardi, 12 h 05 : Sofiane a installé l'outil avec son abonnement personnel.</td>
+<td>Pourquoi verrouiller le fournisseur avec <code>allowedProviders</code>.</td>
+</tr>
+<tr>
+<td>2 — Le RSSI dit non</td>
+<td>Mercredi, 21 heures : Julien propose Bedrock, déjà au registre DORA.</td>
+<td>Le compte dédié, le profil européen, la connexion par l'annuaire, les versions figées.</td>
+</tr>
+<tr>
+<td>2 — Le RSSI dit non</td>
+<td>Jeudi, 17 heures : Bertrand signe une dérogation provisoire.</td>
+<td>Le Cloud Act, risque résiduel identique à celui de l'extranet, écrit noir sur blanc.</td>
+</tr>
+<tr>
+<td>3 — Le fichier qui parle à la machine</td>
+<td>Lundi, 8 heures : Mathilde attaque l'agent sur les postes fraîchement installés.</td>
+<td>Ce que l'installation ne protège pas seule : les secrets laissés dans le code (chapitre M4).</td>
+</tr>
+</tbody>
+</table>
+<p>Pour aller plus loin : M2 (premiers pas), M3 (CLAUDE.md et la mémoire), M4 (paramètres et permissions), M14 (dépannage et coûts).</p>
+<h2>Sources</h2>
+<p>Consultées le 16 octobre 2026.</p>
+<ul>
+<li><a href="https://code.claude.com/docs/en/setup">Claude Code — installation avancée</a></li>
+<li><a href="https://code.claude.com/docs/en/amazon-bedrock">Claude Code sur Amazon Bedrock</a></li>
+<li><a href="https://code.claude.com/docs/en/feature-availability">Disponibilité des fonctions par fournisseur</a></li>
+<li><a href="https://code.claude.com/docs/en/third-party-integrations">Options de déploiement en entreprise</a></li>
+<li><a href="https://code.claude.com/docs/en/network-config">Configuration réseau en entreprise</a></li>
+<li><a href="https://code.claude.com/docs/en/managed-settings">Déployer des paramètres gérés</a></li>
+<li><a href="https://code.claude.com/docs/en/vs-code">Extension VS Code</a></li>
+<li><a href="https://code.claude.com/docs/en/jetbrains">Plugin JetBrains</a></li>
+<li><a href="https://code.claude.com/docs/en/changelog">Notes de version de Claude Code</a></li>
+<li><a href="https://platform.claude.com/docs/build-with-claude/claude-in-amazon-bedrock">Claude dans Amazon Bedrock — documentation de l'éditeur</a></li>
+<li><a href="https://docs.aws.amazon.com/bedrock/latest/userguide/model-card-anthropic-claude-sonnet-5-5.html">Fiche AWS du modèle Claude Sonnet 5.5</a></li>
+<li><a href="https://aws.amazon.com/blogs/machine-learning/claude-opus-5-5-is-now-available-on-aws/">Annonce AWS de Claude Opus 5.5 sur Bedrock</a></li>
+<li><a href="https://docs.aws.eu/bedrock/latest/userguide/model-card-anthropic-claude-opus-4-7.html">Fiche AWS du modèle Claude Opus 4.7, régions du profil européen</a></li>
+</ul></article><nav class="pager"><span><a href="f-epilogue-l-ete.html">← L&#x27;été</a></span><span><a href="f-m02-premiers-pas.html">Premiers pas →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

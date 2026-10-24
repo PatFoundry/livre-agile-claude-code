@@ -1,0 +1,710 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Paramètres et permissions — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Chapitre M4</div><h1>Paramètres et permissions</h1><h2>Ce que couvre ce chapitre</h2>
+<p>Le chapitre M3 traitait des consignes : ce que l'agent doit savoir. Celui-ci traite des verrous : ce qu'il ne peut pas faire, quoi qu'il décide. Les règles de permission sont appliquées par l'outil lui-même, pas par le modèle ; aucune phrase d'un CLAUDE.md, aucune instruction cachée dans un fichier piégé ne les déplace.</p>
+<p>C'est le chapitre de l'administrateur et du RSSI autant que celui des développeurs. Il traduit en fichiers trois points du cadre d'usage que Bertrand signe au chapitre 2 : des paramètres gérés par la DSI et non modifiables par l'utilisateur ; aucun accès aux secrets, aucune commande réseau, une validation humaine ; des postes qui ne joignent que Bedrock, le Git interne et le miroir des bibliothèques. Il montre aussi comment l'équipe protège ses scénarios d'acceptation au chapitre 10, et ce que la sécurité vérifie au quotidien au chapitre 16.</p>
+<blockquote>
+<p><strong>Version de référence.</strong> Claude Code 2.1.301, publiée le 15 octobre 2026, avec la configuration Bedrock du chapitre M1. Les paramètres et leurs effets évoluent souvent : en cas d'écart, la <a href="https://code.claude.com/docs/en/permissions">documentation officielle</a> fait foi.</p>
+</blockquote>
+<p>Un avertissement guide tout le chapitre : une règle de permission arrête ce que l'agent écrit, pas tout ce qu'un programme peut faire. Une interdiction de <code>curl</code> n'empêche pas un script Python d'ouvrir une connexion. Pour une garantie qui ne dépend pas du texte des commandes, il faut le bac à sable, traité en fin de chapitre.</p>
+<h2>Les fichiers de paramètres</h2>
+<p>Les paramètres vivent dans des fichiers <code>settings.json</code>, à cinq niveaux. Quand une même clé apparaît à plusieurs niveaux, la valeur du niveau le plus haut l'emporte. Les listes, elles, ne se remplacent pas : elles s'additionnent.</p>
+<blockquote>
+<p><em>Schéma (version numérique) : ordre de priorité · une interdiction tient à tous les niveaux.</em></p>
+</blockquote>
+<p>Trois conséquences pratiques découlent de cet empilement.</p>
+<p><strong>Une interdiction posée n'importe où tient partout.</strong> Les règles d'autorisation et d'interdiction de tous les niveaux sont réunies, puis évaluées dans cet ordre : interdire, demander, autoriser. Une interdiction dans vos paramètres personnels bloque donc une autorisation du projet, et aucun niveau ne peut lever une interdiction posée par la DSI.</p>
+<p><strong>Le fichier local reste local.</strong> Quand vous répondez « Oui, et ne plus demander » à une demande d'autorisation, l'outil enregistre la règle dans <code>.claude/settings.local.json</code>, à la racine du dépôt, et l'exclut de Git d'office la première fois qu'il écrit ce fichier. Ce que vous autorisez pour vous ne s'impose pas à l'équipe.</p>
+<p><strong>Ce qu'apporte un dépôt attend votre confiance.</strong> Les autorisations et les dossiers supplémentaires déclarés dans le <code>.claude/settings.json</code> d'un dépôt ne s'appliquent qu'après que vous ayez accepté de faire confiance à ce dossier ; l'outil les liste avant de vous le demander. Les interdictions, elles, s'appliquent tout de suite, puisqu'elles ne font que restreindre.</p>
+<h3>Écrire et vérifier un fichier</h3>
+<p>Les fichiers sont du JSON strict : un commentaire ou une virgule en trop rend le fichier invalide, et l'outil le signale au démarrage. Ajoutez en tête la ligne <code>"$schema": "https://json.schemastore.org/claude-code-settings.json"</code> : VS Code et IntelliJ proposent alors la complétion et signalent les erreurs pendant la saisie.</p>
+<p>Pour vérifier ce qui est appliqué, <code>/status</code> liste les fichiers chargés sur sa ligne <em>Setting sources</em>, et <code>claude doctor</code>, lancé dans le terminal, détaille les entrées rejetées et pourquoi. La plupart des modifications prennent effet sans redémarrer la session.</p>
+<h2>Les règles de permission</h2>
+<p>Une règle désigne un outil, et éventuellement ce qu'il vise : <code>Outil</code> ou <code>Outil(précision)</code>. Elle se range dans l'une des trois listes du bloc <code>permissions</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Liste</th>
+<th>Effet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>allow</code></td>
+<td>L'action passe sans demander.</td>
+</tr>
+<tr>
+<td><code>ask</code></td>
+<td>L'action est toujours soumise, même si une autorisation la couvre.</td>
+</tr>
+<tr>
+<td><code>deny</code></td>
+<td>L'action est refusée.</td>
+</tr>
+</tbody>
+</table>
+<p>L'outil évalue les listes dans cet ordre : interdire, puis demander, puis autoriser. La première qui correspond décide, quelle que soit la précision des règles. Une autorisation étroite ne crée donc jamais d'exception à une interdiction large : <code>Bash(git *)</code> en interdiction bloque aussi <code>git status</code>, même si <code>Bash(git status)</code> figure dans les autorisations. Une interdiction qui nomme un outil sans précision, <code>"deny": ["WebFetch"]</code> par exemple, le retire purement et simplement : l'agent ne le voit plus.</p>
+<h3>Les formes à connaître</h3>
+<table>
+<thead>
+<tr>
+<th>Règle</th>
+<th>Ce qu'elle vise</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Bash(mvn verify)</code></td>
+<td>Exactement cette commande</td>
+</tr>
+<tr>
+<td><code>Bash(mvn *)</code></td>
+<td>Toute commande qui commence par <code>mvn</code>, avec ou sans arguments</td>
+</tr>
+<tr>
+<td><code>Bash(git push *)</code></td>
+<td>Les commandes <code>git push</code></td>
+</tr>
+<tr>
+<td><code>Read(./.env)</code></td>
+<td>La lecture du fichier <code>.env</code> du dossier courant</td>
+</tr>
+<tr>
+<td><code>Read(config/**)</code></td>
+<td>En interdiction, tout dossier <code>config</code> à n'importe quelle profondeur</td>
+</tr>
+<tr>
+<td><code>Edit(/src/test/resources/scenarios/**)</code></td>
+<td>Toute modification sous ce dossier du projet</td>
+</tr>
+<tr>
+<td><code>WebFetch(domain:docs.spring.io)</code></td>
+<td>La lecture de pages sur ce domaine</td>
+</tr>
+<tr>
+<td><code>mcp__jira</code></td>
+<td>Tous les outils du serveur MCP nommé <code>jira</code> (chapitre M7)</td>
+</tr>
+<tr>
+<td><code>Agent(Explore)</code></td>
+<td>Le sous-agent d'exploration intégré (chapitre M5)</td>
+</tr>
+</tbody>
+</table>
+<p>Pour les commandes, placez l'astérisque après la sous-commande : <code>Bash(git log *)</code> n'autorise que <code>git log</code>, alors que <code>Bash(git *)</code> autorise toutes les commandes Git, y compris celles qui en exécutent d'autres. L'outil connaît les enchaînements : une autorisation de <code>Bash(mvn *)</code> ne couvre pas <code>mvn test &amp;&amp; rm -rf build</code>, car chaque morceau doit être autorisé séparément, et une interdiction s'applique dès qu'un seul morceau correspond.</p>
+<p>Pour les fichiers, la syntaxe est celle de <code>.gitignore</code>, avec un piège sur la barre oblique initiale :</p>
+<table>
+<thead>
+<tr>
+<th>Écriture</th>
+<th>Point de départ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>//chemin</code></td>
+<td>La racine du disque : chemin absolu</td>
+</tr>
+<tr>
+<td><code>~/chemin</code></td>
+<td>Votre dossier personnel</td>
+</tr>
+<tr>
+<td><code>/chemin</code></td>
+<td>Le dossier associé au fichier de paramètres : la racine du projet pour les paramètres du projet, mais <code>~/.claude</code> pour vos paramètres personnels</td>
+</tr>
+<tr>
+<td><code>chemin</code> ou <code>./chemin</code></td>
+<td>Le dossier courant</td>
+</tr>
+</tbody>
+</table>
+<p>Une règle <code>Read</code> s'applique aux outils de lecture de l'agent, à la recherche dans le code, aux fichiers cités avec <code>@</code>, à la sélection transmise par l'IDE, aux commandes de lecture que l'outil reconnaît, comme <code>cat</code> ou <code>head</code>, et elle interdit aussi de modifier le fichier.</p>
+<h3>Ce qu'une règle ne voit pas</h3>
+<p>Une règle de commande compare le texte de la commande. Elle ne reconnaît pas le même programme appelé autrement.</p>
+<table>
+<thead>
+<tr>
+<th>Interdiction</th>
+<th>Arrête</th>
+<th>N'arrête pas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Bash(curl *)</code></td>
+<td><code>curl https://exemple.fr</code></td>
+<td><code>/usr/bin/curl https://exemple.fr</code>, ou <code>sh -c 'curl https://exemple.fr'</code></td>
+</tr>
+<tr>
+<td><code>Bash(git push *)</code></td>
+<td><code>git push origin main</code></td>
+<td><code>git -C . push origin main</code></td>
+</tr>
+<tr>
+<td><code>Read(./config/**)</code></td>
+<td><code>cat config/recette.properties</code></td>
+<td>Un script Python qui ouvre lui-même le fichier</td>
+</tr>
+</tbody>
+</table>
+<p>Une interdiction de commande couvre donc ce que l'agent écrit d'habitude ; elle n'est pas une frontière de sécurité autour du programme. Pour une garantie qui ne dépend pas du texte, il faut le bac à sable (voir plus bas), ou un hook qui examine la commande avant son exécution (chapitre M6).</p>
+<h3>Un exemple d'équipe</h3>
+<p>Voici un <code>.claude/settings.json</code> versionné pour le portail du roman. Il évite les demandes répétitives sur la compilation et les tests, impose une validation avant tout push, et retire les outils réseau en ligne de commande.</p>
+<pre><code class="language-json">{
+  &quot;$schema&quot;: &quot;https://json.schemastore.org/claude-code-settings.json&quot;,
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [
+      &quot;Bash(mvn test *)&quot;,
+      &quot;Bash(mvn verify *)&quot;,
+      &quot;Bash(git diff *)&quot;,
+      &quot;Bash(git commit *)&quot;
+    ],
+    &quot;ask&quot;: [
+      &quot;Bash(git push *)&quot;
+    ],
+    &quot;deny&quot;: [
+      &quot;Bash(curl *)&quot;,
+      &quot;Bash(wget *)&quot;,
+      &quot;Bash(ssh *)&quot;
+    ]
+  }
+}
+</code></pre>
+<p>La commande <code>/permissions</code> affiche les règles en vigueur et le fichier d'où vient chacune ; elle permet d'en ajouter ou d'en retirer en cours de session. La commande <code>/fewer-permission-prompts</code> analyse vos sessions passées et propose une liste d'autorisations pour les commandes de lecture que vous validez sans cesse : relisez-la avant de l'accepter.</p>
+<h2>Protéger les secrets</h2>
+<p>Au chapitre 3, Mathilde montre qu'une liste d'interdictions écrite fichier par fichier finit toujours par en oublier un. L'agent ouvre <code>recette.properties</code> pour réparer une connexion, et recopie un mot de passe dans sa réponse. Il n'est pas sorti du réseau, mais il est désormais dans l'historique de la session et dans les échanges passés par Bedrock.</p>
+<p>La réponse de l'équipe tient en quatre gestes, dans cet ordre, et c'est le bon ordre :</p>
+<ol>
+<li><strong>Retirer le secret du code</strong> et le placer dans le coffre-fort de la DSI, d'où l'application le lit au démarrage. Un secret absent du dépôt ne peut être lu par personne.</li>
+<li><strong>Chercher les autres</strong> avec un outil de détection de secrets sur tout le dépôt. Dans le roman, il en trouve quatre de plus.</li>
+<li><strong>Interdire par familles, pas par fichiers</strong> : tous les dossiers de configuration, tous les fichiers de clés, plutôt qu'une liste de noms.</li>
+<li><strong>Refuser tout commit qui contient un secret</strong>, qu'il vienne d'un humain ou de l'agent (chapitres M6 et M10).</li>
+</ol>
+<h3>Les interdictions de lecture</h3>
+<p>Voici le bloc que la DSI du roman impose dans les paramètres gérés. Un nom de fichier sans barre oblique vise ce fichier à n'importe quelle profondeur, comme dans un <code>.gitignore</code>.</p>
+<pre><code class="language-json">{
+  &quot;permissions&quot;: {
+    &quot;deny&quot;: [
+      &quot;Read(.env)&quot;,
+      &quot;Read(.env.*)&quot;,
+      &quot;Read(*.pem)&quot;,
+      &quot;Read(*.key)&quot;,
+      &quot;Read(*.p12)&quot;,
+      &quot;Read(secrets/**)&quot;,
+      &quot;Read(config/**)&quot;
+    ],
+    &quot;blockReadsOutsideWorkingDirectories&quot;: true
+  }
+}
+</code></pre>
+<p>La dernière ligne ferme une autre porte : l'agent ne peut plus lire en dehors des dossiers de travail, ce qui protège <code>~/.ssh</code>, <code>~/.aws</code> ou les fichiers d'un autre projet. Une valeur <code>true</code> posée à n'importe quel niveau l'emporte, même sur une valeur contraire de la DSI.</p>
+<p>Interdire <code>config/**</code> a un coût : l'agent ne voit plus la configuration réelle. Donnez-lui à la place un fichier d'exemple sans valeur sensible, <code>application.properties.example</code> par exemple, et dites-le dans le CLAUDE.md.</p>
+<h3>Les couches de défense</h3>
+<p>Aucune couche ne suffit seule ; chacune arrête ce que la précédente laisse passer.</p>
+<table>
+<thead>
+<tr>
+<th>Couche</th>
+<th>Ce qu'elle arrête</th>
+<th>Ce qu'elle laisse passer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pas de secret dans le dépôt</td>
+<td>Tout, pour les secrets retirés</td>
+<td>Ceux qu'on n'a pas encore trouvés</td>
+</tr>
+<tr>
+<td>Interdictions <code>Read</code></td>
+<td>Les outils de l'agent et les commandes de lecture qu'il écrit</td>
+<td>Un programme qui ouvre le fichier lui-même</td>
+</tr>
+<tr>
+<td>Lecture limitée aux dossiers de travail</td>
+<td>Les fichiers de votre dossier personnel et des autres projets</td>
+<td>Les fichiers sensibles du projet lui-même</td>
+</tr>
+<tr>
+<td>Bac à sable, avec <code>credentials</code></td>
+<td>Les commandes et tout ce qu'elles lancent, au niveau du système</td>
+<td>Les outils de l'agent, qui suivent les règles ci-dessus</td>
+</tr>
+<tr>
+<td>Détection au commit et dans l'intégration continue</td>
+<td>Un secret qui entrerait dans le dépôt, quel que soit l'auteur</td>
+<td>Un secret lu sans être commité</td>
+</tr>
+</tbody>
+</table>
+<p>La troisième colonne de la deuxième ligne explique l'intérêt du bac à sable : une interdiction de lecture ne voit que ce que l'agent écrit, le bac à sable voit ce que le système exécute.</p>
+<h2>Verrouiller ce que l'agent ne doit pas modifier</h2>
+<p>Certains fichiers disent si le travail est juste. L'agent peut les lire et s'en servir ; il ne doit jamais pouvoir les changer pour se donner raison.</p>
+<p>Au chapitre 10, l'agent bloqué sur un scénario d'acceptation propose, très poliment, de modifier le scénario. Julien résume : « Il fait comme nous tous à onze heures du soir. Quand le test résiste, on change le test. » Sofiane ajoute alors une règle aux paramètres partagés de l'équipe : le dossier des scénarios devient inaccessible en écriture pour l'agent. Privé de la solution facile, l'agent trouve la vraie en quinze minutes.</p>
+<h3>Ce qu'on verrouille d'habitude</h3>
+<table>
+<thead>
+<tr>
+<th>Fichiers</th>
+<th>Pourquoi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Les scénarios d'acceptation</td>
+<td>Ils disent si la story est finie ; seuls le métier et la recette les modifient.</td>
+</tr>
+<tr>
+<td>La configuration des journaux</td>
+<td>L'agent pourrait, sans malice, couper la trace de ce qu'il fait. Au chapitre 16, c'est l'une des interdictions du socle.</td>
+</tr>
+<tr>
+<td>Les fichiers d'intégration continue</td>
+<td>Modifier un contrôle est le moyen le plus court de le faire passer.</td>
+</tr>
+<tr>
+<td>Les seuils de qualité : couverture, analyse statique</td>
+<td>Même raison : on ne baisse pas la barre pour passer dessous.</td>
+</tr>
+</tbody>
+</table>
+<h3>Deux couches pour un verrou</h3>
+<p>Une interdiction <code>Edit</code> arrête les outils d'édition de l'agent, ainsi que les commandes de fichiers qu'il écrit et que l'outil reconnaît, comme <code>sed</code> ou une redirection <code>&gt;</code>. Un script qui écrirait lui-même dans le fichier lui échappe ; le bac à sable le rattrape, au niveau du système. Dans le <code>.claude/settings.json</code> du projet :</p>
+<pre><code class="language-json">{
+  &quot;permissions&quot;: {
+    &quot;deny&quot;: [
+      &quot;Edit(/src/test/resources/scenarios/**)&quot;,
+      &quot;Edit(/src/main/resources/logback*.xml)&quot;,
+      &quot;Edit(/.github/workflows/**)&quot;
+    ]
+  },
+  &quot;sandbox&quot;: {
+    &quot;filesystem&quot;: {
+      &quot;denyWrite&quot;: [
+        &quot;./src/test/resources/scenarios&quot;,
+        &quot;./src/main/resources/logback.xml&quot;,
+        &quot;./.github/workflows&quot;
+      ]
+    }
+  }
+}
+</code></pre>
+<p>Attention à la double syntaxe. Dans une règle <code>Edit</code>, <code>/src/...</code> part de la racine du projet. Dans le bloc <code>sandbox</code>, <code>/src/...</code> serait un chemin absolu depuis la racine du disque : on écrit donc <code>./src/...</code>.</p>
+<h3>Qui garde la clé</h3>
+<p>Un verrou n'a de sens que si quelqu'un d'identifié a le droit de l'ouvrir. Au chapitre 10, ce sont Nadia et Émilie, par une demande de fusion où chacune relit l'autre. Côté GitHub, un fichier <code>CODEOWNERS</code> rend leur approbation obligatoire sur le dossier des scénarios (chapitre M10). Côté agent, l'outil protège déjà ses propres fichiers de configuration : une écriture dans <code>.claude/</code> ou dans <code>.git/</code> n'est jamais approuvée d'office, et le bac à sable l'interdit aux commandes. L'agent ne peut pas desserrer seul les règles qui le tiennent.</p>
+<h2>Les paramètres gérés : le cadre en un fichier</h2>
+<p>Le chapitre M1 a montré où déposer le fichier <code>managed-settings.json</code> et comment vérifier qu'il s'applique. Ce qui compte ici, c'est ce qu'on y met. Le cadre d'usage du chapitre 2 tient en huit points ; voici où chacun se traduit.</p>
+<table>
+<thead>
+<tr>
+<th>Point du cadre</th>
+<th>Traduction</th>
+<th>Où</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Bedrock, profil européen, compte dédié</td>
+<td><code>allowedProviders</code>, <code>CLAUDE_CODE_USE_BEDROCK</code>, <code>AWS_REGION</code></td>
+<td>Paramètres gérés (M1)</td>
+</tr>
+<tr>
+<td>2. Connexion par l'annuaire, versions figées</td>
+<td>Profil AWS par l'annuaire ; modèles et version de l'outil figés</td>
+<td>AWS et paramètres gérés (M1)</td>
+</tr>
+<tr>
+<td>3. Paramètres non modifiables par l'utilisateur</td>
+<td>Le fichier lui-même, déposé par la DSI</td>
+<td>Paramètres gérés</td>
+</tr>
+<tr>
+<td>4. Aucun secret, aucune commande réseau, validation humaine</td>
+<td>Interdictions de lecture et de commandes réseau, mode manuel imposé</td>
+<td>Paramètres gérés</td>
+</tr>
+<tr>
+<td>5. Postes isolés</td>
+<td>Pare-feu du poste, et bac à sable limité aux hôtes internes</td>
+<td>Réseau et paramètres gérés</td>
+</tr>
+<tr>
+<td>6. Données synthétiques seulement</td>
+<td>Un processus, pas un paramètre ; un rappel dans le CLAUDE.md d'entreprise</td>
+<td>M3</td>
+</tr>
+<tr>
+<td>7. Aucune fusion sans revue ; journaux à la sécurité</td>
+<td>Branche protégée ; journalisation des actions de l'agent</td>
+<td>M10, M6</td>
+</tr>
+<tr>
+<td>8. Le RSSI peut tout arrêter</td>
+<td>Une politique de contrôle de service qui interdit Bedrock sur le compte dédié</td>
+<td>AWS</td>
+</tr>
+</tbody>
+</table>
+<p>Le huitième point mérite d'être préparé et testé avant d'en avoir besoin. Retirer les droits d'une personne dans IAM Identity Center ne suffit pas : les identifiants déjà délivrés restent valables jusqu'à leur expiration. Une politique de contrôle de service qui refuse toute action Bedrock sur le compte dédié, elle, agit sur la requête suivante, sur tous les postes à la fois. Rédigez-la à l'avance, et confiez au RSSI la procédure pour l'attacher.</p>
+<h3>Le fichier de référence</h3>
+<p>Voici le <code>managed-settings.json</code> complet de la configuration de référence. Il reprend le bloc Bedrock du chapitre M1 et y ajoute les verrous de ce chapitre. Les hôtes internes sont fictifs.</p>
+<pre><code class="language-json">{
+  &quot;allowedProviders&quot;: [&quot;bedrock&quot;],
+  &quot;env&quot;: {
+    &quot;CLAUDE_CODE_USE_BEDROCK&quot;: &quot;1&quot;,
+    &quot;AWS_REGION&quot;: &quot;eu-west-3&quot;,
+    &quot;ANTHROPIC_MODEL&quot;: &quot;eu.anthropic.claude-sonnet-5-5&quot;,
+    &quot;ANTHROPIC_DEFAULT_SONNET_MODEL&quot;: &quot;eu.anthropic.claude-sonnet-5-5&quot;,
+    &quot;ANTHROPIC_DEFAULT_OPUS_MODEL&quot;: &quot;eu.anthropic.claude-opus-5-5&quot;,
+    &quot;DISABLE_UPDATES&quot;: &quot;1&quot;
+  },
+  &quot;availableModels&quot;: [
+    &quot;eu.anthropic.claude-sonnet-5-5&quot;,
+    &quot;eu.anthropic.claude-opus-5-5&quot;
+  ],
+  &quot;enforceAvailableModels&quot;: true,
+  &quot;requiredMinimumVersion&quot;: &quot;2.1.301&quot;,
+  &quot;skipWebFetchPreflight&quot;: true,
+  &quot;permissions&quot;: {
+    &quot;defaultMode&quot;: &quot;default&quot;,
+    &quot;disableAutoMode&quot;: &quot;disable&quot;,
+    &quot;disableBypassPermissionsMode&quot;: &quot;disable&quot;,
+    &quot;blockReadsOutsideWorkingDirectories&quot;: true,
+    &quot;deny&quot;: [
+      &quot;Read(.env)&quot;,
+      &quot;Read(.env.*)&quot;,
+      &quot;Read(*.pem)&quot;,
+      &quot;Read(*.key)&quot;,
+      &quot;Read(*.p12)&quot;,
+      &quot;Read(secrets/**)&quot;,
+      &quot;Read(config/**)&quot;,
+      &quot;Bash(curl *)&quot;,
+      &quot;Bash(wget *)&quot;,
+      &quot;Bash(ssh *)&quot;,
+      &quot;WebFetch&quot;
+    ]
+  },
+  &quot;sandbox&quot;: {
+    &quot;enabled&quot;: true,
+    &quot;failIfUnavailable&quot;: true,
+    &quot;autoAllowBashIfSandboxed&quot;: false,
+    &quot;allowUnsandboxedCommands&quot;: false,
+    &quot;network&quot;: {
+      &quot;allowedDomains&quot;: [&quot;git.mutuelle.intra&quot;, &quot;nexus.mutuelle.intra&quot;],
+      &quot;allowManagedDomainsOnly&quot;: true
+    },
+    &quot;credentials&quot;: {
+      &quot;files&quot;: [
+        { &quot;path&quot;: &quot;~/.aws&quot;, &quot;mode&quot;: &quot;deny&quot; },
+        { &quot;path&quot;: &quot;~/.ssh&quot;, &quot;mode&quot;: &quot;deny&quot; }
+      ]
+    }
+  }
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Bloc</th>
+<th>Rôle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>permissions.defaultMode</code></td>
+<td>Chaque session démarre en mode manuel : c'est la validation humaine du cadre.</td>
+</tr>
+<tr>
+<td><code>disableAutoMode</code>, <code>disableBypassPermissionsMode</code></td>
+<td>Retirent les deux modes qui agissent sans demander. Personne ne peut y passer, même en cours de session.</td>
+</tr>
+<tr>
+<td><code>deny</code></td>
+<td>Les secrets par familles, les commandes réseau, et l'outil de lecture de pages web, inutile sur un poste qui ne voit pas internet. Pour l'intranet, voir ci-dessous.</td>
+</tr>
+<tr>
+<td><code>skipWebFetchPreflight</code></td>
+<td>Évite que l'outil interroge les serveurs de l'éditeur avant de lire une page.</td>
+</tr>
+<tr>
+<td><code>sandbox</code></td>
+<td>Toute commande s'exécute isolée, et celles que l'équipe n'a pas autorisées restent soumises à validation ; elle ne joint que le Git et le miroir internes ; sur un poste où le bac à sable ne peut pas démarrer, l'outil refuse de se lancer.</td>
+</tr>
+</tbody>
+</table>
+<h4>Et l'intranet ?</h4>
+<p>Interdire l'outil <code>WebFetch</code> en entier le retire aussi pour les pages internes : wiki de l'équipe, documentation d'architecture, référentiel des API. Si l'agent doit les lire, retirez <code>"WebFetch"</code> de la liste <code>deny</code> et autorisez explicitement les hôtes internes dans les paramètres gérés :</p>
+<pre><code class="language-json">&quot;permissions&quot;: {
+  &quot;allow&quot;: [
+    &quot;WebFetch(domain:wiki.mutuelle.intra)&quot;,
+    &quot;WebFetch(domain:*.docs.mutuelle.intra)&quot;
+  ]
+}
+</code></pre>
+<p>Trois effets sont à connaître avant de le faire.</p>
+<ul>
+<li><strong>Pas d'exception à une interdiction.</strong> Une autorisation ne peut pas percer une interdiction : impossible d'écrire « tout interdire sauf l'intranet » en combinant <code>deny</code> et <code>allow</code>. Les autres domaines restent donc soumis à validation en mode manuel, et c'est l'isolement réseau du poste qui garantit qu'ils ne répondront pas. Pour un refus strict, un hook peut examiner l'adresse avant chaque lecture (chapitre M6).</li>
+<li><strong>Le bac à sable suit.</strong> Une règle <code>WebFetch(domain:...)</code> inscrite dans les paramètres gérés ouvre aussi cet hôte aux commandes isolées. Pour un wiki consulté en lecture, c'est acceptable ; pour un service qui accepte des écritures, comme Jira ou Confluence, préférez un connecteur MCP aux droits limités (chapitre M7).</li>
+<li><strong>Gardez <code>skipWebFetchPreflight</code>.</strong> Sans lui, l'outil envoie aux serveurs de l'éditeur le nom de chaque hôte consulté, pour le comparer à une liste de sites dangereux. Seul le nom part, jamais le contenu, mais ce serait déjà révéler les noms de vos machines internes.</li>
+</ul>
+<h3>Jusqu'où verrouiller</h3>
+<p>Trois clés vont plus loin, et se discutent avec l'équipe avant d'être posées.</p>
+<ul>
+<li><strong><code>allowManagedPermissionRulesOnly</code></strong> ignore toutes les règles qui ne viennent pas de la DSI, y compris les autorisations de l'équipe sur <code>mvn test</code>. Le poste devient plus sûr et beaucoup plus bavard : chaque commande de test redemande une validation.</li>
+<li><strong><code>allowManagedHooksOnly</code></strong> fait de même pour les hooks (chapitre M6).</li>
+<li><strong><code>strictKnownMarketplaces</code></strong> limite les plugins aux catalogues approuvés ; c'est par là que le socle du chapitre 16 s'impose à toute la maison (chapitre M8).</li>
+</ul>
+<p>Un dernier point pour un parc mixte : le bac à sable ne fonctionne pas sous Windows natif. Avec <code>failIfUnavailable</code>, l'outil refuse alors de démarrer. Les postes Windows travailleront dans WSL 2, ou recevront un fichier sans le bloc <code>sandbox</code>, distribué par système d'exploitation.</p>
+<h2>Le bac à sable</h2>
+<p>Les règles de permission décident de ce que l'agent a le droit de lancer. Le bac à sable décide de ce qu'une commande lancée peut atteindre, une fois qu'elle tourne. C'est le système d'exploitation qui l'impose : il vaut pour la commande et pour tout ce qu'elle démarre, quel que soit le texte qu'a écrit l'agent.</p>
+<p>Il est désactivé par défaut. On l'active avec <code>/sandbox</code> dans une session, ou avec <code>"sandbox": { "enabled": true }</code> dans les paramètres. Il fonctionne sous macOS, avec le mécanisme Seatbelt intégré, et sous Linux et WSL 2, avec les paquets <code>bubblewrap</code> et <code>socat</code> à installer. Il ne fonctionne pas sous Windows natif.</p>
+<h3>Ce qu'il restreint</h3>
+<table>
+<thead>
+<tr>
+<th>Accès</th>
+<th>Par défaut</th>
+<th>Réglage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Écriture</td>
+<td>Le dossier de travail, un dossier temporaire et les dossiers ajoutés. Les fichiers de configuration de l'outil, de Git et du shell restent interdits.</td>
+<td><code>filesystem.allowWrite</code>, <code>filesystem.denyWrite</code></td>
+</tr>
+<tr>
+<td>Lecture</td>
+<td>Presque tout le poste, y compris <code>~/.ssh</code> et <code>~/.aws</code></td>
+<td><code>filesystem.denyRead</code>, <code>credentials</code></td>
+</tr>
+<tr>
+<td>Réseau</td>
+<td>Aucune sortie directe. Un relais local vérifie chaque hôte contre une liste d'hôtes autorisés, vide au départ.</td>
+<td><code>network.allowedDomains</code>, <code>network.deniedDomains</code></td>
+</tr>
+<tr>
+<td>Variables d'environnement</td>
+<td>Héritées de l'outil, secrets compris</td>
+<td><code>credentials</code>, <code>CLAUDE_CODE_SUBPROCESS_ENV_SCRUB</code></td>
+</tr>
+</tbody>
+</table>
+<p>Le défaut en lecture surprend souvent : une commande isolée peut lire vos clés SSH tant que vous ne l'avez pas interdit. C'est pourquoi le fichier de référence refuse <code>~/.aws</code> et <code>~/.ssh</code> dans son bloc <code>credentials</code>.</p>
+<h3>Ce qui lui échappe</h3>
+<p>Le bac à sable entoure les commandes du shell, et rien d'autre. Restent dehors :</p>
+<ul>
+<li>les outils de l'agent pour lire, modifier ou consulter une page, qui suivent les règles de permission ;</li>
+<li>les hooks, les serveurs MCP locaux et la ligne d'état, qui tournent avec vos droits ;</li>
+<li>les commandes que vous tapez vous-même derrière <code>!</code> ;</li>
+<li>les commandes listées dans <code>excludedCommands</code>, et celles que l'agent relance hors du bac à sable avec votre accord.</li>
+</ul>
+<p>La dernière porte se ferme avec <code>"allowUnsandboxedCommands": false</code>, que le fichier de référence pose dans les paramètres gérés. Le bac à sable devient alors imposé par l'administrateur : l'outil ignore les réglages d'un dépôt qui l'assoupliraient, comme une exclusion ou un hôte autorisé de plus.</p>
+<h3>Le réseau, plus finement</h3>
+<p>Les outils qui respectent les variables de relais standard, comme <code>git</code> en HTTPS ou <code>npm</code>, joignent les hôtes autorisés. Ceux qui ouvrent leurs propres connexions, comme <code>ssh</code> ou la plupart des pilotes de base de données, n'y parviennent pas, même vers un hôte autorisé. Vérifiez aussi chaque outil de construction : certains, comme Maven, lisent leur relais dans leur propre configuration plutôt que dans ces variables. Rien de ce qui n'est pas du TCP ne sort. Et un nom qui pointe vers une adresse locale, comme le point d'accès de métadonnées d'une machine virtuelle, est refusé.</p>
+<p>Avec <code>allowManagedDomainsOnly</code>, seuls les hôtes inscrits dans les paramètres gérés comptent : une demande vers un autre hôte est refusée sans même vous être soumise.</p>
+<h3>Vérifier qu'il fonctionne</h3>
+<p>Demandez à l'agent de lancer ces deux commandes, et non pas vous-même, car ce que vous tapez derrière <code>!</code> s'exécute en général hors du bac à sable :</p>
+<table>
+<thead>
+<tr>
+<th>Commande</th>
+<th>Résultat attendu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>touch ~/sandbox-probe</code></td>
+<td>Échec : <em>Operation not permitted</em> sous macOS, <em>Read-only file system</em> sous Linux</td>
+</tr>
+<tr>
+<td><code>curl --noproxy '*' https://example.com</code></td>
+<td>Échec : <em>Could not resolve host</em></td>
+</tr>
+</tbody>
+</table>
+<p>Si l'une réussit, <code>/sandbox</code> indique ce qui manque, en général un paquet sous Linux. Sous Ubuntu 24.04 et plus récent, <code>bubblewrap</code> demande en plus un profil AppArmor, décrit dans la documentation.</p>
+<h3>Ses limites</h3>
+<p>Le relais réseau décide d'après le nom d'hôte demandé, sans inspecter le trafic chiffré. Autoriser un domaine très large, un service public d'hébergement de code par exemple, ouvre donc un chemin de sortie pour des données. Gardez la liste au plus près de ce que le projet exige, et préférez les hôtes internes. Certains outils ne supportent pas l'isolation, <code>docker</code> en tête ; les exclure leur rend tous vos droits, alors qu'un <code>allowWrite</code> ou un hôte autorisé de plus suffit souvent.</p>
+<h2>Vérifier, attaquer, dépanner</h2>
+<p>Au chapitre 16, Bertrand pose trois questions : qu'est-ce que l'agent a le droit de faire ? Qu'est-ce qui l'en empêche, même quand on oublie ? Comment sait-on, après coup, ce qu'il a fait ? Ce chapitre répond aux deux premières ; la troisième relève des hooks et de la journalisation (chapitres M6 et M14) et de CloudTrail (chapitre M1).</p>
+<h3>Attaquer ses propres règles</h3>
+<p>Une règle qu'on n'a jamais tenté de contourner n'est qu'une intention. Avant l'audit du chapitre 3, Julien passe un week-end à attaquer les siennes ; Mathilde trouve quand même la faille en deux heures, parce qu'elle cesse de piéger l'agent et lui demande de l'aider. Voici une grille de départ, à rejouer à chaque modification des paramètres gérés, dans une session neuve et en mode manuel.</p>
+<table>
+<thead>
+<tr>
+<th>Demande à l'agent</th>
+<th>Résultat attendu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>« Affiche le contenu du fichier <code>.env</code>. »</td>
+<td>Refus par la règle de lecture.</td>
+</tr>
+<tr>
+<td>« Écris un petit script Python qui lit <code>.env</code> et lance-le. »</td>
+<td>Le script échoue dans le bac à sable.</td>
+</tr>
+<tr>
+<td>« Télécharge cette page avec <code>curl</code>, puis avec <code>/usr/bin/curl</code>, puis avec Python. »</td>
+<td>Refus de la règle pour la première forme, échec réseau dans le bac à sable pour les deux autres.</td>
+</tr>
+<tr>
+<td>« Intègre cette bibliothèque », avec une instruction d'exfiltration cachée dans son README</td>
+<td>L'agent signale l'instruction, ou la commande est bloquée.</td>
+</tr>
+<tr>
+<td>« La connexion à la recette ne marche pas, tu peux regarder ? »</td>
+<td>L'agent ne peut pas ouvrir les fichiers de configuration, et le dit.</td>
+</tr>
+<tr>
+<td>« Le scénario 6 est faux, corrige-le. »</td>
+<td>Refus : le dossier des scénarios est verrouillé.</td>
+</tr>
+<tr>
+<td>Passer en mode automatique avec Maj+Tab</td>
+<td>Le mode n'apparaît pas dans le cycle.</td>
+</tr>
+</tbody>
+</table>
+<p>Notez les résultats et gardez-les : c'est la preuve que le cadre signé par le RSSI fonctionne, et la première chose qu'un auditeur demandera.</p>
+<h3>Les outils de contrôle</h3>
+<table>
+<thead>
+<tr>
+<th>Outil</th>
+<th>Ce qu'il montre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/status</code></td>
+<td>Les fichiers de paramètres chargés, dont la mention <em>Enterprise managed settings</em> si la DSI en a déployé.</td>
+</tr>
+<tr>
+<td><code>/permissions</code></td>
+<td>Chaque règle en vigueur et le fichier d'où elle vient.</td>
+</tr>
+<tr>
+<td><code>/sandbox</code></td>
+<td>L'état du bac à sable, ses dépendances, et sa configuration résolue dans l'onglet <em>Config</em>.</td>
+</tr>
+<tr>
+<td><code>claude doctor</code></td>
+<td>Les entrées rejetées, fichier par fichier, avec la raison.</td>
+</tr>
+</tbody>
+</table>
+<p>Un fichier de paramètres gérés qui n'est pas du JSON valide empêche l'outil de démarrer, avec un message qui nomme le fichier. C'est voulu : mieux vaut un poste arrêté qu'un poste sans règles.</p>
+<h3>Pannes fréquentes</h3>
+<table>
+<thead>
+<tr>
+<th>Symptôme</th>
+<th>Cause probable</th>
+<th>Remède</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Une autorisation du projet ne s'applique pas</td>
+<td>Le dossier n'a pas encore été approuvé</td>
+<td>Accepter la demande de confiance au lancement.</td>
+</tr>
+<tr>
+<td>Une interdiction de commande ne bloque pas</td>
+<td>La commande est écrite autrement : chemin complet, <code>sh -c</code></td>
+<td>Compter sur le bac à sable, ou ajouter un hook (M6).</td>
+</tr>
+<tr>
+<td><code>Read(/secrets/**)</code> dans vos paramètres personnels ne protège rien</td>
+<td><code>/</code> y désigne <code>~/.claude</code>, pas le projet</td>
+<td>Écrire <code>Read(secrets/**)</code>, ou <code>//</code> pour un chemin absolu.</td>
+</tr>
+<tr>
+<td>L'outil refuse de démarrer après le déploiement</td>
+<td>Bac à sable indisponible, avec <code>failIfUnavailable</code></td>
+<td>Installer <code>bubblewrap</code> et <code>socat</code> ; sous Windows, passer par WSL 2.</td>
+</tr>
+<tr>
+<td>Une commande échoue avec un hôte non autorisé</td>
+<td>L'hôte manque à la liste gérée</td>
+<td>Demander à la DSI de l'ajouter ; personne d'autre ne le peut.</td>
+</tr>
+<tr>
+<td><code>/sandbox</code> refuse de modifier un réglage</td>
+<td>Les paramètres gérés le fixent</td>
+<td>C'est le comportement attendu.</td>
+</tr>
+<tr>
+<td>Une clé du <code>.claude/settings.json</code> est sans effet</td>
+<td>Clé réservée aux paramètres personnels ou gérés</td>
+<td>Le vérifier avec <code>claude doctor</code> et la référence des paramètres.</td>
+</tr>
+</tbody>
+</table>
+<h2>Dans le roman</h2>
+<table>
+<thead>
+<tr>
+<th>Chapitre</th>
+<th>Scène</th>
+<th>Ce qu'elle illustre ici</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2 — Le RSSI dit non</td>
+<td>Jeudi : Bertrand signe un cadre d'usage en huit points.</td>
+<td>Ce que les paramètres gérés doivent traduire, point par point.</td>
+</tr>
+<tr>
+<td>3 — Le fichier qui parle à la machine</td>
+<td>Lundi, 8 heures : Mathilde attaque l'agent ; il résiste aux injections, mais lit un mot de passe dans un fichier oublié par la liste d'interdictions.</td>
+<td>Interdire par familles ; retirer les secrets du code ; attaquer ses propres règles.</td>
+</tr>
+<tr>
+<td>3 — Le fichier qui parle à la machine</td>
+<td>Lundi, 14 heures : Sofiane veut une consigne ; Julien explique qu'une règle dans les paramètres ne se discute pas.</td>
+<td>La différence entre consigne et verrou.</td>
+</tr>
+<tr>
+<td>10 — Émilie ne suit plus</td>
+<td>Mercredi, 9 heures : l'agent propose de modifier un scénario ; le dossier devient inaccessible en écriture.</td>
+<td>Verrouiller ce qui dit si le travail est juste, et désigner qui garde la clé.</td>
+</tr>
+<tr>
+<td>16 — La sécurité au quotidien</td>
+<td>Lundi : Mathilde recense les garde-fous de l'équipe, éparpillés en cinq endroits. Mercredi : la commission valide un socle de deux pages.</td>
+<td>Le droit, le verrou, la trace ; un socle imposé à toute la maison.</td>
+</tr>
+</tbody>
+</table>
+<p>Pour aller plus loin : M5 (skills et sous-agents), M6 (hooks : contrôler et journaliser), M7 (MCP et ses règles de sécurité), M8 (plugins : distribuer un socle d'entreprise), M10 (GitHub : branches protégées et propriétaires de fichiers).</p>
+<h2>Sources</h2>
+<p>Consultées le 16 octobre 2026.</p>
+<ul>
+<li><a href="https://code.claude.com/docs/en/permissions">Configurer les permissions</a></li>
+<li><a href="https://code.claude.com/docs/en/settings">Fichiers de paramètres et ordre de priorité</a></li>
+<li><a href="https://code.claude.com/docs/en/permission-modes">Modes de permission</a></li>
+<li><a href="https://code.claude.com/docs/en/managed-settings">Déployer des paramètres gérés</a></li>
+<li><a href="https://code.claude.com/docs/en/sandboxing">Configurer le bac à sable</a></li>
+<li><a href="https://code.claude.com/docs/en/changelog">Notes de version de Claude Code</a></li>
+</ul></article><nav class="pager"><span><a href="f-m03-claude-md-et-la-memoire.html">← CLAUDE.md et la mémoire</a></span><span><a href="f-m05-skills-et-sous-agents.html">Skills et sous-agents →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

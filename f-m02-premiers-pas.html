@@ -1,0 +1,574 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Premiers pas — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="" data-current="latest" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Chapitre M2</div><h1>Premiers pas</h1><h2>Ce que couvre ce chapitre</h2>
+<p>Ce chapitre apprend à tenir une session de bout en bout : la lancer, décider ce que l'agent peut faire sans demander, lui faire proposer un plan, garder son contexte propre, revenir en arrière quand il se trompe, puis retrouver le fil le lendemain. Il suppose un poste installé et branché selon le chapitre M1.</p>
+<p>Il s'adresse à toute l'équipe, pas seulement aux développeurs. Dans le roman, c'est en mode plan que Sofiane fait dresser par l'agent la carte des fichiers que chaque story toucherait (chapitre 8) ; c'est une session neuve qui sert à vérifier qu'une story est prête (chapitres 3 et 6). Une Product Owner ou une testeuse a donc autant besoin de ces gestes qu'un tech lead.</p>
+<blockquote>
+<p><strong>Version de référence.</strong> Claude Code 2.1.301, publiée le 15 octobre 2026, avec la configuration Bedrock du chapitre M1. Les raccourcis et les commandes évoluent souvent : en cas d'écart, <code>/help</code> dans l'outil et la <a href="https://code.claude.com/docs/en/interactive-mode">documentation officielle</a> font foi.</p>
+</blockquote>
+<p>Les exemples utilisent le terminal. Dans VS Code, les mêmes fonctions passent par le panneau de l'extension ; les différences notables sont signalées.</p>
+<h2>Anatomie d'une session</h2>
+<p>Une session, c'est une conversation entre vous et l'agent, ancrée dans un dossier. Elle commence quand vous lancez <code>claude</code> et se termine quand vous la quittez avec <code>/exit</code>, ou en appuyant deux fois sur Ctrl+D. Elle reste enregistrée : vous pourrez la reprendre plus tard (voir « Reprendre ses sessions »).</p>
+<p><strong>Le dossier compte.</strong> Lancez toujours l'outil à la racine du dépôt sur lequel vous travaillez. Ce dossier devient le répertoire de travail : l'agent y lit librement, y cherche et, selon le mode de permission, y modifie des fichiers. Pour lui donner accès à un second dossier, par exemple une bibliothèque partagée, tapez <code>/add-dir</code> suivi de son chemin.</p>
+<p><strong>Ce que l'agent voit.</strong> Au démarrage, il lit les fichiers CLAUDE.md du projet et de l'utilisateur (chapitre M3). Ensuite, il ne voit que ce qui entre dans la conversation : vos messages, les fichiers qu'il ouvre, le résultat des commandes qu'il lance et, dans un IDE, le fichier ouvert et le texte sélectionné. Il ne voit ni votre écran, ni vos autres sessions, ni le travail de vos collègues tant qu'il n'est pas dans le dépôt.</p>
+<p><strong>Ce qu'il sait faire.</strong> L'agent agit par des outils. Chacun a sa règle d'autorisation, que le mode de permission ajuste.</p>
+<table>
+<thead>
+<tr>
+<th>Famille d'outils</th>
+<th>Exemples</th>
+<th>En mode manuel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lire et chercher</td>
+<td>Ouvrir un fichier, chercher un mot dans le dépôt, lister des fichiers</td>
+<td>Sans demander, dans le répertoire de travail</td>
+</tr>
+<tr>
+<td>Modifier</td>
+<td>Créer un fichier, remplacer un passage</td>
+<td>Demande à chaque fois</td>
+</tr>
+<tr>
+<td>Exécuter</td>
+<td>Lancer une commande : compilation, tests, Git</td>
+<td>Demande, sauf pour une liste de commandes en lecture seule comme <code>git status</code></td>
+</tr>
+<tr>
+<td>Lire une page web</td>
+<td>Ouvrir une documentation dont vous donnez l'adresse</td>
+<td>Demande</td>
+</tr>
+<tr>
+<td>Déléguer</td>
+<td>Confier une recherche à un sous-agent (chapitre M5)</td>
+<td>Selon les outils du sous-agent</td>
+</tr>
+<tr>
+<td>Vous interroger</td>
+<td>Poser une question à choix multiple</td>
+<td>Attend toujours votre réponse</td>
+</tr>
+</tbody>
+</table>
+<p><strong>La boucle.</strong> Pour une demande non triviale, l'agent enchaîne quatre temps : il explore le code pour comprendre, il annonce ce qu'il va faire, il agit, puis il vérifie, en général en lançant les tests. S'ils échouent, il recommence le cycle. Votre rôle est d'intervenir au bon moment, sans attendre la fin.</p>
+<p>Deux gestes suffisent pour cela. <strong>Échap</strong> interrompt l'agent à tout instant ; il garde le travail déjà fait et attend votre consigne. Et vous pouvez taper un message pendant qu'il travaille : il est mis en file et lui parvient dès que ses outils en cours ont fini, sans interrompre son tour. Reprendre la main tôt coûte toujours moins cher que corriger tard.</p>
+<h2>Décider ce que l'agent fait sans demander</h2>
+<p>Le mode de permission fixe la frontière entre ce que l'agent fait seul et ce qu'il vous soumet. Il s'affiche sous la zone de saisie et change à chaque appui sur <strong>Maj+Tab</strong> : automatique, manuel, accepter les modifications, plan, puis retour au début.</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Indicateur</th>
+<th>Passe sans demander</th>
+<th>Pour quoi faire</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Manuel (<code>default</code>)</td>
+<td>⏸ manual mode on</td>
+<td>Les lectures</td>
+<td>Code inconnu, travail sensible, premières semaines</td>
+</tr>
+<tr>
+<td>Accepter les modifications (<code>acceptEdits</code>)</td>
+<td>⏵⏵ accept edits on</td>
+<td>Lectures, modifications de fichiers et commandes de fichiers courantes, dans le répertoire de travail</td>
+<td>Itérer vite sur une tâche cadrée, puis relire le diff</td>
+</tr>
+<tr>
+<td>Plan (<code>plan</code>)</td>
+<td>⏸ plan mode on</td>
+<td>Lectures et exploration ; aucune modification avant votre accord</td>
+<td>Comprendre et proposer avant d'agir</td>
+</tr>
+<tr>
+<td>Automatique (<code>auto</code>)</td>
+<td>⏵⏵ auto mode on</td>
+<td>Tout, sous le contrôle d'un second modèle qui bloque les actions risquées</td>
+<td>Tâches longues dans un cadre déjà maîtrisé</td>
+</tr>
+<tr>
+<td>Ne pas demander (<code>dontAsk</code>)</td>
+<td>⏵⏵ don't ask on</td>
+<td>Ce qui est explicitement autorisé ; le reste est refusé</td>
+<td>Intégration continue, scripts</td>
+</tr>
+<tr>
+<td>Contourner (<code>bypassPermissions</code>)</td>
+<td>⏵⏵ bypass permissions on</td>
+<td>Presque tout</td>
+<td>Conteneur ou machine virtuelle isolés, jamais un poste de travail</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Le mode de départ.</strong> Depuis la version 2.1.283, une session interactive démarre par défaut en mode automatique, y compris sur Bedrock, dès que le modèle le permet : Sonnet 5 ou plus récent, Opus 4.7 ou plus récent. C'est le cas de la configuration de référence. Une équipe qui a promis au RSSI une « validation humaine avant toute commande », comme celle du roman, doit donc imposer le mode manuel par les paramètres gérés, et peut retirer le mode automatique à tous ; le chapitre M4 montre comment. Notez aussi que, sur Bedrock, les vérifications du mode automatique consomment des jetons facturés.</p>
+<p>Pour une seule session, choisissez le mode au lancement :</p>
+<pre><code class="language-bash">claude --permission-mode default   # manuel
+claude --permission-mode plan
+</code></pre>
+<h3>Répondre à une demande d'autorisation</h3>
+<p>Quand l'agent veut modifier un fichier ou lancer une commande, il affiche l'action exacte et attend. Trois réponses sont possibles.</p>
+<ul>
+<li><strong>Oui</strong> : l'action s'exécute, une seule fois.</li>
+<li><strong>Oui, et ne plus demander</strong> : selon l'action, l'outil propose d'autoriser les actions semblables pour la session ou pour le projet. C'est une règle ; vous la retrouvez et la retirez avec <code>/permissions</code>.</li>
+<li><strong>Non</strong> : l'action est refusée. Appuyez sur <strong>Tab</strong> avant de valider pour ajouter un commentaire ; l'agent le lit et ajuste son approche. Échap revient à répondre non, sans commentaire.</li>
+</ul>
+<p>Un « non » commenté vaut mieux qu'un « oui » de lassitude. Si vous approuvez sans lire, le mode manuel ne vous protège plus de rien : passez plutôt en mode plan et discutez l'approche avant qu'il agisse.</p>
+<h3>Ce qu'aucun mode n'approuve seul</h3>
+<p>Certaines écritures ne sont jamais approuvées d'office, même en mode accepter les modifications : celles qui visent <code>.git</code>, <code>.claude</code>, <code>.vscode</code>, <code>.idea</code> ou les fichiers de configuration du shell comme <code>.bashrc</code> et <code>.zshrc</code>. En mode manuel ou accepter les modifications, l'outil vous les soumet ; en mode automatique, elles passent obligatoirement par le second modèle. Une suppression qui vise la racine du disque, votre dossier personnel ou le répertoire de travail lui-même vous est toujours soumise, et elle est refusée quand personne ne peut répondre.</p>
+<p>Et une règle d'interdiction posée par l'administrateur l'emporte sur tous les modes. C'est la différence entre une consigne et un verrou, que Julien explique à Sofiane au chapitre 3.</p>
+<h2>Le mode plan</h2>
+<p>En mode plan, l'agent lit, explore et propose, mais ne modifie aucun fichier du projet tant que vous n'avez pas approuvé son plan. C'est le geste le plus rentable du manuel : dix minutes de plan relu évitent une heure de code à défaire.</p>
+<p><strong>Y entrer.</strong> Trois façons, au choix :</p>
+<ul>
+<li>appuyez sur Maj+Tab jusqu'à lire <em>plan mode on</em> ;</li>
+<li>préfixez une demande par <code>/plan</code>, par exemple <code>/plan ajouter la date de découverte au parcours vol</code> ;</li>
+<li>lancez la session avec <code>claude --permission-mode plan</code>.</li>
+</ul>
+<p><strong>Ce qui se passe.</strong> L'agent ouvre les fichiers utiles, cherche dans le dépôt, peut lancer des commandes de lecture, et vous pose ses questions. Il rédige ensuite un plan, puis vous demande comment continuer :</p>
+<table>
+<thead>
+<tr>
+<th>Choix</th>
+<th>Effet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Oui, en mode automatique</td>
+<td>Le plan est approuvé ; l'agent l'exécute sans vous soumettre chaque action. Si le mode automatique est retiré, ce choix devient « Oui, accepter les modifications ».</td>
+</tr>
+<tr>
+<td>Oui, en validant les modifications</td>
+<td>Le plan est approuvé ; chaque modification vous est soumise. C'est le bon choix pour les premières semaines.</td>
+</tr>
+<tr>
+<td>Non, continuer à planifier</td>
+<td>Vous dites ce qui ne va pas ; l'agent révise son plan.</td>
+</tr>
+</tbody>
+</table>
+<p>Pour corriger le plan vous-même, appuyez sur <strong>Ctrl+G</strong> : il s'ouvre dans votre éditeur de texte, et l'agent travaillera sur la version que vous enregistrez. Dans VS Code, le plan s'ouvre directement comme un document où l'on ajoute des commentaires en marge.</p>
+<h3>Relire un plan</h3>
+<p>Un plan se relit en cinq questions. Si l'une reste sans réponse, choisissez « continuer à planifier ».</p>
+<ol>
+<li><strong>Le périmètre</strong> : quels fichiers seront touchés ? Un fichier inattendu dans la liste est le premier signe d'un malentendu.</li>
+<li><strong>L'ordre</strong> : les tests viennent-ils avant le code ? Le CLAUDE.md du roman l'exige, et un bon plan le respecte.</li>
+<li><strong>Les hypothèses</strong> : l'agent a-t-il supposé une règle métier qu'il aurait dû demander ? C'est ainsi qu'un agent invente une franchise de 150 euros, dans le souvenir de Thomas au chapitre 3.</li>
+<li><strong>Les limites</strong> : qu'est-ce que le plan ne fait pas, et est-ce voulu ?</li>
+<li><strong>La vérification</strong> : comment l'agent saura-t-il qu'il a fini ? Quels tests, quelle commande ?</li>
+</ol>
+<h3>D'autres usages que le code</h3>
+<p>Le mode plan sert aussi à voir sans toucher. Au chapitre 8, Sofiane donne chacune des dix-huit stories du sprint à l'agent, en mode plan, et lui demande quels fichiers il modifierait. En vingt minutes, l'équipe obtient la carte des dépendances qui montre que onze stories touchent la même zone du code.</p>
+<p>C'est aussi le meilleur test de préparation d'une story : la confier à une session neuve, en mode plan. Si l'agent propose un plan complet sans poser de question, la story est prête ; s'il pose des questions, ce sont celles auxquelles la story aurait dû répondre. C'est le « test de la session neuve » qu'invoque Nadia au chapitre 6.</p>
+<h2>Les commandes et raccourcis du premier jour</h2>
+<p>Une vingtaine de gestes couvrent l'essentiel du quotidien. Tapez <code>/</code> pour voir toutes les commandes disponibles, et <code>?</code> sur une saisie vide pour l'aide des raccourcis. Une commande n'est reconnue qu'au début d'un message.</p>
+<h3>Raccourcis clavier</h3>
+<table>
+<thead>
+<tr>
+<th>Touche</th>
+<th>Effet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Échap</td>
+<td>Interrompt l'agent ; il garde le travail déjà fait. Ferme aussi une boîte de dialogue.</td>
+</tr>
+<tr>
+<td>Échap deux fois</td>
+<td>Saisie vide : ouvre le menu de retour arrière. Saisie remplie : l'efface, et Flèche haut la rappelle.</td>
+</tr>
+<tr>
+<td>Maj+Tab</td>
+<td>Change de mode de permission.</td>
+</tr>
+<tr>
+<td>Entrée pendant que l'agent travaille</td>
+<td>Met votre message en file ; il lui parvient sans interrompre son tour.</td>
+</tr>
+<tr>
+<td><code>\</code> puis Entrée, ou Ctrl+J</td>
+<td>Passe à la ligne sans envoyer. Maj+Entrée fonctionne dans la plupart des terminaux récents.</td>
+</tr>
+<tr>
+<td><code>@</code></td>
+<td>Cite un fichier, avec complétion du chemin.</td>
+</tr>
+<tr>
+<td><code>!</code> en début de saisie</td>
+<td>Lance vous-même une commande du shell ; sa sortie entre dans la conversation et l'agent la commente.</td>
+</tr>
+<tr>
+<td>Ctrl+O</td>
+<td>Affiche le détail des actions de l'agent.</td>
+</tr>
+<tr>
+<td>Ctrl+R</td>
+<td>Cherche dans l'historique de vos demandes.</td>
+</tr>
+<tr>
+<td>Ctrl+B</td>
+<td>Passe une commande longue en arrière-plan, par exemple un serveur de développement.</td>
+</tr>
+<tr>
+<td>Ctrl+G</td>
+<td>Ouvre votre saisie, ou le plan proposé, dans votre éditeur de texte.</td>
+</tr>
+<tr>
+<td>Ctrl+V (Alt+V sous Windows)</td>
+<td>Colle une image, par exemple une capture d'écran d'une erreur.</td>
+</tr>
+<tr>
+<td>Ctrl+C</td>
+<td>Interrompt ; sur une saisie vide, un second appui quitte l'outil.</td>
+</tr>
+</tbody>
+</table>
+<h3>Commandes</h3>
+<table>
+<thead>
+<tr>
+<th>Commande</th>
+<th>Effet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/status</code></td>
+<td>Version, modèle, fournisseur, région, sources de paramètres. Le premier réflexe en cas de doute.</td>
+</tr>
+<tr>
+<td><code>/model</code></td>
+<td>Change de modèle, parmi ceux que l'entreprise autorise.</td>
+</tr>
+<tr>
+<td><code>/plan [tâche]</code></td>
+<td>Passe en mode plan, et démarre la tâche si vous la donnez.</td>
+</tr>
+<tr>
+<td><code>/permissions</code></td>
+<td>Liste les règles d'autorisation et permet d'en retirer.</td>
+</tr>
+<tr>
+<td><code>/context</code></td>
+<td>Montre ce qui remplit la mémoire de travail de l'agent.</td>
+</tr>
+<tr>
+<td><code>/compact [consigne]</code></td>
+<td>Résume la conversation pour libérer de la place.</td>
+</tr>
+<tr>
+<td><code>/clear</code></td>
+<td>Démarre une conversation vierge ; l'ancienne reste reprenable.</td>
+</tr>
+<tr>
+<td><code>/rewind</code></td>
+<td>Revient en arrière dans le code et la conversation.</td>
+</tr>
+<tr>
+<td><code>/resume</code></td>
+<td>Reprend une session .</td>
+</tr>
+<tr>
+<td><code>/rename</code></td>
+<td>Donne un nom à la session en cours.</td>
+</tr>
+<tr>
+<td><code>/diff</code></td>
+<td>Montre les changements en cours dans le répertoire de travail.</td>
+</tr>
+<tr>
+<td><code>/btw question</code></td>
+<td>Pose une question annexe sans l'ajouter à la conversation.</td>
+</tr>
+<tr>
+<td><code>/usage</code></td>
+<td>Jetons consommés et coût de la session (alias <code>/cost</code>).</td>
+</tr>
+<tr>
+<td><code>/init</code>, <code>/memory</code></td>
+<td>Crée un premier CLAUDE.md, puis l'édite (chapitre M3).</td>
+</tr>
+<tr>
+<td><code>/code-review</code></td>
+<td>Fait relire le diff en cours par l'agent, à la recherche d'erreurs.</td>
+</tr>
+<tr>
+<td><code>/doctor</code></td>
+<td>Diagnostique l'installation et la configuration.</td>
+</tr>
+<tr>
+<td><code>/exit</code></td>
+<td>Quitte la session.</td>
+</tr>
+</tbody>
+</table>
+<p>Certaines commandes de la documentation n'apparaissent pas avec Bedrock, parce qu'elles exigent un compte chez l'éditeur : <code>/login</code>, <code>/logout</code>, <code>/remote-control</code> ou <code>/voice</code>, par exemple. Leur absence n'est pas une panne.</p>
+<h2>Garder un contexte propre</h2>
+<p>Le contexte est la mémoire de travail de l'agent : tout ce qu'il sait de la session, renvoyé au modèle à chaque message. Il contient vos demandes, ses réponses, les fichiers qu'il a lus, la sortie des commandes, et ce qui se charge avant même votre premier mot : les fichiers CLAUDE.md, la description des skills disponibles, le nom des outils connectés.</p>
+<p>Avec la configuration de référence, la fenêtre atteint un million de jetons : Sonnet 5.5 et Opus 5.5 l'ont par défaut sur Bedrock. C'est beaucoup, mais ce n'est pas gratuit. Chaque message renvoie tout le contexte, et une vieille conversation encombre l'attention de l'agent au moment où il a besoin des fichiers de la tâche suivante. Un contexte propre coûte moins cher et donne de meilleures réponses.</p>
+<p><strong>Voir ce qui le remplit.</strong> <code>/context</code> affiche une grille de l'occupation, par catégorie, avec des suggestions. Ce sont presque toujours les lectures de fichiers qui pèsent le plus ; une demande précise (« corrige la validation dans <code>DeclarationService</code> ») fait lire moins de fichiers qu'une demande vague.</p>
+<p><strong>Les cinq gestes.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Geste</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vous passez à une tâche sans rapport</td>
+<td><code>/clear</code> : conversation vierge ; l'ancienne reste reprenable.</td>
+</tr>
+<tr>
+<td>La tâche continue, mais l'historique s'alourdit</td>
+<td><code>/compact</code> avec une consigne, par exemple <code>/compact garde la règle de franchise et la liste des fichiers modifiés</code>.</td>
+</tr>
+<tr>
+<td>Un long débogage est terminé, mais le début de la conversation compte</td>
+<td><code>/rewind</code>, choisir le message, puis <em>Summarize from here</em> : seule la fin est résumée.</td>
+</tr>
+<tr>
+<td>Il faut fouiller une large partie du code</td>
+<td>Demander à l'agent de confier la recherche à un sous-agent : ses lectures restent dans son propre contexte, seul son résumé revient (chapitre M5).</td>
+</tr>
+<tr>
+<td>Une question annexe vous traverse l'esprit</td>
+<td><code>/btw</code> : la réponse n'entre pas dans la conversation.</td>
+</tr>
+</tbody>
+</table>
+<p>Une règle simple suffit dans la plupart des équipes : une story, une session. C'est le prolongement naturel de la règle du roman, « une story = une branche = une demande de fusion ».</p>
+<h3>Ce que la compaction garde, et ce qu'elle perd</h3>
+<p>Quand la fenêtre approche de sa limite, l'outil compacte automatiquement : il remplace la conversation par un résumé structuré. La session continue, mais tout n'y survit pas de la même façon.</p>
+<table>
+<thead>
+<tr>
+<th>Contenu</th>
+<th>Après compaction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CLAUDE.md du projet et règles générales</td>
+<td>Relus sur le disque, intacts</td>
+</tr>
+<tr>
+<td>Le plan approuvé en mode plan</td>
+<td>Réinjecté tel quel</td>
+</tr>
+<tr>
+<td>Fichiers lus ou modifiés</td>
+<td>Les cinq modifiés le plus récemment sont relus</td>
+</tr>
+<tr>
+<td>Règles liées à un dossier, CLAUDE.md des sous-dossiers</td>
+<td>Rechargés quand l'agent retouche les fichiers concernés</td>
+</tr>
+<tr>
+<td>Vos consignes données en cours de conversation</td>
+<td>Résumées avec le reste : elles peuvent perdre leurs nuances</td>
+</tr>
+<tr>
+<td>Sorties de commandes, raisonnements intermédiaires</td>
+<td>Remplacés par le résumé</td>
+</tr>
+</tbody>
+</table>
+<p>La cinquième ligne du tableau mérite une règle d'équipe. Une consigne importante, donnée une fois dans la conversation (« ne touche pas à l'adaptateur contrats »), peut s'effacer à la première compaction. Si elle compte, elle va dans le CLAUDE.md ou dans les paramètres, pas dans le fil de la discussion.</p>
+<h2>Revenir en arrière</h2>
+<p>Avant chaque message qui lance un tour de travail, l'outil prend une photo des fichiers. Si l'agent part dans une mauvaise direction, vous revenez à l'une de ces photos en quelques secondes, sans Git.</p>
+<p><strong>Ouvrir le menu.</strong> Appuyez deux fois sur Échap quand la zone de saisie est vide, ou tapez <code>/rewind</code>. La liste de vos messages s'affiche ; choisissez le point de retour, puis l'action :</p>
+<table>
+<thead>
+<tr>
+<th>Option du menu</th>
+<th>Effet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>Restore code and conversation</em></td>
+<td>Fichiers et conversation reviennent à ce point.</td>
+</tr>
+<tr>
+<td><em>Restore conversation</em></td>
+<td>La conversation revient à ce point ; les fichiers restent tels quels.</td>
+</tr>
+<tr>
+<td><em>Restore code</em></td>
+<td>Les fichiers reviennent à ce point ; la conversation garde la trace de ce qui s'est passé.</td>
+</tr>
+<tr>
+<td><em>Summarize from here</em></td>
+<td>Résume la conversation à partir de ce point, pour libérer du contexte.</td>
+</tr>
+<tr>
+<td><em>Summarize up to here</em></td>
+<td>Résume tout ce qui précède ce point et garde la suite intacte.</td>
+</tr>
+<tr>
+<td><em>Never mind</em></td>
+<td>Revient à la liste sans rien changer.</td>
+</tr>
+</tbody>
+</table>
+<p><em>Restore code</em> seul est souvent le plus utile : l'agent revient au code d'avant, mais il se souvient de l'impasse et ne la reprendra pas. Après un retour de conversation, votre ancien message réapparaît dans la zone de saisie : corrigez-le, puis renvoyez-le.</p>
+<p>Les points de restauration sont enregistrés avec la session : on peut encore revenir en arrière après l'avoir reprise le lendemain. L'outil garde les cent derniers par session, et les efface environ trente jours après la dernière activité.</p>
+<h3>Ce que le retour arrière ne rattrape pas</h3>
+<p>Le retour arrière ne suit que les fichiers que l'agent modifie avec ses outils d'édition. Tout le reste lui échappe :</p>
+<ul>
+<li>les fichiers modifiés par une commande du shell : <code>rm</code>, <code>mv</code>, <code>cp</code>, un générateur de code, un script de migration ;</li>
+<li>la plupart des modifications faites par un sous-agent ;</li>
+<li>vos propres modifications, et celles d'une autre session ouverte en parallèle ;</li>
+<li>tout ce qui sort du disque : une migration appliquée à une base de données, un ticket Jira créé, un commit poussé, un message envoyé.</li>
+</ul>
+<p>C'est pourquoi le retour arrière ne remplace pas Git ; il le complète. Avant de lancer l'agent sur une tâche risquée, faites un commit, ou au moins vérifiez que le répertoire de travail est propre avec <code>git status</code>. Dans le roman, la branche principale est verrouillée et toute modification passe par une demande de fusion relue : c'est le filet qui rattrape ce que le retour arrière laisse passer.</p>
+<h2>Reprendre ses sessions</h2>
+<p>Chaque session est enregistrée en continu sur votre poste, avec son historique, ses points de restauration et le modèle utilisé. Vous pouvez la reprendre après l'avoir quittée, après un <code>/clear</code> ou après un redémarrage.</p>
+<table>
+<thead>
+<tr>
+<th>Pour</th>
+<th>Commande</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reprendre la dernière session du dossier</td>
+<td><code>claude --continue</code></td>
+</tr>
+<tr>
+<td>Choisir dans la liste des sessions</td>
+<td><code>claude --resume</code>, ou <code>/resume</code> depuis une session</td>
+</tr>
+<tr>
+<td>Reprendre une session nommée</td>
+<td><code>claude --resume sin-42</code></td>
+</tr>
+<tr>
+<td>Nommer la session dès le lancement</td>
+<td><code>claude -n sin-42</code></td>
+</tr>
+<tr>
+<td>Nommer la session en cours</td>
+<td><code>/rename sin-42</code></td>
+</tr>
+<tr>
+<td>Essayer une autre piste sans perdre celle-ci</td>
+<td><code>/branch</code>, qui copie la conversation et vous fait basculer dans la copie</td>
+</tr>
+<tr>
+<td>Garder une trace lisible</td>
+<td><code>/export compte-rendu.txt</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Nommez vos sessions comme vos branches.</strong> Avec la clé Jira dans le nom, <code>sin-42</code> par exemple, la session se retrouve sans effort, et le lien entre la story, la branche et la conversation reste évident. Sans nom, l'outil donne un titre tiré de votre premier message, ou du plan une fois approuvé.</p>
+<p><strong>Dans la liste des sessions</strong>, Espace affiche un aperçu, Ctrl+R renomme, et la saisie de quelques lettres filtre la liste ; on peut même y coller l'adresse d'une demande de fusion pour retrouver la session qui l'a produite. Par défaut, seules les sessions du dossier courant apparaissent ; Ctrl+A les montre toutes.</p>
+<p><strong>Ce qui revient, ce qui ne revient pas.</strong> La conversation et le modèle sont restaurés, ainsi que le mode de permission dans la plupart des cas. Les dossiers ajoutés avec <code>/add-dir</code> ne le sont pas, ni les commandes lancées en arrière-plan : le serveur de développement est à relancer.</p>
+<p><strong>Conservation.</strong> Les sessions sont gardées trente jours par défaut, dans <code>~/.claude/projects/</code>. Le paramètre <code>cleanupPeriodDays</code> change cette durée ; une politique de sécurité peut la raccourcir, puisque ces fichiers contiennent tout ce que l'agent a lu.</p>
+<h3>Plusieurs sessions à la fois</h3>
+<p>Rien n'empêche d'ouvrir deux terminaux sur le même dépôt, comme Sofiane au chapitre 6. Mais deux agents qui modifient les mêmes fichiers au même moment se marchent dessus, et le retour arrière de l'un ignore les changements de l'autre. Pour travailler en parallèle, donnez à chaque session sa propre copie isolée du dépôt, sur sa propre branche : c'est l'objet du chapitre M5. Et n'ouvrez jamais la même session dans deux terminaux : leurs messages se mélangeraient dans un seul historique.</p>
+<p>Le chapitre 8 rappelle la limite de l'exercice : les copies isolées protègent les agents les uns des autres, pas le produit. Le découpage du travail reste votre affaire.</p>
+<h2>Exercice : une première story de bout en bout</h2>
+<p>Cet exercice enchaîne tous les gestes du chapitre sur une petite story, celle du numéro de téléphone que Martine réclame au chapitre 6. Comptez une heure la première fois. Adaptez les commandes de compilation et de test à votre projet.</p>
+<ol>
+<li><strong>Partir d'un état propre.</strong> Créez la branche de la story et vérifiez qu'il ne traîne aucune modification :</li>
+</ol>
+<p><code>bash
+   git switch -c SIN-42-telephone
+   git status
+   aws sso login --profile claude-bedrock</code>
+2. <strong>Lancer une session nommée, en mode plan.</strong></p>
+<p><code>bash
+   claude -n sin-42 --permission-mode plan</code>
+3. <strong>Donner la story, ses critères et la méthode.</strong> Citez avec <code>@</code> le fichier que vous savez concerné ; l'agent trouvera les autres.</p>
+<p><code>text
+   Story SIN-42 : en tant que déclarant, je saisis un numéro de
+   téléphone pour que le gestionnaire puisse me rappeler.
+   Critères d'acceptation :
+   - 10 chiffres commençant par 0, ou +33 suivi de 9 chiffres ;
+   - espaces et points acceptés à la saisie, retirés à l'enregistrement ;
+   - champ facultatif ; message d'erreur en français si le format est faux.
+   Voir @src/main/java/fr/mdf/sinistres/declaration/Declaration.java
+   Propose un plan. Commence par les tests.</code>
+4. <strong>Relire le plan avec les cinq questions</strong> de la section « Le mode plan ». Répondez à ses questions ; s'il manque quelque chose, choisissez « continuer à planifier » et dites quoi.
+5. <strong>Approuver en validant les modifications une à une.</strong> Lisez chaque diff. Refusez au moins une fois avec Tab et un commentaire, pour voir l'agent ajuster sa proposition.
+6. <strong>Vérifier vous-même.</strong> Lancez les tests avec le préfixe <code>!</code>, par exemple <code>! mvn test</code> ; l'agent lit le résultat et le commente. Puis <code>/diff</code> pour l'ensemble des changements.
+7. <strong>Revenir en arrière une fois, exprès.</strong> Échap deux fois, choisissez votre message de l'étape 3, puis <em>Restore code</em>. Constatez avec <code>git status</code> que les fichiers sont revenus à leur état de départ, puis demandez à l'agent de refaire les modifications : il se souvient du plan et du travail fait.
+8. <strong>Faire relire.</strong> Tapez <code>/code-review</code> : l'agent relit le diff à la recherche d'erreurs. Corrigez ce qui doit l'être.
+9. <strong>Commiter et pousser.</strong> Demandez à l'agent un commit dont le message commence par la clé <code>SIN-42</code>, puis le push ; il vous soumet chaque commande. La demande de fusion s'ouvre ensuite selon les règles du chapitre M10.
+10. <strong>Clore.</strong> Notez le coût avec <code>/usage</code>, puis <code>/exit</code>. Demain, <code>claude --resume sin-42</code> vous ramènera exactement là.</p>
+<p>Si l'agent vous a posé plus de deux questions à l'étape 4, la story n'était pas prête : c'est une information pour la Product Owner, pas un échec de l'exercice.</p>
+<h2>Dans le roman</h2>
+<table>
+<thead>
+<tr>
+<th>Chapitre</th>
+<th>Scène</th>
+<th>Ce qu'elle illustre ici</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3 — Le fichier qui parle à la machine</td>
+<td>Mercredi, 15 heures : dans une session neuve, l'agent propose un plan qui commence par les tests, puis pose trois questions au lieu d'inventer trois règles.</td>
+<td>Le mode plan, et la session neuve comme test de préparation.</td>
+</tr>
+<tr>
+<td>6 — Trop facile</td>
+<td>Mardi et mercredi : Sofiane ouvre deux terminaux côte à côte, deux sessions, deux stories.</td>
+<td>Plusieurs sessions à la fois, et leurs limites.</td>
+</tr>
+<tr>
+<td>6 — Trop facile</td>
+<td>Mercredi, 18 heures : les huit stories suivantes ont « passé le test de la session neuve ».</td>
+<td>Une story est prête quand une session neuve la planifie sans question.</td>
+</tr>
+<tr>
+<td>8 — Quatre agents à la fois</td>
+<td>Mercredi, 18 heures : en mode plan, l'agent dit pour chaque story quels fichiers il toucherait.</td>
+<td>Le mode plan pour voir sans toucher : la carte des dépendances.</td>
+</tr>
+<tr>
+<td>8 — Quatre agents à la fois</td>
+<td>Mardi, 14 heures : un agent résout un conflit en gardant deux champs pour un même concept.</td>
+<td>Pourquoi on relit ce que l'agent propose, même quand tout compile.</td>
+</tr>
+</tbody>
+</table>
+<p>Pour aller plus loin : M3 (CLAUDE.md et la mémoire), M4 (paramètres et permissions, dont le mode de départ imposé), M5 (sous-agents et copies isolées du dépôt), M13 (bonnes pratiques).</p>
+<h2>Sources</h2>
+<p>Consultées le 16 octobre 2026.</p>
+<ul>
+<li><a href="https://code.claude.com/docs/en/interactive-mode">Mode interactif : raccourcis et saisie</a></li>
+<li><a href="https://code.claude.com/docs/en/permission-modes">Modes de permission</a></li>
+<li><a href="https://code.claude.com/docs/en/commands">Référence des commandes</a></li>
+<li><a href="https://code.claude.com/docs/en/context-window">Fenêtre de contexte et compaction</a></li>
+<li><a href="https://code.claude.com/docs/en/checkpointing">Points de restauration</a></li>
+<li><a href="https://code.claude.com/docs/en/sessions">Gestion des sessions</a></li>
+<li><a href="https://code.claude.com/docs/en/changelog">Notes de version de Claude Code</a></li>
+</ul></article><nav class="pager"><span><a href="f-m01-installer-claude-code.html">← Installer Claude Code</a></span><span><a href="f-m03-claude-md-et-la-memoire.html">CLAUDE.md et la mémoire →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

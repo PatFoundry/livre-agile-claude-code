@@ -1,0 +1,397 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gabarit de spécification — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="" data-current="latest" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Annexe C</div><h1>Gabarit de spécification</h1><h2>À quoi sert cette annexe</h2>
+<p>Au chapitre 27, une testeuse qui vient d'arriver comprend une story le matin même : le fichier porte ses exigences, ses décisions, ce que fait le système existant, ses scénarios et son hors-périmètre. Personne n'a eu à le lui expliquer. C'est ce que le roman appelle une story autoportante, et c'est ce que cette annexe propose de reproduire.</p>
+<p>Une story bien spécifiée tient en trois documents, qui n'ont ni le même auteur ni le même moment :</p>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Ce qu'il dit</th>
+<th>Qui en répond</th>
+<th>Où il vit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Le fichier de story</td>
+<td>Ce qu'il faut faire, et pourquoi</td>
+<td>La Product Owner</td>
+<td><code>docs/stories/SIN-57.md</code></td>
+</tr>
+<tr>
+<td>Les scénarios d'acceptation</td>
+<td>Comment on saura que c'est fait</td>
+<td>La recette et le métier</td>
+<td><code>src/test/resources/scenarios/sin-57.feature</code></td>
+</tr>
+<tr>
+<td>La spécification d'implémentation</td>
+<td>Comment on va le faire</td>
+<td>Le développeur, qui l'approuve</td>
+<td><code>_bmad-output/implementation-artifacts/spec-sin-57.md</code></td>
+</tr>
+</tbody>
+</table>
+<p>Les deux premiers existent avant le code ; ils sont la définition de « prêt » de l'annexe B. Le troisième naît au moment où l'agent commence, en mode plan ou par la skill d'implémentation du chapitre M9, et devient la trace de ce qui a été décidé.</p>
+<p>Les trois gabarits qui suivent sont remplis avec une même story fictive, SIN-57 : permettre au déclarant de joindre jusqu'à dix photos à sa déclaration. Les crochets indiquent ce qu'on remplace ; le reste est la structure à garder.</p>
+<p>Un principe vient du chapitre 25 : <strong>une information, un seul endroit.</strong> Le statut de la story vit dans Jira, pas dans le fichier ; la règle de gestion détaillée vit dans le wiki, et la story y renvoie.</p>
+<h2>Le fichier de story</h2>
+<p>C'est le document du métier. L'agent peut le rédiger à partir d'un entretien, comme l'analyste du chapitre 22 ; la Product Owner le corrige et le valide. Il se lit sans aucun autre document ouvert.</p>
+<pre><code class="language-markdown">---
+cle: SIN-57
+titre: Joindre plusieurs photos à une déclaration
+risque: orange                # vert, orange ou rouge
+proprietaire: Nadia Benali
+valide-par:                   # rempli par la Product Owner, et elle seule
+---
+
+# SIN-57 — Joindre plusieurs photos à une déclaration
+
+## Intention
+Le déclarant peut joindre jusqu'à dix photos à sa déclaration, pour que le
+gestionnaire dispose des éléments visuels sans avoir à relancer l'assuré.
+
+## Pour qui, et pourquoi
+- Déclarant : il ne peut joindre qu'une photo ; les autres arrivent plus tard,
+  par courrier ou par messagerie.
+- Gestionnaire : [part des relances qui portent sur des photos manquantes,
+  fournie par la Product Owner].
+
+## Critères d'acceptation
+1. Le déclarant peut joindre de zéro à dix photos.
+2. Formats acceptés : JPEG, PNG et HEIC ; 10 Mo au plus par photo.
+3. Au-delà de dix, l'ajout est refusé par un message qui donne la limite.
+4. Une photo refusée n'empêche jamais l'envoi de la déclaration.
+5. Le gestionnaire voit les photos dans l'ordre où elles ont été ajoutées.
+
+## Exigences non fonctionnelles
+- Aucune photo, aucun nom de fichier dans les journaux : l'identifiant technique
+  du dossier seulement.
+- Les données de localisation contenues dans les photos sont retirées avant stockage.
+
+## Ce que fait le système existant
+- Les pièces jointes sont stockées par la gestion documentaire, pas par le système
+  des contrats : voir wiki/pages/notions/piece-jointe.md.
+- La limite actuelle d'une photo vient de l'ancien formulaire, pas d'une règle
+  de gestion (Gérard, séance 6).
+
+## Décisions
+| Décision | Qui | Quand |
+| --- | --- | --- |
+| Dix photos au plus : au-delà, le gestionnaire missionne un expert | Nadia | [date] |
+| Format HEIC accepté : la plupart des photos viennent d'un téléphone | Nadia, Julien | [date] |
+
+## Questions ouvertes
+| Question | Qui peut répondre | Pour quand | Bloquante |
+| --- | --- | --- | --- |
+| Durée de conservation des photos d'une déclaration abandonnée | Le délégué à la protection des données | [date] | Non : la règle actuelle s'applique d'ici là |
+
+## Hors périmètre
+- Les vidéos : une story distincte, après mesure de l'usage des photos.
+- La retouche ou le recadrage des photos dans le portail.
+- Toute analyse automatique du contenu des photos.
+
+## Vérification
+- Scénarios : src/test/resources/scenarios/sin-57.feature (Émilie)
+- Données de test : tests/donnees/photos/ (jeu synthétique)
+
+## Dépendances
+- SIN-41, stockage des pièces jointes dans la gestion documentaire : terminée.
+</code></pre>
+<h3>Ce que chaque rubrique apporte</h3>
+<ul>
+<li><strong>L'en-tête</strong> porte la clé, le niveau de risque et la propriétaire. Il ne porte pas le statut, qui vit dans Jira. Le champ <code>valide-par</code> n'est rempli que par la Product Owner ; la chaîne d'intégration peut vérifier qu'il l'est, comme pour la spécification (chapitre M10).</li>
+<li><strong>L'intention</strong> dit ce qui doit être vrai à la fin, en une ou deux phrases. Si elle n'y tient pas, la story est trop grosse.</li>
+<li><strong>Les critères d'acceptation</strong> sont numérotés, pour que les scénarios et la relecture puissent y renvoyer.</li>
+<li><strong>Ce que fait le système existant</strong> cite le wiki et ses sources, au lieu de les recopier.</li>
+<li><strong>Les décisions</strong> gardent le nom et la date : c'est ce qui permettra, au chapitre 16, de retracer une ligne de code jusqu'à celui qui l'a voulue.</li>
+<li><strong>Les questions ouvertes</strong> disent si elles bloquent. Une question bloquante sans réponse renvoie la story en préparation.</li>
+<li><strong>Le hors-périmètre</strong> est la rubrique que l'analyste du chapitre 22 a fait naître : <em>ce que le portail ne fera pas</em>. C'est souvent la plus utile à l'agent, qui sinon complète par générosité.</li>
+</ul>
+<h2>Les scénarios d'acceptation</h2>
+<p>C'est le document de la recette. Au chapitre 10, Émilie réécrit ses cas de test sous une forme que la chaîne peut exécuter ; ils deviennent l'entrée de l'agent au lieu d'arriver après lui. La syntaxe Gherkin, en français, se lit comme une phrase et s'exécute comme un test.</p>
+<pre><code class="language-gherkin"># language: fr
+# Story : SIN-57 — Joindre plusieurs photos à une déclaration
+# Rédigés par Émilie (recette), relus par Nadia Benali
+
+Fonctionnalité: Joindre des photos à une déclaration de sinistre
+
+  Contexte:
+    Étant donné un déclarant connecté avec le contrat de test &quot;HAB-SYNTH-001&quot;
+    Et une déclaration de dégât des eaux en cours de saisie
+
+  # Critère 1
+  Scénario: Le déclarant joint dix photos
+    Quand il joint 10 photos au format JPEG de 2 Mo chacune
+    Alors la déclaration compte 10 photos
+    Et il peut envoyer sa déclaration
+
+  # Critère 3
+  Scénario: Une onzième photo est refusée
+    Étant donné une déclaration qui compte déjà 10 photos
+    Quand il joint une photo de plus
+    Alors l'ajout est refusé
+    Et le message indique &quot;10 photos au maximum&quot;
+
+  # Critères 2 et 4
+  Plan du scénario: Une photo refusée ne bloque pas la déclaration
+    Quand il joint le fichier &quot;&lt;fichier&gt;&quot;
+    Alors le fichier est refusé pour la raison &quot;&lt;raison&gt;&quot;
+    Et il peut envoyer sa déclaration
+
+    Exemples:
+      | fichier          | raison                    |
+      | facture.pdf      | format non accepté        |
+      | photo-24mo.jpg   | taille supérieure à 10 Mo |
+
+  # Critère 5
+  Scénario: Le gestionnaire voit les photos dans l'ordre d'ajout
+    Étant donné une déclaration envoyée avec les photos &quot;a.jpg&quot;, &quot;b.jpg&quot; et &quot;c.jpg&quot;
+    Quand le gestionnaire ouvre le dossier
+    Alors il voit les photos dans l'ordre &quot;a.jpg&quot;, &quot;b.jpg&quot;, &quot;c.jpg&quot;
+
+  # Exigence non fonctionnelle
+  Scénario: Les noms des photos n'apparaissent pas dans les journaux
+    Quand il joint 3 photos et envoie sa déclaration
+    Alors aucun journal ne contient le nom d'une photo
+</code></pre>
+<h3>Les règles d'écriture</h3>
+<ul>
+<li><strong>Un scénario par critère</strong>, au moins, avec le numéro du critère en commentaire : la relecture vérifie en un coup d'œil que rien n'est oublié.</li>
+<li><strong>Des comportements observables</strong>, jamais l'implémentation : « l'ajout est refusé », pas « la méthode renvoie une erreur 413 ».</li>
+<li><strong>Des données synthétiques nommées</strong>, comme le contrat <code>HAB-SYNTH-001</code>, tirées de <code>tests/donnees/</code> ; jamais un vrai dossier (chapitre 13).</li>
+<li><strong>Les cas limites explicites</strong> : la dixième photo passe, la onzième non. C'est là que se cachent les écarts.</li>
+<li><strong>Écrits avant le code, et rouges d'abord</strong> : l'agent les lance, constate qu'ils échouent, puis les fait passer sans les modifier (chapitre M13).</li>
+</ul>
+<p>L'agent peut proposer des scénarios supplémentaires, dans une demande de fusion que la recette relit. Il ne modifie jamais un scénario existant : l'interdiction d'écriture du chapitre M4 et le fichier des propriétaires du chapitre M10 y veillent.</p>
+<h2>La spécification d'implémentation</h2>
+<p>C'est le document du développeur. L'agent le rédige au début de la story, en mode plan ou par la skill d'implémentation de BMAD (chapitre M9) ; le développeur le corrige et l'approuve avant toute ligne de code. Ses rubriques sont les cinq du plan du chapitre M13, complétées de deux registres qui se remplissent pendant le travail.</p>
+<pre><code class="language-markdown">---
+story: SIN-57
+statut: en relecture     # brouillon, prête, en cours, en relecture, terminée
+---
+
+# Spécification — SIN-57
+
+Approuvé par :           # rempli par une personne, jamais par l'agent
+
+&lt;!-- Partie figée après approbation : l'agent ne la modifie plus. --&gt;
+## Intention
+Reprise de l'intention et des critères 1 à 5 de docs/stories/SIN-57.md.
+
+## Ce que je n'ai pas compris
+| Question | Réponse | Qui |
+| --- | --- | --- |
+| Une photo HEIC est-elle convertie au stockage ? | Non : stockée telle quelle, convertie à l'affichage | Julien |
+| Le retrait de la localisation vaut-il pour les PNG ? | Oui, pour tous les formats | Nadia |
+&lt;!-- Fin de la partie figée. --&gt;
+
+## Fichiers touchés
+- src/main/java/…/declaration/PiecesJointesService.java : limite et formats
+- src/main/java/…/declaration/NettoyageMetadonnees.java : nouveau, retrait de la localisation
+- src/main/resources/static/declaration/photos.js : ajout de plusieurs photos à l'écran
+- src/main/resources/db/migration/V31__ordre_pieces_jointes.sql : colonne d'ordre
+
+## Démarche
+1. Lancer les scénarios de sin-57.feature : ils doivent échouer.
+2. Limite et formats dans le service, puis à l'écran.
+3. Retrait des métadonnées avant l'envoi à la gestion documentaire.
+4. Colonne d'ordre, puis affichage côté gestionnaire.
+
+## Vérification
+- Les scénarios de sin-57.feature passent tous ; la sortie est jointe.
+- Tests unitaires : 9, 10 et 11 photos ; chaque format ; 10 Mo et au-delà ;
+  retrait de la localisation sur JPEG, PNG et HEIC.
+
+## Hors périmètre
+- Vidéos, retouche, analyse du contenu : exclues par la story.
+- Aucune modification d'adaptateur-contrats.
+
+## Écarts au plan
+- [Aucun, ou : l'écart, sa raison, et qui l'a accepté]
+
+## Journal de relecture
+| Point soulevé | Retenu | Raison |
+| --- | --- | --- |
+| Aucune limite de taille totale pour dix photos | Non | Dix fois 10 Mo reste sous la limite de la gestion documentaire |
+| Le message cite « 10 » en dur | Oui | Lu désormais depuis la configuration |
+</code></pre>
+<h3>Ce que chaque rubrique apporte</h3>
+<ul>
+<li><strong>La ligne <em>Approuvé par</em></strong> est celle que vérifie le contrôle de la chaîne d'intégration du chapitre M10 : une spécification ajoutée sans nom ne peut pas être fusionnée.</li>
+<li><strong>La partie figée</strong> reprend le mécanisme de BMAD décrit au chapitre M9 : ce que l'humain a décidé, l'agent ne le réécrit plus. Les réponses aux questions en font partie ; ce sont elles qui évitent l'erreur du chapitre 17.</li>
+<li><strong>Les fichiers touchés et le hors-périmètre</strong> donnent au relecteur sa première question : qu'est-ce qui a bougé hors du plan ?</li>
+<li><strong>Les écarts au plan</strong> se remplissent pendant l'implémentation. Une rubrique vide est une bonne nouvelle ; une rubrique absente, une alerte.</li>
+<li><strong>Le journal de relecture</strong> garde chaque point de la prérelecture, retenu ou écarté, avec sa raison. Une fiche triée se relit ; une fiche ignorée ne laisse aucune trace.</li>
+</ul>
+<p>La spécification est commitée avec le code, dans la même demande de fusion. Le relecteur lit d'abord l'intention figée et les réponses ; si elles sont fausses, le code n'a pas d'importance.</p>
+<h2>Qui écrit quoi, et quand</h2>
+<p>Les trois documents ne naissent pas au même moment. Les deux premiers se préparent pendant l'affinage, avant l'itération ; la spécification naît le jour où l'on prend la story. Entre les deux passe la porte de l'annexe B.</p>
+<blockquote>
+<p><em>Schéma (version numérique) : les six étapes d'une story · l'approbation humaine est la seconde porte.</em></p>
+</blockquote>
+<p>Au chapitre 27, les étapes 4 à 6 tiennent dans une journée. C'est possible parce que les étapes 1 à 3 ont été faites avant, sans précipitation.</p>
+<h3>Qui peut modifier quoi, ensuite</h3>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Modifiable par</th>
+<th>À quel moment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Le fichier de story</td>
+<td>La Product Owner, ou l'agent avec son accord</td>
+<td>Jusqu'à l'approbation de la spécification ; ensuite, un changement de besoin devient une nouvelle story ou une décision datée</td>
+</tr>
+<tr>
+<td>Les scénarios</td>
+<td>La recette et le métier, jamais l'agent</td>
+<td>À tout moment, par demande de fusion ; un scénario modifié pendant la story se signale au développeur</td>
+</tr>
+<tr>
+<td>La partie figée de la spécification</td>
+<td>Personne, une fois approuvée</td>
+<td>Un changement d'intention repasse par une nouvelle approbation</td>
+</tr>
+<tr>
+<td>Le reste de la spécification</td>
+<td>L'agent et le développeur</td>
+<td>Pendant l'implémentation : écarts au plan, journal de relecture</td>
+</tr>
+</tbody>
+</table>
+<p>Une fois la story fusionnée, les trois documents restent dans le dépôt, à côté du code. Ce sont eux qu'on relit quand, des mois plus tard, quelqu'un demande pourquoi le portail refuse la onzième photo.</p>
+<h2>Bien remplir</h2>
+<p>Un gabarit bien structuré peut encore être mal rempli. Les formulations suivantes reviennent souvent, chez les humains comme chez l'agent ; la colonne de droite dit ce qu'on gagne à les reprendre.</p>
+<h3>Dans le fichier de story</h3>
+<table>
+<thead>
+<tr>
+<th>À éviter</th>
+<th>À préférer</th>
+<th>Pourquoi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>« Améliorer la gestion des photos »</td>
+<td>« Le déclarant peut joindre jusqu'à dix photos à sa déclaration »</td>
+<td>Une intention se vérifie, une amélioration non</td>
+</tr>
+<tr>
+<td>« Le système doit être rapide »</td>
+<td>« L'envoi de dix photos de 2 Mo se termine en moins de [n] secondes sur la connexion de référence »</td>
+<td>Une exigence non fonctionnelle sans seuil ne se teste pas</td>
+</tr>
+<tr>
+<td>« On a décidé dix photos »</td>
+<td>« Dix photos au plus : au-delà, le gestionnaire missionne un expert — Nadia, [date] »</td>
+<td>Une décision sans nom ni raison se rediscute à chaque itération</td>
+</tr>
+<tr>
+<td>« Voir le programme COBOL »</td>
+<td>Un lien vers la page du wiki, qui cite le programme et ses lignes</td>
+<td>Le lecteur, humain ou agent, n'a pas à refaire l'enquête</td>
+</tr>
+<tr>
+<td>Pas de rubrique <em>Hors périmètre</em></td>
+<td>La liste de ce que la story ne fera pas</td>
+<td>L'agent complète ce qu'on ne lui interdit pas</td>
+</tr>
+</tbody>
+</table>
+<h3>Dans les scénarios</h3>
+<table>
+<thead>
+<tr>
+<th>À éviter</th>
+<th>À préférer</th>
+<th>Pourquoi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>« Quand il clique sur le bouton btn-ajout »</td>
+<td>« Quand il joint une photo »</td>
+<td>Le scénario décrit un comportement, pas un écran ; il survit à une refonte</td>
+</tr>
+<tr>
+<td>« Étant donné l'assuré M. Martin »</td>
+<td>« Étant donné un déclarant avec le contrat de test HAB-SYNTH-001 »</td>
+<td>Pas de nom qui ressemble à une vraie personne ; des données synthétiques nommées</td>
+</tr>
+<tr>
+<td>« Alors ça fonctionne »</td>
+<td>« Alors la déclaration compte 10 photos »</td>
+<td>Un résultat observable, qu'un programme peut comparer</td>
+</tr>
+<tr>
+<td>Un seul scénario « cas nominal »</td>
+<td>Le cas nominal et ses limites : dix passe, onze non</td>
+<td>Les écarts se cachent aux limites</td>
+</tr>
+</tbody>
+</table>
+<h3>Dans la spécification</h3>
+<table>
+<thead>
+<tr>
+<th>À éviter</th>
+<th>À préférer</th>
+<th>Pourquoi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>« Je suppose que le HEIC est converti »</td>
+<td>La question, dans <em>Ce que je n'ai pas compris</em>, avec qui peut répondre</td>
+<td>Une hypothèse écrite comme un fait est l'erreur du chapitre 17</td>
+</tr>
+<tr>
+<td>« Fichiers touchés : divers »</td>
+<td>Chaque fichier, et pourquoi lui</td>
+<td>Le relecteur repère d'un coup d'œil ce qui sort du plan</td>
+</tr>
+<tr>
+<td>« Points de relecture corrigés »</td>
+<td>Chaque point, retenu ou écarté, avec sa raison</td>
+<td>Le tri se relit ; une mention vague ne prouve rien</td>
+</tr>
+<tr>
+<td>Une ligne <em>Approuvé par</em> remplie par l'agent</td>
+<td>Le nom écrit par la personne qui approuve</td>
+<td>Une approbation que l'agent s'accorde n'en est pas une</td>
+</tr>
+</tbody>
+</table>
+<h2>Renvois</h2>
+<ul>
+<li>M3 — CLAUDE.md : la règle « ne jamais inventer une règle de gestion »</li>
+<li>M4 — Paramètres : l'interdiction d'écriture sur les scénarios</li>
+<li>M9 — BMAD : la spécification de la skill d'implémentation, sa partie figée</li>
+<li>M10 — GitHub et Jira : le contrôle de la ligne <em>Approuvé par</em>, le fichier des propriétaires</li>
+<li>M11 — Le wiki : où vit ce que fait le système existant</li>
+<li>M13 — Bonnes pratiques : le plan en cinq rubriques, les tests d'abord</li>
+<li>Annexe A — Modèle de CLAUDE.md</li>
+<li>Annexe B — Définitions de « prêt » et de « terminé »</li>
+</ul>
+<p>Source, consultée le 23 octobre 2026 : <a href="https://cucumber.io/docs/gherkin/languages/">Cucumber, les mots-clés Gherkin par langue</a>, pour la syntaxe française des scénarios.</p></article><nav class="pager"><span><a href="f-annexe-b-dor-et-dod-pour-le-code-genere.html">← DoR et DoD pour le code généré</a></span><span><a href="f-annexe-d-grille-de-metriques.html">Grille de métriques →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

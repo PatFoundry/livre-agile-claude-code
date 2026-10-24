@@ -1,0 +1,383 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Modèle de CLAUDE.md — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Annexe A</div><h1>Modèle de CLAUDE.md</h1><h2>À quoi sert cette annexe</h2>
+<p>Le chapitre M3 montre le CLAUDE.md du portail sinistres tel qu'il est au chapitre 10 : une vingtaine de lignes. Au fil du roman et du manuel, il s'est enrichi : le wiki de Gérard, les scénarios verrouillés, les conventions de branche, le plan en cinq rubriques, la règle sur l'adresse du risque. Cette annexe en donne la version complète, telle qu'elle est à la fin de la phase 2, au chapitre 27, avec pour chaque rubrique la raison d'être et le chapitre d'où elle vient.</p>
+<p>C'est un modèle, pas un fichier à copier tel quel. Il est écrit pour un projet précis, une mutuelle, un portail, un système ancien sur mainframe ; ce qui se transpose, c'est sa structure et sa discipline :</p>
+<ul>
+<li><strong>moins de deux cents lignes</strong> : celui-ci en compte une centaine ;</li>
+<li><strong>chaque ligne vérifiable</strong> : on peut dire, en lisant ce que l'agent a fait, s'il l'a suivie ;</li>
+<li><strong>chaque ligne justifiée par une erreur réelle</strong>, ou par une obligation : rien de ce que l'agent fait déjà bien sans consigne ;</li>
+<li><strong>deux propriétaires nommés</strong>, et une modification seulement par demande de fusion (chapitre M12).</li>
+</ul>
+<p>Le fichier ne contient ni verrou ni secret. Ce qui doit tenir à coup sûr vit dans les paramètres et les hooks des chapitres M4 et M6 ; le CLAUDE.md dit à l'agent comment travailler, il ne garantit rien.</p>
+<h2>Le fichier</h2>
+<p>À la racine du dépôt du portail, versionné :</p>
+<pre><code class="language-markdown"># Portail sinistres — consignes pour l'agent
+
+Portail de déclaration de sinistre habitation. Vision : @docs/vision.md
+Propriétaires : Julien (technique), Nadia Benali (vocabulaire et principes métier).
+Toute modification de ce fichier passe par une demande de fusion.
+
+## Vocabulaire métier (validé par Nadia Benali)
+- Déclarant : remplit la déclaration ; pas forcément l'assuré.
+- Assuré : personne couverte ; pas forcément le souscripteur.
+- Adresse du risque : adresse du bien assuré. À ne jamais confondre avec
+  l'adresse de correspondance.
+- Avenant : modification du contrat, avec une date d'effet.
+- Franchise, plafond : jamais codés en dur, toujours lus dans le contrat.
+- Les autres notions : wiki/pages/notions/
+
+## Principes métier
+- Une déclaration n'est jamais rejetée automatiquement : le gestionnaire décide.
+- On ne bloque jamais une déclaration ; on la complète.
+- Tout préremplissage d'adresse utilise l'adresse du risque.
+
+## Données
+- Uniquement les jeux synthétiques de tests/donnees/. Aucune donnée réelle
+  d'assuré, y compris en recette.
+- Aucune donnée personnelle dans les journaux : l'identifiant technique du
+  dossier seulement.
+- Si tu rencontres un secret (mot de passe, clé, certificat) : arrête-toi,
+  ne le recopie nulle part, et préviens.
+
+## Système des contrats
+- Tout appel passe par adaptateur-contrats ; jamais d'accès direct.
+- Avant de toucher un programme COBOL ou une règle de gestion, lis wiki/index.md.
+- Le code dit ce qui se passe, jamais pourquoi. Un « pourquoi » absent du wiki
+  est une question pour Gérard, pas une hypothèse.
+
+## Façon de travailler : le plan
+- Toute story commence en mode plan. Aucun fichier n'est modifié avant que le
+  plan soit approuvé.
+- Avant de proposer un plan, liste ce que la story ne dit pas et que le code ne
+  permet pas de trancher. N'invente jamais une règle de gestion : pose la
+  question, en nommant qui peut répondre.
+- Le plan suit toujours ces cinq rubriques, dans cet ordre :
+  1. Ce que je n'ai pas compris : ce qui reste à confirmer, et auprès de qui.
+  2. Fichiers touchés : chaque fichier, et pourquoi là.
+  3. Démarche : l'ordre des étapes et les choix faits.
+  4. Vérification : les scénarios qui doivent passer, les tests ajoutés.
+  5. Hors périmètre : ce que je ne toucherai pas.
+- Une rubrique sans objet s'écrit « rien à signaler » ; elle ne disparaît pas.
+- Pendant l'implémentation, signale tout écart au plan approuvé avant de le faire.
+- Exception : une modification qui se décrit en une phrase (coquille, libellé,
+  renommage) se fait sans plan.
+
+## Tests
+- Les scénarios de src/test/resources/scenarios/ sont écrits par le métier et
+  la recette. Ne les modifie jamais.
+- Lance d'abord les scénarios de la story : ils doivent échouer. Implémente
+  ensuite jusqu'à ce qu'ils passent.
+- Termine en montrant la sortie des scénarios et des tests, pas un résumé.
+- Commandes du projet : @docs/commandes.md
+
+## Branches, commits, demandes de fusion
+- Une story = une branche = une demande de fusion.
+- Branche : la clé Jira puis quelques mots, par exemple SIN-57-photos-multiples.
+- Commit : la clé Jira en tête de la première ligne, puis ce que fait le
+  changement, à l'indicatif. Le corps dit pourquoi et renvoie vers la spécification.
+- Demande de fusion : la clé et le titre de la story ; dans la description, les
+  liens vers la story, la spécification et les scénarios, et l'étiquette de risque.
+- Ne pousse jamais sur main. Ne fusionne jamais.
+
+## Jira
+- Avant de commencer une story, lis son ticket : priorité, itération,
+  dépendances. Si elle n'est pas dans l'itération en cours, ou si une
+  dépendance n'est pas terminée, arrête-toi et dis-le.
+- Tu ne crées un ticket que lorsque Nadia a validé la story. Tu ne changes
+  jamais un statut.
+
+## Compaction
+- Quand tu compactes, garde la clé de la story, la liste des fichiers modifiés,
+  les commandes de test et les questions ouvertes.
+
+## Ne jamais
+- Inventer une règle de gestion. Poser la question.
+- Contourner une interdiction ou un contrôle. Si une action est refusée,
+  explique pourquoi tu en avais besoin, et attends.
+- Modifier ce fichier, .claude/, .github/ ou wiki/CLAUDE.md sans qu'on te le demande.
+</code></pre>
+<h2>Pourquoi chaque rubrique</h2>
+<p>Chaque rubrique répond à une erreur que l'agent a faite, ou aurait faite, dans le roman. C'est ce qui lui donne sa place : une ligne qu'on ne sait pas justifier est une ligne à retirer.</p>
+<table>
+<thead>
+<tr>
+<th>Rubrique</th>
+<th>Ce qu'elle évite</th>
+<th>D'où elle vient</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>En-tête : vision, propriétaires</td>
+<td>Un fichier qui dérive sans que personne en réponde</td>
+<td>M12 ; chapitres 18 et 22</td>
+</tr>
+<tr>
+<td>Vocabulaire métier</td>
+<td>Un code qui confond le déclarant et l'assuré, ou qui code une franchise en dur</td>
+<td>Le premier CLAUDE.md du chapitre M3, validé par Nadia</td>
+</tr>
+<tr>
+<td>Adresse du risque</td>
+<td>Un préremplissage avec l'adresse de correspondance</td>
+<td>Chapitre 24, la première anomalie de production</td>
+</tr>
+<tr>
+<td>Principes métier</td>
+<td>Un rejet automatique, une déclaration bloquée par une validation trop stricte</td>
+<td>M3</td>
+</tr>
+<tr>
+<td>Données</td>
+<td>Des données réelles dans un test ou un journal ; un secret recopié</td>
+<td>Chapitres 3 et 13 ; M4 et M6 pour les verrous</td>
+</tr>
+<tr>
+<td>Système des contrats</td>
+<td>Un sens deviné dans un programme ancien</td>
+<td>Chapitre 17 ; M11</td>
+</tr>
+<tr>
+<td>Le plan</td>
+<td>Une hypothèse découverte en recette</td>
+<td>M13</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td>Des tests verts et des anomalies en recette</td>
+<td>Chapitre 10 ; M13</td>
+</tr>
+<tr>
+<td>Branches, commits, demandes de fusion</td>
+<td>Des branches qui divergent ; une ligne impossible à retracer</td>
+<td>Chapitres 8, 9 et 16 ; M10</td>
+</tr>
+<tr>
+<td>Jira</td>
+<td>Une story commencée hors itération, ou bloquée par une dépendance ; un statut modifié à la main</td>
+<td>Chapitres 22 et 25 ; M10</td>
+</tr>
+<tr>
+<td>Compaction</td>
+<td>Une session qui oublie la story en cours après un résumé automatique</td>
+<td>M13</td>
+</tr>
+<tr>
+<td>Ne jamais</td>
+<td>Les trois erreurs qui coûtent le plus cher</td>
+<td>M3, M4</td>
+</tr>
+</tbody>
+</table>
+<h3>Trois choix d'écriture</h3>
+<p><strong>Des phrases courtes, à l'impératif ou à l'indicatif.</strong> « Tout appel passe par adaptateur-contrats » se vérifie ; « il est préférable de passer par l'adaptateur » ne se vérifie pas.</p>
+<p><strong>Le pourquoi seulement quand il change la décision.</strong> La ligne sur l'adresse du risque dit pourquoi elle existe, parce que l'agent rencontrera d'autres adresses et doit comprendre laquelle compte. La ligne sur les commits n'explique rien : la convention suffit.</p>
+<p><strong>Des renvois plutôt que des copies.</strong> Les commandes sont dans <code>docs/commandes.md</code>, importé par <code>@</code> ; les notions détaillées dans le wiki. Le CLAUDE.md reste court, et chaque information n'a qu'un seul endroit, la règle du chapitre 25.</p>
+<h2>Ce qui n'y figure pas, et où le mettre</h2>
+<p>Un CLAUDE.md qui grossit est presque toujours un CLAUDE.md qui accueille ce qui devrait vivre ailleurs. Le tableau suivant dit où va chaque chose.</p>
+<table>
+<thead>
+<tr>
+<th>Ce qu'on voudrait écrire</th>
+<th>Où le mettre</th>
+<th>Pourquoi</th>
+<th>Chapitre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>« Ne lis jamais les fichiers <code>.env</code> »</td>
+<td>Une règle <code>deny</code> dans les paramètres</td>
+<td>Une consigne peut être ignorée ; une interdiction, non</td>
+<td>M4</td>
+</tr>
+<tr>
+<td>« Ne pousse jamais sur main »</td>
+<td>Aussi une branche protégée</td>
+<td>La ligne du CLAUDE.md guide l'agent ; la branche protégée arrête tout le monde</td>
+<td>M10</td>
+</tr>
+<tr>
+<td>« Formate chaque fichier modifié », « aucune donnée personnelle dans les journaux »</td>
+<td>Un hook</td>
+<td>Ce qui doit se produire à chaque fois, sans exception</td>
+<td>M6</td>
+</tr>
+<tr>
+<td>La façon de préparer une story ou une relecture</td>
+<td>Une skill</td>
+<td>Une procédure longue ne se charge que quand on s'en sert</td>
+<td>M5</td>
+</tr>
+<tr>
+<td>Les conventions des scénarios, des migrations de base</td>
+<td>Une règle de <code>.claude/rules/</code> limitée à ces chemins</td>
+<td>Elle ne se charge que quand l'agent touche ces fichiers</td>
+<td>M3</td>
+</tr>
+<tr>
+<td>Le savoir sur le système ancien, les décisions d'architecture</td>
+<td>Le wiki</td>
+<td>Trop volumineux, et il a ses propres propriétaires</td>
+<td>M11</td>
+</tr>
+<tr>
+<td>Les consignes propres à la méthode BMAD</td>
+<td>Les personnalisations de <code>_bmad/custom/</code></td>
+<td>Elles suivent les agents de la méthode, et survivent aux mises à jour</td>
+<td>M9</td>
+</tr>
+<tr>
+<td>Ce qui vaut pour toute la maison</td>
+<td>Le CLAUDE.md géré par la DSI</td>
+<td>Une seule source pour toutes les équipes</td>
+<td>M3, M8</td>
+</tr>
+<tr>
+<td>Ses préférences de travail</td>
+<td><code>CLAUDE.local.md</code> ou <code>~/.claude/CLAUDE.md</code></td>
+<td>Elles ne regardent pas l'équipe</td>
+<td>M3, M12</td>
+</tr>
+<tr>
+<td>La liste des commandes du projet</td>
+<td><code>docs/commandes.md</code>, importé par <code>@</code></td>
+<td>Elle sert aussi aux humains, et change souvent</td>
+<td>M3</td>
+</tr>
+</tbody>
+</table>
+<p>Un réglage accompagne ce fichier : <code>"includeGitInstructions": false</code> dans <code>.claude/settings.json</code>. Il retire les consignes de commit intégrées à l'outil, pour que seules celles de la rubrique <em>Branches, commits, demandes de fusion</em> s'appliquent (chapitre M10).</p>
+<h2>Les fichiers compagnons</h2>
+<p>Le CLAUDE.md principal ne travaille pas seul. Quatre fichiers l'accompagnent dans le dépôt du portail ; les trois premiers sont versionnés, le dernier ne l'est pas.</p>
+<h3>Une règle pour les scénarios</h3>
+<p>Dans <code>.claude/rules/scenarios.md</code>, chargée seulement quand l'agent touche aux scénarios :</p>
+<pre><code class="language-markdown">---
+paths:
+  - &quot;src/test/resources/scenarios/**&quot;
+---
+
+# Scénarios d'acceptation
+- Ces fichiers appartiennent au métier et à la recette. Tu peux les lire,
+  jamais les modifier.
+- Un scénario qui te semble faux se signale dans le plan, rubrique
+  « Ce que je n'ai pas compris ».
+- Leurs données viennent de tests/donnees/, jamais d'une base.
+</code></pre>
+<p>La règle explique ; l'interdiction d'écriture des paramètres (M4) et le fichier des propriétaires (M10) garantissent.</p>
+<h3>Une règle pour les migrations de base</h3>
+<p>Dans <code>.claude/rules/migrations.md</code> :</p>
+<pre><code class="language-markdown">---
+paths:
+  - &quot;src/main/resources/db/migration/**&quot;
+---
+
+# Migrations de base
+- Une migration fusionnée ne se modifie jamais : on en ajoute une nouvelle.
+- Nommage : V&lt;numéro&gt;__&lt;description&gt;.sql, numéro suivant le dernier existant.
+- Toute migration est relue par l'équipe base de données.
+</code></pre>
+<p>Le hook du chapitre M6 bloque la modification d'une migration existante ; la règle évite que l'agent essaie.</p>
+<h3>Le schéma du wiki</h3>
+<p>Dans <code>wiki/CLAUDE.md</code>, chargé quand l'agent travaille dans le wiki (chapitre M11) :</p>
+<pre><code class="language-markdown"># Wiki du portail — schéma
+- Structure : sources/ (jamais modifiées), pages/ (notions, regles, programmes,
+  decisions, resumes), index.md, journal.md, questions.md.
+- Chaque page commence par son en-tête : titre, type, statut (brouillon, relu
+  ou contesté), relu-par, sources.
+- Chaque affirmation cite sa source : programme et lignes, document et page,
+  entretien et séance.
+- Le code dit ce qui se passe, jamais pourquoi. Écris « Pourquoi : à confirmer »
+  et ajoute la question à questions.md, avec le nom de qui peut répondre.
+- Une contradiction : les deux pages passent en « contesté » et se renvoient
+  l'une à l'autre. Tu ne tranches pas.
+- Ingestion : une source à la fois ; présente ce qu'elle apprend avant d'écrire ;
+  mets à jour l'index et le journal.
+- Journal : chaque entrée commence par « ## [date] opération | titre ».
+- Décisions : le champ decide-par est rempli par une personne, jamais par toi.
+</code></pre>
+<h3>Les préférences de chacun</h3>
+<p><code>CLAUDE.local.md</code>, à la racine, exclu de Git par le <code>.gitignore</code> du chapitre M12. Par exemple, celui de Sofiane :</p>
+<pre><code class="language-markdown"># Préférences de Sofiane — non versionné
+- Explique en deux phrases chaque choix de conception que tu fais.
+- Propose-moi la commande de test avant de la lancer.
+</code></pre>
+<p>Une préférence qui s'avère utile à tous ne reste pas là : elle monte dans le CLAUDE.md partagé, par une demande de fusion.</p>
+<h2>L'adapter et le vérifier</h2>
+<h3>L'adapter à son projet</h3>
+<ol>
+<li><strong>Partir de son propre dépôt</strong>, pas de ce modèle : <code>/init</code> produit une première version à partir du code (chapitre M3). On y reporte ensuite la structure de ce modèle, rubrique par rubrique.</li>
+<li><strong>Écrire le vocabulaire avec la Product Owner.</strong> C'est la rubrique que l'agent ne peut pas deviner, et celle dont les erreurs coûtent le plus cher.</li>
+<li><strong>Ne garder que les rubriques qui servent.</strong> Pas de système ancien ? La rubrique disparaît. Pas de Jira ? On la remplace par l'outil de l'équipe.</li>
+<li><strong>Justifier chaque ligne</strong> par une erreur constatée ou une obligation. Pour chacune, la question de la documentation de l'éditeur : l'agent ferait-il une erreur si on la retirait ? Si non, on la retire.</li>
+<li><strong>Nommer deux propriétaires</strong>, l'un pour la technique, l'autre pour le métier, et les inscrire dans le fichier des propriétaires (chapitre M10).</li>
+</ol>
+<h3>Le vérifier</h3>
+<p>Un CLAUDE.md se teste comme du code : en observant si le comportement change.</p>
+<table>
+<thead>
+<tr>
+<th>Essai</th>
+<th>Consigne</th>
+<th>Comportement attendu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Chargement</td>
+<td><code>/memory</code>, puis <code>/context</code></td>
+<td>Le fichier, ses imports et ses règles sont listés ; la part du contexte reste modeste</td>
+</tr>
+<tr>
+<td>Le plan</td>
+<td>« Prépare SIN-57 »</td>
+<td>Le mode plan, les cinq rubriques, des questions ouvertes nommant qui peut répondre</td>
+</tr>
+<tr>
+<td>Une règle par chemin</td>
+<td>« Ajoute une colonne en modifiant la migration V12 »</td>
+<td>L'agent refuse de modifier une migration fusionnée et en propose une nouvelle</td>
+</tr>
+<tr>
+<td>L'exception</td>
+<td>« Corrige la coquille du libellé <em>Déclarant</em> »</td>
+<td>La correction directe, sans plan</td>
+</tr>
+<tr>
+<td>Les données</td>
+<td>« Prends un vrai dossier pour tester »</td>
+<td>Un refus, et la proposition d'un jeu synthétique</td>
+</tr>
+</tbody>
+</table>
+<p>On relance ces essais après chaque modification importante du fichier, et à chaque montée de version de l'outil. Le bilan <code>/doctor</code> propose aussi de retirer ce que l'agent peut déduire du code.</p>
+<h3>Les signes d'un fichier trop long</h3>
+<p>L'agent ignore une règle pourtant écrite ; il pose une question dont la réponse est dans le fichier ; deux rubriques se contredisent. Dans les trois cas, le remède est le même : couper, déplacer vers une règle, une skill ou le wiki, et ne garder que ce qui change le comportement. C'est l'objet de la revue mensuelle du chapitre M12.</p>
+<h2>Renvois</h2>
+<ul>
+<li>M3 — CLAUDE.md et la mémoire : niveaux, imports, règles par chemin, <code>/init</code></li>
+<li>M4 — Paramètres et permissions : ce qui doit être interdit plutôt que conseillé</li>
+<li>M5 et M6 — Skills, sous-agents et hooks : ce qui sort du CLAUDE.md</li>
+<li>M9 — BMAD : les personnalisations de la méthode</li>
+<li>M10 — GitHub et Jira : conventions et fichier des propriétaires</li>
+<li>M11 — Le wiki : son schéma</li>
+<li>M12 — Partager en équipe : propriétaires et revue mensuelle</li>
+<li>M13 — Bonnes pratiques : le plan, les tests d'abord, la compaction</li>
+</ul>
+<p>Sources, consultées le 23 octobre 2026 : <a href="https://code.claude.com/docs/en/memory">Claude Code, la mémoire et les fichiers CLAUDE.md</a> ; <a href="https://code.claude.com/docs/en/best-practices">Claude Code, bonnes pratiques</a>.</p></article><nav class="pager"><span><a href="f-m14-depannage-et-couts.html">← Dépannage et coûts</a></span><span><a href="f-annexe-b-dor-et-dod-pour-le-code-genere.html">DoR et DoD pour le code généré →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

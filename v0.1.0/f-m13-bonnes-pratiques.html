@@ -1,0 +1,511 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bonnes pratiques — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Chapitre M13</div><h1>Bonnes pratiques</h1><h2>Ce que couvre ce chapitre</h2>
+<p>Les chapitres précédents décrivent des outils ; celui-ci décrit des habitudes. Six pratiques reviennent dans toutes les équipes qui tirent parti d'un agent sans en payer le prix plus tard : planifier avant de coder, garder le contexte court, découper finement, écrire les tests d'abord, relire toujours, et savoir ce que tout cela coûte. Une septième les tient ensemble dans la durée : des registres, des rétrospectives, une communauté de pratique.</p>
+<p>Aucune n'est nouvelle. Ce qui change avec un agent, c'est le prix de leur absence. Au chapitre 9, l'agent produit plus de demandes de fusion qu'un seul relecteur ne peut en lire, et la file passe de dix-neuf à quarante en quatre jours. Au chapitre 10, la testeuse relève quarante-sept anomalies en cinq semaines alors que tous les tests de l'agent sont verts. Au chapitre 26, l'équipe découvre que sa vélocité a culminé au moment exact où son taux de retouche culminait aussi. Trois fois, le même constat : l'agent accélère ce qu'on lui donne, y compris les mauvaises habitudes.</p>
+<blockquote>
+<p><strong>Version de référence.</strong> Claude Code 2.1.301, publiée le 15 octobre 2026, avec la configuration Bedrock du chapitre M1. Ces pratiques ne dépendent d'aucune version ; les commandes citées, si.</p>
+</blockquote>
+<p>Chaque section suit le même ordre : la pratique, ce qui se passe quand on l'oublie, et les gestes concrets qui la rendent facile.</p>
+<h2>1. Planifier avant de coder</h2>
+<p>Laisser l'agent coder d'emblée, c'est risquer qu'il résolve avec soin le mauvais problème. La séquence recommandée tient en quatre temps : explorer, planifier, implémenter, commiter. Les deux premiers se font en mode plan, où l'agent lit et propose sans rien modifier.</p>
+<h3>Quand on l'oublie</h3>
+<p>Au chapitre 17, l'agent lit un programme, trouve une lettre dans une zone, et en déduit un sens. La déduction est plausible, fausse, et coûte une journée à la story la plus critique du sprint. Un plan aurait affiché l'hypothèse noir sur blanc, et quelqu'un l'aurait vue.</p>
+<h3>Les gestes</h3>
+<ol>
+<li><strong>Commencer chaque story en mode plan</strong> : <code>Maj+Tab</code> jusqu'à l'indicateur du mode plan, ou <code>claude --permission-mode plan</code>.</li>
+<li><strong>Faire dire à l'agent ce qu'il ne sait pas</strong> avant qu'il propose quoi que ce soit : « Avant de proposer un plan, liste ce que la story ne dit pas et que le code ne permet pas de trancher. » C'est la règle du CLAUDE.md du chapitre M3, appliquée au moment où elle compte : ne jamais inventer une règle de gestion.</li>
+<li><strong>Lire le plan comme on lirait celui d'un collègue</strong>, et le corriger directement : <code>Ctrl+G</code> l'ouvre dans l'éditeur.</li>
+<li><strong>Approuver, puis laisser coder.</strong> L'agent vérifie son travail contre son propre plan.</li>
+<li><strong>Pour un travail plus large</strong>, faire interroger l'humain par l'agent jusqu'à obtenir une spécification écrite, puis l'exécuter dans une session neuve, au contexte propre. C'est ce que fait la méthode du chapitre M9.</li>
+</ol>
+<h3>Un plan qui se lit en deux minutes</h3>
+<p>Un bon plan répond à cinq questions, et l'équipe le demande sous cette forme dans son CLAUDE.md :</p>
+<table>
+<thead>
+<tr>
+<th>Rubrique</th>
+<th>Question</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ce que je n'ai pas compris</td>
+<td>Qu'est-ce qui reste à confirmer, et auprès de qui ?</td>
+</tr>
+<tr>
+<td>Fichiers touchés</td>
+<td>Où vais-je intervenir, et pourquoi là ?</td>
+</tr>
+<tr>
+<td>Démarche</td>
+<td>Dans quel ordre, avec quels choix ?</td>
+</tr>
+<tr>
+<td>Vérification</td>
+<td>Quels scénarios doivent passer, quels tests j'ajoute ?</td>
+</tr>
+<tr>
+<td>Hors périmètre</td>
+<td>Qu'est-ce que je ne toucherai pas ?</td>
+</tr>
+</tbody>
+</table>
+<p>Les lignes correspondantes, à placer dans la rubrique <em>Façon de travailler</em> du CLAUDE.md (chapitre M3) :</p>
+<pre><code class="language-markdown">## Façon de travailler : le plan
+- Toute story commence en mode plan. Aucun fichier n'est modifié avant que le plan soit approuvé.
+- Avant de proposer un plan, liste ce que la story ne dit pas et que le code ne permet pas
+  de trancher. N'invente jamais une règle de gestion : pose la question, en nommant qui peut répondre.
+- Le plan suit toujours ces cinq rubriques, dans cet ordre :
+  1. Ce que je n'ai pas compris : ce qui reste à confirmer, et auprès de qui.
+  2. Fichiers touchés : chaque fichier, et pourquoi là.
+  3. Démarche : l'ordre des étapes et les choix faits.
+  4. Vérification : les scénarios qui doivent passer, les tests ajoutés.
+  5. Hors périmètre : ce que je ne toucherai pas.
+- Une rubrique sans objet s'écrit « rien à signaler » ; elle ne disparaît pas.
+- Pendant l'implémentation, signale tout écart au plan approuvé avant de le faire.
+- Exception : une modification qui se décrit en une phrase (coquille, libellé, renommage) se fait sans plan.
+</code></pre>
+<p>Chaque ligne est vérifiable dans un plan rendu par l'agent, ce qui permet de savoir, à la relecture, si elle est suivie.</p>
+<h3>Quand s'en passer</h3>
+<p>Le mode plan a un coût. Pour une coquille, une ligne de journal, un renommage, on demande directement. La règle de la documentation de l'éditeur est la bonne : si l'on peut décrire la modification en une phrase, on saute le plan.</p>
+<h2>2. Garder le contexte court</h2>
+<p>Le contexte est la ressource qui compte le plus. Il contient toute la conversation : chaque message, chaque fichier lu, chaque sortie de commande. Il se remplit vite, et la qualité du travail baisse à mesure qu'il se remplit : l'agent oublie une consigne donnée au début, mélange deux sujets, refait une erreur déjà corrigée. Le million de jetons disponible avec la configuration de référence (chapitre M2) n'y change rien : c'est une limite, pas un objectif.</p>
+<h3>Quand on l'oublie</h3>
+<p>Quatre situations reviennent, et chacune a son remède.</p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Ce qui se passe</th>
+<th>Remède</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>La session fourre-tout</td>
+<td>On commence une story, on pose une question sans rapport, on revient à la story ; le contexte mélange tout</td>
+<td><code>/clear</code> entre deux tâches sans rapport</td>
+</tr>
+<tr>
+<td>La correction sans fin</td>
+<td>L'agent se trompe, on corrige, il se trompe encore ; le contexte est plein de tentatives ratées</td>
+<td>Après deux corrections, <code>/clear</code> et une meilleure consigne de départ</td>
+</tr>
+<tr>
+<td>L'exploration infinie</td>
+<td>« Regarde comment ça marche » : l'agent lit des centaines de fichiers</td>
+<td>Une question précise, ou un sous-agent qui explore à part</td>
+</tr>
+<tr>
+<td>Le CLAUDE.md obèse</td>
+<td>Trop de consignes : les importantes se perdent</td>
+<td>Moins de deux cents lignes ; le reste en règles et en skills</td>
+</tr>
+</tbody>
+</table>
+<p>La deuxième ligne est la plus contre-intuitive. Une session neuve avec une consigne meilleure, qui intègre ce qu'on a appris, fait presque toujours mieux qu'une longue session chargée de corrections.</p>
+<h3>Les gestes</h3>
+<ul>
+<li><strong>Une story, une session.</strong> Avant de passer à autre chose, <code>/rename</code> pour retrouver la session plus tard, puis <code>/clear</code>.</li>
+<li><strong>Explorer à part.</strong> « Utilise un sous-agent pour trouver comment le portail calcule la franchise » : il lit vingt fichiers dans son propre contexte et ne rend qu'un résumé (chapitre M5).</li>
+<li><strong>Poser les questions de côté.</strong> <code>/btw</code> répond à une question rapide sans que la réponse entre dans la conversation.</li>
+<li><strong>Compacter en disant quoi garder.</strong> <code>/compact garde la liste des fichiers modifiés et les commandes de test</code> ; ou, dans le CLAUDE.md, une consigne permanente sur ce que la compaction doit préserver.</li>
+<li><strong>Revenir en arrière plutôt que s'enfoncer.</strong> <code>Échap</code> deux fois, ou <code>/rewind</code>, ramène la conversation et le code à un point antérieur (chapitre M2).</li>
+<li><strong>Surveiller.</strong> <code>/context</code> montre ce qui occupe la place ; une ligne d'état personnalisée peut afficher en permanence le taux de remplissage.</li>
+</ul>
+<h3>Ce que l'équipe met en place une fois pour toutes</h3>
+<p>Un CLAUDE.md court, des consignes spécialisées en skills qui ne se chargent qu'à l'usage, les outils en ligne de commande plutôt qu'un connecteur quand ils suffisent (chapitre M7), et un hook qui filtre la sortie des tests pour ne rendre que les échecs. Chacun de ces choix retire des milliers de jetons à chaque message, pour toute l'équipe.</p>
+<h2>3. Petites stories, travail en cours limité</h2>
+<p>Une story qui tient en une session de l'agent tient aussi en une relecture humaine. C'est la bonne taille : une seule intention, une branche, une demande de fusion, que le relecteur peut lire d'une traite et dont il peut juger le risque. La méthode du chapitre M9 l'estime à environ cinq cents lignes de code, tests non compris.</p>
+<h3>Quand on l'oublie, et quand on exagère</h3>
+<p>Le chapitre 9 montre les deux excès. D'abord, l'agent produit plus de demandes de fusion qu'un seul relecteur ne peut en lire. Puis l'équipe découpe le travail en demandes plus petites, en pensant soulager le relecteur : le nombre de demandes augmente, mais le coût fixe de chaque relecture ne baisse pas. Lire le contexte d'une demande, comprendre son intention, vérifier ses tests prend le même temps pour vingt lignes que pour deux cents. En quatre jours, la file passe de dix-neuf à quarante, la qualité des relectures s'effondre, et le relecteur unique cède.</p>
+<p>La bonne unité n'est donc pas la plus petite possible. C'est la story : un comportement utile, découpé par ce qu'il fait pour l'utilisateur, pas par couche technique.</p>
+<h3>Ce que l'équipe a fait</h3>
+<ol>
+<li><strong>Arrêter de produire.</strong> Tant que la file déborde, ouvrir une demande de plus ne fait qu'allonger l'attente de toutes les autres.</li>
+<li><strong>Trier la file</strong>, et fermer ce qui n'aurait pas dû être ouvert.</li>
+<li><strong>Classer chaque demande par niveau de risque</strong>, pour que la profondeur de la relecture suive le risque.</li>
+<li><strong>Préparer chaque relecture</strong> par une session neuve de l'agent (chapitres M5 et M10).</li>
+<li><strong>Faire entrer un deuxième relecteur.</strong></li>
+<li><strong>Plafonner</strong> le nombre de demandes en revue : six au plus.</li>
+</ol>
+<p>La vitesse affichée a chuté ; le temps d'attente aussi. C'est la loi de Little, bien connue des équipes de flux : à débit égal, le temps d'attente est proportionnel au nombre d'éléments en cours. Limiter le travail en cours est le moyen le plus direct de raccourcir l'attente.</p>
+<h3>La profondeur de relecture suit le risque</h3>
+<table>
+<thead>
+<tr>
+<th>Niveau</th>
+<th>Exemples</th>
+<th>Relecture</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vert</td>
+<td>Libellé, documentation, configuration sans effet métier</td>
+<td>Un relecteur, lecture rapide de la fiche de prérelecture</td>
+</tr>
+<tr>
+<td>Orange</td>
+<td>Règle de gestion, écran, intégration avec un autre système</td>
+<td>Un relecteur, lecture complète, scénarios vérifiés</td>
+</tr>
+<tr>
+<td>Rouge</td>
+<td>Données personnelles, sécurité, paiement, système des contrats</td>
+<td>Deux relecteurs, dont un qui connaît le cœur de gestion ; la sécurité si des données sont en jeu</td>
+</tr>
+</tbody>
+</table>
+<p>Le niveau se décide en préparant la story, s'inscrit dans la story et dans l'étiquette du ticket (chapitre M10), et la prérelecture peut proposer de le relever.</p>
+<h3>Les gestes</h3>
+<ul>
+<li><strong>La taille entre dans la définition de « prêt »</strong> : une story qui ne tient pas en une session se redécoupe avant d'être prise.</li>
+<li><strong>La limite vit dans le tableau Jira</strong> : la colonne <em>En revue</em> s'affiche en rouge au-delà de six.</li>
+<li><strong>« Arrêter de commencer, commencer à finir »</strong> : quand la colonne est pleine, on relit avant d'ouvrir une nouvelle session.</li>
+<li><strong>Les agents en parallèle sur des stories indépendantes seulement</strong> : le chapitre 8 montre ce que coûte la réunion de branches qui ont touché les mêmes notions.</li>
+</ul>
+<h2>4. Les tests d'abord</h2>
+<p>Un agent qui écrit le code puis les tests en relisant son code vérifie qu'il a fait ce qu'il a compris. Il ne vérifie pas qu'il a compris ce qu'il fallait. Pour que les tests disent quelque chose du besoin, ils doivent venir d'ailleurs, et arriver avant.</p>
+<h3>Quand on l'oublie</h3>
+<p>Le chapitre 10 en donne la mesure. Émilie écrit ses plans de test comme toujours et les rattache aux stories dans Jira. Mais l'agent code à partir de la story seule, puis écrit ses propres tests en lisant son code ; les cas d'Émilie arrivent après, et ne s'exécutent qu'en fin de chaîne, à la main. En cinq semaines, elle relève quarante-sept anomalies alors que tous les tests de l'agent sont verts. Trente-huit sont révélées par un cas de son plan, et pour quinze d'entre elles, le cas était déjà dans Jira avant que l'agent commence à coder.</p>
+<p>La question décisive vient d'elle : son travail peut-il servir d'entrée à l'agent ?</p>
+<h3>La réponse en trois temps</h3>
+<table>
+<thead>
+<tr>
+<th>Temps</th>
+<th>Ce qui change</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Une condition pour être prête</td>
+<td>Une story sans cas de test n'entre pas dans l'itération</td>
+<td>La définition de « prêt » de l'équipe</td>
+</tr>
+<tr>
+<td>2. Des scénarios exécutables</td>
+<td>Les cas sont réécrits en scénarios que la chaîne peut jouer</td>
+<td>Des fichiers de scénarios dans <code>src/test/resources/scenarios/</code>, écrits par Émilie et le métier</td>
+</tr>
+<tr>
+<td>3. Rouge, puis vert, sans y toucher</td>
+<td>L'agent doit voir les scénarios échouer, puis les faire passer, sans pouvoir les modifier</td>
+<td>Une interdiction d'écriture (M4), le fichier des propriétaires (M10)</td>
+</tr>
+</tbody>
+</table>
+<p>Le rouge d'abord n'est pas un rite. Un scénario qui passe avant que le code existe ne teste rien ; le voir échouer prouve qu'il mesure bien ce qu'on va construire.</p>
+<h3>La consigne type</h3>
+<pre><code class="language-text">Lance les scénarios de SIN-57. Ils doivent échouer : montre-moi la sortie.
+Implémente ensuite jusqu'à ce qu'ils passent, sans modifier aucun fichier
+de src/test/resources/scenarios/. Ajoute les tests unitaires utiles.
+Termine en montrant la sortie complète des scénarios et des tests.
+</code></pre>
+<p>La dernière ligne compte : on demande une preuve, pas une affirmation. Relire une sortie de test est plus rapide que relancer soi-même la vérification, et cela fonctionne pour une session qu'on n'a pas suivie.</p>
+<h3>Donner à l'agent de quoi se vérifier seul</h3>
+<p>Un agent qui dispose d'un contrôle qu'il peut lancer, et qui renvoie vrai ou faux, travaille jusqu'à ce que le contrôle passe. Sans lui, c'est l'humain qui devient la boucle de vérification. Trois niveaux, du plus souple au plus strict :</p>
+<ul>
+<li><strong>Dans la consigne</strong> : « lance les tests et corrige jusqu'à ce qu'ils passent ».</li>
+<li><strong>Par un hook de fin de tour</strong> : le hook <code>Stop</code> du chapitre M6 lance les tests et empêche l'agent de conclure tant qu'ils échouent.</li>
+<li><strong>Par un regard neuf</strong> : un sous-agent relit le résultat sans avoir vu le raisonnement qui l'a produit.</li>
+</ul>
+<h3>Et après le vert</h3>
+<p>Les scénarios disent que la story fait ce qui était prévu ; ils ne disent pas qu'elle ne fait rien d'autre. Au chapitre 27, Émilie explore chaque story après le vert, et c'est là qu'elle trouve ce que personne n'avait prévu. Pour le code ancien, les tests de caractérisation du chapitre M11 jouent le même rôle : enregistrer ce que le système fait réellement, avant d'y toucher.</p>
+<h2>5. Une relecture humaine, toujours</h2>
+<p>Aucun code n'entre dans la branche principale sans qu'une personne l'ait lu et compris. La règle est inscrite dans la configuration depuis le chapitre M10 : branche protégée, approbation des propriétaires, aucune exception pour les automates. Ce chapitre parle de ce qui ne se configure pas : comment relire bien, et comment tenir quand la relecture devient le goulot.</p>
+<h3>L'agent prépare, il ne signe pas</h3>
+<p>La phrase vient du chapitre 9. La prérelecture par un agent neuf, qui n'a pas écrit le code et ne connaît pas le raisonnement qui l'a produit, est précieuse : elle repère les cas oubliés, les incohérences, les écarts au plan. Mais un relecteur à qui l'on demande de trouver des problèmes en trouve presque toujours, même quand le travail est bon. Sa fiche se trie ; elle ne se suit pas aveuglément. Et la décision de fusionner reste à une personne.</p>
+<h3>Cinq questions</h3>
+<p>Un humain qui relit le code d'un agent n'a pas à vérifier la syntaxe ni le style : la chaîne d'intégration et la prérelecture s'en chargent. Il se pose cinq questions.</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Où regarder</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Le changement fait-il ce que la story demande, et seulement cela ?</td>
+<td>La spécification approuvée, son intention figée, les critères d'acceptation</td>
+</tr>
+<tr>
+<td>Qu'est-ce qui a bougé hors du plan ?</td>
+<td>Les fichiers touchés, les dépendances ajoutées, la configuration</td>
+</tr>
+<tr>
+<td>Les tests prouvent-ils quelque chose ?</td>
+<td>Les scénarios, qui ne doivent pas avoir changé ; les tests ajoutés, et ce qu'ils vérifient vraiment</td>
+</tr>
+<tr>
+<td>Qu'est-ce qui pourrait casser en production ?</td>
+<td>Le niveau de risque, les données touchées, les appels au système ancien</td>
+</tr>
+<tr>
+<td>Saurais-je l'expliquer à un collègue ?</td>
+<td>Si la réponse est non, on ne fusionne pas : on demande, ou on fait expliquer par l'agent</td>
+</tr>
+</tbody>
+</table>
+<p>La dernière question est la plus importante. Une équipe qui fusionne du code qu'elle ne comprend plus construit une dette que personne ne pourra rembourser.</p>
+<h3>Quand la relecture devient le goulot</h3>
+<p>Au chapitre 18, l'équipe mesure qu'une story prend environ cinq heures de bout en bout, dont trente-cinq minutes d'écriture de code. Le reste, c'est préciser, vérifier, relire. Quand le train propose cinq développeurs de plus pour la phase 2, elle refuse, et demande à la place une personne du métier, une testeuse et un relecteur qui connaît le cœur de gestion.</p>
+<p>C'est la conséquence logique : avec un agent, la capacité de relecture fixe le rythme de l'équipe. Les leviers sont connus :</p>
+<ul>
+<li><strong>Former des relecteurs.</strong> Au chapitre 18, le tech lead relit, tranche, et forme ; la relecture en binôme, sur les stories rouges, sert aussi à former le deuxième relecteur.</li>
+<li><strong>Préparer chaque relecture</strong> par la skill du chapitre M5, pour que l'humain commence par l'essentiel.</li>
+<li><strong>Adapter la profondeur au risque</strong>, comme à la section 3.</li>
+<li><strong>Limiter le travail en cours</strong>, pour qu'aucune demande n'attende assez longtemps pour que son auteur ait oublié ce qu'elle contient.</li>
+</ul>
+<h3>Les signes d'une relecture qui ne relit plus</h3>
+<p>Une approbation donnée en une minute sur une demande de trois cents lignes ; des commentaires qui ne portent que sur la forme ; une prérelecture recopiée telle quelle ; des anomalies qui reviennent sur des stories pourtant approuvées. Quand ces signes apparaissent, ce n'est pas le relecteur qu'il faut blâmer, c'est la file qu'il faut réduire.</p>
+<h2>6. Maîtriser les coûts</h2>
+<h3>Le vrai coût n'est pas là où on le cherche</h3>
+<p>Au chapitre 26, le contrôle de gestion demande la vélocité de l'équipe pour la comparer à celle d'Horizon. En reconstituant l'histoire de chaque story, l'équipe découvre deux choses. Sa vélocité a culminé au sprint 2, au moment même où son taux de retouche culminait : on livrait vite ce qu'il faudrait refaire. Et le coût du modèle se révèle négligeable à côté du temps humain que coûte chaque erreur : une anomalie trouvée en recette, rouverte, recorrigée, relue et retestée vaut bien plus que les jetons de toutes les sessions de la story.</p>
+<p>La première façon de maîtriser les coûts, ce sont donc les cinq pratiques précédentes. Une story bien préparée, testée d'abord et relue sérieusement coûte moins cher qu'une story rapide qui revient.</p>
+<h3>Les jetons, quand même</h3>
+<p>Le coût des jetons reste à surveiller, ne serait-ce que pour éviter les dérives. L'éditeur donne un ordre de grandeur pour les déploiements en entreprise : environ treize dollars par développeur et par jour d'activité, cent cinquante à deux cent cinquante par mois, et moins de trente dollars par jour pour neuf utilisateurs sur dix. Ce qui fait varier la facture tient en peu de leviers :</p>
+<table>
+<thead>
+<tr>
+<th>Levier</th>
+<th>Le bon réflexe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Le contexte</td>
+<td>La section 2 : une story, une session ; <code>/clear</code> entre deux tâches. Chaque message renvoie toute la conversation.</td>
+</tr>
+<tr>
+<td>Le modèle</td>
+<td>Sonnet pour l'essentiel du travail ; Opus pour la planification, l'architecture, les problèmes difficiles. <code>/model</code> change en cours de session.</td>
+</tr>
+<tr>
+<td>L'effort</td>
+<td><code>/effort</code> règle la profondeur de raisonnement ; un effort bas suffit à une tâche simple. Les paramètres gérés peuvent plafonner l'effort avec <code>maxEffortLevel</code>.</td>
+</tr>
+<tr>
+<td>Les sous-agents</td>
+<td>Chacun consomme ses propres jetons ; un modèle plus léger suffit souvent à une recherche simple, si la configuration le permet.</td>
+</tr>
+<tr>
+<td>Les pauses</td>
+<td>Après une pause plus longue que la durée de vie du cache, le premier message relit tout le contexte au plein tarif.</td>
+</tr>
+<tr>
+<td>L'automatisation</td>
+<td>Les exécutions dans la chaîne d'intégration se bornent avec <code>--max-turns</code>, une durée maximale, et <code>--max-budget-usd</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3>Savoir ce qu'on dépense</h3>
+<ul>
+<li><strong>Pour soi</strong> : <code>/usage</code> affiche l'estimation de la session en cours. Le chiffre est calculé au prix public ; les paramètres gérés peuvent y appliquer les tarifs négociés de la maison avec <code>modelPricing</code>.</li>
+<li><strong>Pour la maison</strong> : avec Bedrock, la facture est celle du compte AWS dédié du chapitre M1, visible dans les outils de suivi des coûts d'AWS.</li>
+<li><strong>Par personne et par story</strong> : la télémétrie de l'outil, exportée vers l'observabilité de la maison (chapitre M14).</li>
+</ul>
+<h3>Le coût complet par story</h3>
+<p>Pour la phase 2, l'équipe du chapitre 26 abandonne les points d'effort et les remplace par quatre indicateurs définis par écrit et calculés sans saisie : le débit, le temps de traversée, le taux de retouche, et le coût complet par story. Ce dernier additionne les jetons et le temps humain passé à préparer, relire, tester et corriger. C'est la seule mesure qui dise si l'agent fait gagner de l'argent, et elle répond souvent autrement que la facture du modèle. Le chapitre M14 en donne le calcul.</p>
+<h2>7. Tenir la pratique dans la durée</h2>
+<p>Les six pratiques précédentes s'usent. Une équipe pressée saute un plan, laisse une session gonfler, fusionne une demande relue trop vite. Trois rendez-vous les entretiennent.</p>
+<h3>Une erreur qui revient monte d'un cran</h3>
+<p>Quand l'agent refait une erreur, la question n'est pas seulement « comment la corriger ? », mais « à quel niveau l'empêcher ? ».</p>
+<table>
+<thead>
+<tr>
+<th>Fois</th>
+<th>Ce que l'on fait</th>
+<th>Chapitre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>La première</td>
+<td>On corrige dans la session</td>
+<td>M2</td>
+</tr>
+<tr>
+<td>La deuxième</td>
+<td>Une ligne vérifiable dans le CLAUDE.md, ou une règle limitée aux fichiers concernés</td>
+<td>M3</td>
+</tr>
+<tr>
+<td>Si elle persiste</td>
+<td>Une skill qui encode la bonne procédure, ou un hook qui la contrôle</td>
+<td>M5, M6</td>
+</tr>
+<tr>
+<td>Si elle met en danger</td>
+<td>Une interdiction dans les paramètres, ou un contrôle obligatoire de la chaîne d'intégration</td>
+<td>M4, M10</td>
+</tr>
+<tr>
+<td>Si elle menace toute la maison</td>
+<td>Le socle</td>
+<td>M8</td>
+</tr>
+</tbody>
+</table>
+<h3>Le registre des dettes</h3>
+<p>Certaines faiblesses ne se corrigent pas en une story. On les inscrit dans un registre, avec un propriétaire et une échéance, pour qu'elles ne disparaissent pas des mémoires.</p>
+<table>
+<thead>
+<tr>
+<th>Dette</th>
+<th>Exemple</th>
+<th>Ce qui la rembourse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>De connaissance</td>
+<td>Le savoir du système des contrats repose sur Gérard seul</td>
+<td>Le wiki et les séances quotidiennes (M11)</td>
+</tr>
+<tr>
+<td>De vérification</td>
+<td>Une partie du portail n'a pas de scénarios d'acceptation</td>
+<td>Des scénarios écrits avant toute nouvelle story dans cette partie</td>
+</tr>
+<tr>
+<td>D'outillage</td>
+<td>Une skill sans propriétaire ; un CLAUDE.md qui dépasse deux cents lignes</td>
+<td>La revue mensuelle des fichiers partagés (M12)</td>
+</tr>
+<tr>
+<td>De sécurité</td>
+<td>Un jeu de données de recette dont l'anonymisation n'a pas été vérifiée</td>
+<td>La vérification par la sécurité, avant tout usage par un agent</td>
+</tr>
+</tbody>
+</table>
+<p>Au chapitre 17, c'est l'inscription de la dette de connaissance au registre qui permet de la traiter tout de suite, une heure par jour, plutôt qu'« un jour ».</p>
+<h3>La rétrospective, avec des faits</h3>
+<p>Chaque fin d'itération, la rétrospective ordinaire reçoit un point de plus : ce que l'agent a fait de travers deux fois, et à quel niveau on l'empêche désormais. Les chiffres arrivent avant la réunion. Au chapitre 11, l'agent les tire de Jira et de GitHub en dix minutes, et ils changent la conversation : l'attente avant relecture, les anomalies après fusion, la part du travail faite le soir.</p>
+<p>À la fin d'une phase, la rétrospective est plus large. Au chapitre 20, elle sert à décider de la suite : garder ce qui a marché, abandonner ce qui n'a pas tenu, choisir ce qu'on essaie ensuite. Le format du roman vaut pour toute nouvelle pratique : un essai sur une seule story, sur une branche à part, avec des mesures choisies d'avance et une condition d'arrêt écrite avant de commencer.</p>
+<h3>La communauté de pratique</h3>
+<p>Une fois par mois, une personne de chaque équipe du train : les skills qui ont changé, les incidents et leurs leçons, les mesures, et ce qui monte au catalogue ou en descend (chapitre M12). C'est là qu'une erreur faite par une équipe cesse d'être refaite par les autres.</p>
+<h3>Les sept pratiques sur une page</h3>
+<table>
+<thead>
+<tr>
+<th>Pratique</th>
+<th>Le geste minimal</th>
+<th>Le signe d'alerte</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Planifier avant de coder</td>
+<td>Le mode plan, et la liste de ce que l'agent ne sait pas</td>
+<td>Une hypothèse découverte en recette</td>
+</tr>
+<tr>
+<td>Garder le contexte court</td>
+<td>Une story, une session</td>
+<td>Une correction refaite pour la troisième fois</td>
+</tr>
+<tr>
+<td>Petites stories, travail limité</td>
+<td>Six demandes en revue au plus</td>
+<td>Une file qui s'allonge alors que tout le monde produit</td>
+</tr>
+<tr>
+<td>Les tests d'abord</td>
+<td>Des scénarios écrits avant, rouges puis verts, intouchables</td>
+<td>Des tests verts et des anomalies en recette</td>
+</tr>
+<tr>
+<td>Une relecture humaine</td>
+<td>Cinq questions, et ne fusionner que ce qu'on sait expliquer</td>
+<td>Une approbation en une minute</td>
+</tr>
+<tr>
+<td>Maîtriser les coûts</td>
+<td>Le coût complet par story</td>
+<td>Une vitesse qui monte avec la retouche</td>
+</tr>
+<tr>
+<td>Tenir dans la durée</td>
+<td>Le registre, la rétrospective, la communauté</td>
+<td>Une même erreur dans deux équipes</td>
+</tr>
+</tbody>
+</table>
+<h2>Dans le roman</h2>
+<table>
+<thead>
+<tr>
+<th>Chapitre</th>
+<th>Scène</th>
+<th>Ce qu'elle illustre ici</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9 — Le goulot s'appelle Julien</td>
+<td>La file passe de dix-neuf à quarante demandes en quatre jours ; découper plus fin aggrave le problème ; l'équipe arrête de produire, trie, classe par risque, prépare chaque relecture, ajoute un relecteur et plafonne la file.</td>
+<td>Petites stories, mais pas trop ; limiter le travail en cours ; la profondeur de relecture suit le risque.</td>
+</tr>
+<tr>
+<td>10 — Émilie ne suit plus</td>
+<td>Quarante-sept anomalies en cinq semaines avec des tests verts ; trente-huit révélées par un cas du plan d'Émilie.</td>
+<td>Les tests d'abord, écrits par d'autres, rouges puis verts, intouchables.</td>
+</tr>
+<tr>
+<td>11 — Rétro sous tension</td>
+<td>L'agent calcule en dix minutes les vrais chiffres du sprint avant la rétrospective.</td>
+<td>Une rétrospective qui part des faits.</td>
+</tr>
+<tr>
+<td>17 — Le savoir de Gérard</td>
+<td>La dette de connaissance inscrite au registre, et traitée une heure par jour.</td>
+<td>Le registre des dettes.</td>
+</tr>
+<tr>
+<td>18 — Les rôles bougent</td>
+<td>Trente-cinq minutes de code sur cinq heures par story ; l'équipe refuse cinq développeurs et demande métier, testeuse et relecteur.</td>
+<td>La relecture fixe le rythme.</td>
+</tr>
+<tr>
+<td>20 — La rétrospective du dernier sprint</td>
+<td>Une méthode essayée sur une seule story, avec mesures et condition d'arrêt.</td>
+<td>La rétrospective de fin de phase.</td>
+</tr>
+<tr>
+<td>26 — La vélocité est morte</td>
+<td>La vélocité culmine avec la retouche ; le coût du modèle pèse peu face au temps humain de chaque erreur ; quatre indicateurs remplacent les points.</td>
+<td>Le vrai coût ; le coût complet par story.</td>
+</tr>
+</tbody>
+</table>
+<p>Pour aller plus loin : M2 (sessions et retour arrière), M3 (CLAUDE.md), M4 (verrous), M5 (sous-agents et prérelecture), M6 (hooks de fin de tour), M10 (circuit et mesures), M11 (wiki et tests de caractérisation), M14 (télémétrie et coûts).</p>
+<h2>Sources</h2>
+<p>Consultées le 22 octobre 2026.</p>
+<ul>
+<li><a href="https://code.claude.com/docs/en/best-practices">Claude Code : bonnes pratiques</a></li>
+<li><a href="https://code.claude.com/docs/en/costs">Claude Code : maîtriser les coûts</a></li>
+<li><a href="https://code.claude.com/docs/en/permission-modes">Claude Code : modes de permission et mode plan</a></li>
+<li><a href="https://code.claude.com/docs/en/sub-agents">Claude Code : sous-agents</a></li>
+<li><a href="https://doi.org/10.1287/opre.9.3.383">John D. C. Little, <em>A Proof for the Queuing Formula L = λW</em>, Operations Research, 1961</a> — la loi de Little</li>
+</ul></article><nav class="pager"><span><a href="f-m12-partager-en-equipe.html">← Partager en équipe</a></span><span><a href="f-m14-depannage-et-couts.html">Dépannage et coûts →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>

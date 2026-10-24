@@ -1,0 +1,477 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Plugins et marketplaces — Le Sprint d&#x27;après</title><link rel="stylesheet" href="style.css"></head><body><header class="site"><a href="index.html">Le Sprint d'après</a><span><select id="ver" data-root="../" data-current="v0.1.0" hidden aria-label="Version du livre"></select></span></header><main><article class="other"><div class="lbl">Chapitre M8</div><h1>Plugins et marketplaces</h1><h2>Ce que couvre ce chapitre</h2>
+<p>Les chapitres M3 à M7 ont fabriqué des pièces : un CLAUDE.md, des règles, des skills, des sous-agents, des hooks, des connecteurs. Tant qu'elles vivent dans un seul dépôt, elles ne servent qu'à une équipe. Un plugin les réunit en un paquet installable ; une marketplace les publie dans un catalogue où d'autres équipes les trouvent ; les paramètres gérés peuvent en imposer certains à tous les postes.</p>
+<p>Le roman en montre les deux usages. Au chapitre 16, les garde-fous de l'équipe vivent en cinq endroits et la directrice générale veut qu'ils deviennent la règle de toute la maison. Sofiane propose de les réunir dans un seul paquet, publié dans un catalogue interne et imposé par les paramètres gérés : une équipe qui démarre reçoit le socle en ouvrant l'outil, « comme on reçoit son badge le premier jour ». Au chapitre 18, il empaquette de la même façon les quatre savoir-faire de l'équipe, chacun avec sa propriétaire.</p>
+<blockquote>
+<p><strong>Version de référence.</strong> Claude Code 2.1.301, publiée le 15 octobre 2026, avec la configuration Bedrock du chapitre M1. Le système de plugins évolue vite ; la <a href="https://code.claude.com/docs/en/plugins/overview">documentation officielle</a> fait foi.</p>
+</blockquote>
+<p>Deux distinctions guident le chapitre : un plugin qu'on propose et un plugin qu'on impose ; un catalogue qu'on ouvre et un catalogue qu'on ferme. La première relève de l'outillage, la seconde de la gouvernance.</p>
+<h2>Ce qu'est un plugin</h2>
+<p>Un plugin est un dossier qui réunit des pièces déjà rencontrées dans ce manuel, accompagné d'un manifeste qui lui donne un nom et une version. L'outil l'installe et le charge d'un bloc.</p>
+<table>
+<thead>
+<tr>
+<th>Dossier ou fichier</th>
+<th>Ce qu'il apporte</th>
+<th>Chapitre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.claude-plugin/plugin.json</code></td>
+<td>Le manifeste : nom, description, version, auteur</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>skills/&lt;nom&gt;/SKILL.md</code></td>
+<td>Des skills</td>
+<td>M5</td>
+</tr>
+<tr>
+<td><code>agents/&lt;nom&gt;.md</code></td>
+<td>Des sous-agents</td>
+<td>M5</td>
+</tr>
+<tr>
+<td><code>hooks/hooks.json</code></td>
+<td>Des hooks, au même format que dans un fichier de paramètres</td>
+<td>M6</td>
+</tr>
+<tr>
+<td><code>.mcp.json</code></td>
+<td>Des serveurs MCP</td>
+<td>M7</td>
+</tr>
+</tbody>
+</table>
+<p>Un plugin peut aussi apporter des serveurs d'analyse de code pour un langage, des styles de réponse, et même du code JavaScript qui s'exécute dans l'outil lui-même ; ce dernier cas, appelé un <em>mod</em>, sort du cadre de ce manuel et relève d'une décision explicite de la DSI.</p>
+<p>Ce qu'un plugin ne contient pas : un CLAUDE.md, ni des règles de permission. Les consignes d'entreprise vivent dans le CLAUDE.md géré du chapitre M3, les verrous dans les paramètres gérés du chapitre M4. Le socle du roman réunit en fait les trois, comme le montre la section consacrée au socle.</p>
+<h3>Des noms préfixés</h3>
+<p>Les skills et les sous-agents d'un plugin prennent son nom en préfixe : la skill <code>prepare-relecture</code> du plugin <code>outils-sinistres</code> se lance avec <code>/outils-sinistres:prepare-relecture</code>, et son sous-agent s'appelle <code>outils-sinistres:relecteur</code>. Deux plugins peuvent ainsi proposer chacun une skill <code>relecture</code> sans conflit. Les outils de ses serveurs MCP prennent la forme <code>mcp__plugin_outils-sinistres_&lt;serveur&gt;__&lt;outil&gt;</code>, à utiliser tels quels dans les règles de permission et les filtres de hooks.</p>
+<h3>Quand passer au plugin</h3>
+<p>Une skill rangée dans <code>.claude/skills/</code> d'un dépôt suffit tant qu'elle sert une équipe dans un dépôt. Le plugin devient utile dès que l'une de ces conditions apparaît :</p>
+<ul>
+<li>les mêmes pièces servent dans <strong>plusieurs dépôts</strong> ;</li>
+<li><strong>plusieurs équipes</strong> doivent recevoir les mêmes outils, et leurs mises à jour ;</li>
+<li>il faut savoir <strong>quelle version</strong> tourne sur quel poste ;</li>
+<li>la DSI veut <strong>imposer</strong> un ensemble à tous.</li>
+</ul>
+<h3>Ce que coûte un plugin activé</h3>
+<p>Un plugin activé est présent dans chaque session, qu'on s'en serve ou non. Le nom et la description de chacune de ses skills et de ses sous-agents occupent le contexte à chaque message ; ses serveurs MCP tournent ; ses hooks se déclenchent. Et tout ce qu'il exécute, il l'exécute avec vos droits. C'est pourquoi un socle doit rester court, et un catalogue se tient propre.</p>
+<h2>Installer et gérer des plugins</h2>
+<p>Un plugin s'installe depuis une marketplace, c'est-à-dire un catalogue : un dépôt qui contient un fichier <code>.claude-plugin/marketplace.json</code> listant des plugins et l'endroit où trouver chacun. On déclare le catalogue une fois, puis on installe ses plugins par leur nom, sous la forme <code>plugin@catalogue</code>.</p>
+<pre><code class="language-bash">claude plugin marketplace add https://git.mutuelle.intra/outils/catalogue-agents.git
+claude plugin install outils-sinistres@catalogue-agents --scope project
+</code></pre>
+<p>Dans une session, <code>/plugin</code> ouvre le gestionnaire : l'onglet <em>Discover</em> parcourt les catalogues déclarés, <em>Installed</em> liste les plugins installés et signale ceux qui ne servent plus, <em>Marketplaces</em> gère les catalogues, <em>Errors</em> dit pourquoi un plugin n'a pas pu se charger.</p>
+<h3>Trois portées</h3>
+<table>
+<thead>
+<tr>
+<th>Portée</th>
+<th>Option</th>
+<th>Pour qui</th>
+<th>Où c'est noté</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Utilisateur</td>
+<td><code>--scope user</code></td>
+<td>Vous, dans tous vos projets</td>
+<td><code>~/.claude/settings.json</code></td>
+</tr>
+<tr>
+<td>Projet</td>
+<td><code>--scope project</code></td>
+<td>Toute l'équipe du dépôt</td>
+<td><code>.claude/settings.json</code>, versionné</td>
+</tr>
+<tr>
+<td>Local</td>
+<td><code>--scope local</code></td>
+<td>Vous, dans ce dépôt</td>
+<td><code>.claude/settings.local.json</code></td>
+</tr>
+</tbody>
+</table>
+<p>La portée projet a une subtilité : elle déclare le plugin dans les paramètres versionnés, mais chacun doit encore l'installer sur son poste. Un plugin tiré d'un catalogue par un chemin relatif s'installe de lui-même une fois le dossier approuvé ; un plugin qui vient d'un autre dépôt demande la commande d'installation à chaque développeur, et l'outil le rappelle par un message tant qu'elle n'a pas été lancée.</p>
+<h3>Les commandes du quotidien</h3>
+<table>
+<thead>
+<tr>
+<th>Commande</th>
+<th>Effet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude plugin list</code></td>
+<td>Les plugins installés et leur état</td>
+</tr>
+<tr>
+<td><code>claude plugin details &lt;nom&gt;</code></td>
+<td>Les skills, sous-agents, hooks et serveurs que le plugin apporte</td>
+</tr>
+<tr>
+<td><code>claude plugin disable &lt;nom&gt;</code></td>
+<td>Le désactive sans le désinstaller</td>
+</tr>
+<tr>
+<td><code>claude plugin uninstall &lt;nom&gt;</code></td>
+<td>Le retire</td>
+</tr>
+<tr>
+<td><code>claude plugin marketplace update &lt;catalogue&gt;</code></td>
+<td>Rafraîchit le catalogue et ses versions</td>
+</tr>
+<tr>
+<td><code>/reload-plugins</code></td>
+<td>Applique les changements dans la session en cours</td>
+</tr>
+</tbody>
+</table>
+<h3>Avec la configuration de référence</h3>
+<p>Au premier lancement interactif, l'outil déclare de lui-même le catalogue officiel de l'éditeur, hébergé sur GitHub. Sur les postes isolés du chapitre M4, il n'est pas joignable, et la politique d'entreprise doit de toute façon le refuser : la section sur le socle montre comment. Les plugins synchronisés depuis un compte claude.ai ne s'appliquent pas non plus avec Bedrock. Tout passe donc par le catalogue interne de la maison.</p>
+<h2>Créer le plugin de l'équipe</h2>
+<p>Au chapitre 18, Sofiane réunit les quatre savoir-faire de l'équipe : préparer une story, écrire les scénarios d'acceptation, préparer les relectures, tenir le wiki. Ajoutons-y le sous-agent relecteur du chapitre M5 et le formateur du chapitre M6, et voici la boîte à outils de l'équipe.</p>
+<pre><code class="language-text">outils-sinistres/
+├── .claude-plugin/
+│   └── plugin.json
+├── skills/
+│   ├── preparer-story/SKILL.md
+│   ├── ecrire-scenarios/SKILL.md
+│   ├── prepare-relecture/SKILL.md
+│   └── tenir-wiki/SKILL.md
+├── agents/
+│   └── relecteur.md
+├── hooks/
+│   └── hooks.json
+└── scripts/
+    └── formater.sh
+</code></pre>
+<p>Seul <code>plugin.json</code> se range dans <code>.claude-plugin/</code> ; les autres dossiers sont à la racine du plugin. Le manifeste :</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;outils-sinistres&quot;,
+  &quot;description&quot;: &quot;Boîte à outils de l'équipe portail sinistres : stories, scénarios, relectures, wiki&quot;,
+  &quot;version&quot;: &quot;1.4.0&quot;,
+  &quot;author&quot;: { &quot;name&quot;: &quot;Équipe portail sinistres&quot; }
+}
+</code></pre>
+<p>Le nom devient le préfixe de toutes les commandes ; il ne contient pas d'espace. La version, quand elle est indiquée, fixe ce que reçoivent les postes : tant qu'elle ne change pas, ils gardent la même.</p>
+<h3>Désigner ses propres fichiers</h3>
+<p>Dans les hooks et les serveurs MCP d'un plugin, <code>${CLAUDE_PLUGIN_ROOT}</code> désigne le dossier où le plugin est installé, et <code>${CLAUDE_PLUGIN_DATA}</code> un dossier de données qui survit aux mises à jour. Le hook de formatage s'écrit donc ainsi, dans <code>hooks/hooks.json</code> :</p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;PostToolUse&quot;: [
+      {
+        &quot;matcher&quot;: &quot;Edit|Write&quot;,
+        &quot;hooks&quot;: [
+          {
+            &quot;type&quot;: &quot;command&quot;,
+            &quot;command&quot;: &quot;${CLAUDE_PLUGIN_ROOT}/scripts/formater.sh&quot;,
+            &quot;args&quot;: [],
+            &quot;timeout&quot;: 30
+          }
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<p>Pensez aussi aux références entre pièces : dans un plugin, la skill de préparation des relectures appelle le sous-agent sous son nom préfixé, <code>outils-sinistres:relecteur</code>. Et un sous-agent livré par un plugin ne peut pas déclarer ses propres hooks, serveurs MCP ou mode de permission : ces champs sont ignorés, par sécurité.</p>
+<h3>Essayer sans publier</h3>
+<pre><code class="language-bash">claude plugin validate ./outils-sinistres
+claude --plugin-dir ./outils-sinistres
+</code></pre>
+<p>La première commande vérifie le manifeste et l'en-tête de chaque skill et sous-agent ; elle se termine par <em>Validation passed</em>. La seconde charge le plugin pour une session seulement, sans rien installer. Après une modification, <code>/reload-plugins</code> la prend en compte sans redémarrer ; l'onglet <em>Errors</em> de <code>/plugin</code> dit ce qui n'a pas pu se charger.</p>
+<p>Si les pièces vivaient déjà dans le <code>.claude/</code> d'un dépôt, retirez les originaux une fois le plugin vérifié. Les skills ne se gêneraient pas, grâce au préfixe, mais un hook présent aux deux endroits s'exécuterait deux fois.</p>
+<h3>Vérifier qu'il change vraiment le comportement</h3>
+<p>Un plugin qui se charge sans erreur peut ne rien changer à ce que fait l'agent. La commande <code>claude plugin eval</code> rejoue une série de cas, avec et sans le plugin, et mesure la différence : la skill de préparation des relectures produit-elle bien une fiche en quatre rubriques, et seulement quand on la lance ? C'est le test qui donne le droit de publier une nouvelle version.</p>
+<h2>Une marketplace privée d'entreprise</h2>
+<p>Une marketplace n'est pas une boutique hébergée : c'est un dépôt Git, ici sur le Git interne de la maison, avec un fichier qui liste les plugins. Ceux qui y ont accès le déclarent une fois et installent ensuite par nom.</p>
+<blockquote>
+<p><em>Schéma (version numérique) : du dépôt aux postes · un même catalogue sert les deux chemins.</em></p>
+</blockquote>
+<h3>Le fichier du catalogue</h3>
+<p>Dans <code>catalogue-agents/.claude-plugin/marketplace.json</code> :</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;catalogue-agents&quot;,
+  &quot;description&quot;: &quot;Plugins approuvés pour les agents de développement de la maison&quot;,
+  &quot;owner&quot;: { &quot;name&quot;: &quot;DSI — outillage de développement&quot; },
+  &quot;plugins&quot;: [
+    {
+      &quot;name&quot;: &quot;socle-agents&quot;,
+      &quot;source&quot;: &quot;./plugins/socle-agents&quot;,
+      &quot;description&quot;: &quot;Garde-fous communs à toutes les équipes&quot;
+    },
+    {
+      &quot;name&quot;: &quot;outils-sinistres&quot;,
+      &quot;source&quot;: {
+        &quot;source&quot;: &quot;url&quot;,
+        &quot;url&quot;: &quot;https://git.mutuelle.intra/sinistres/outils-sinistres.git&quot;,
+        &quot;ref&quot;: &quot;v1.4.0&quot;
+      },
+      &quot;description&quot;: &quot;Boîte à outils de l'équipe portail sinistres&quot;
+    }
+  ]
+}
+</code></pre>
+<p>Chaque entrée dit où trouver un plugin : un chemin relatif pour un plugin rangé dans le dépôt du catalogue lui-même, ou un dépôt à part, éventuellement figé sur une étiquette ou un commit. Deux règles évitent la plupart des pannes : écrire les chemins relatifs depuis la racine du catalogue, et donner à l'entrée exactement le même nom que dans le <code>plugin.json</code> du plugin. <code>claude plugin validate ./catalogue-agents</code> vérifie le fichier avant chaque publication.</p>
+<h3>Proposer la boîte à outils à une équipe</h3>
+<p>Pour qu'une équipe reçoive ses outils sans que chacun les cherche, le <code>.claude/settings.json</code> de son dépôt déclare le catalogue et active le plugin :</p>
+<pre><code class="language-json">{
+  &quot;extraKnownMarketplaces&quot;: {
+    &quot;catalogue-agents&quot;: {
+      &quot;source&quot;: { &quot;source&quot;: &quot;git&quot;, &quot;url&quot;: &quot;https://git.mutuelle.intra/outils/catalogue-agents.git&quot; }
+    }
+  },
+  &quot;enabledPlugins&quot;: {
+    &quot;outils-sinistres@catalogue-agents&quot;: true
+  }
+}
+</code></pre>
+<p>Le catalogue n'est déclaré qu'une fois le dossier approuvé par chaque développeur. Chacun reste libre de désactiver le plugin pour lui-même : c'est un outil proposé, pas imposé.</p>
+<h3>Publier une nouvelle version</h3>
+<p>Le chapitre M5 a posé la règle pour une skill : une propriétaire, une porte, une version. Elle s'étend au plugin entier.</p>
+<ol>
+<li><strong>Une demande de fusion</strong> sur le dépôt du plugin, approuvée par la propriétaire de chaque pièce touchée ; un fichier <code>CODEOWNERS</code> rend cette approbation obligatoire.</li>
+<li><strong>Les évaluations</strong> passent : <code>claude plugin eval</code> sur les cas de référence.</li>
+<li><strong>La version monte</strong> dans <code>plugin.json</code>, et une note dit ce qui change.</li>
+<li><strong>Le catalogue pointe</strong> vers la nouvelle étiquette.</li>
+<li><strong>Les postes la reçoivent</strong> au démarrage suivant, si la mise à jour automatique est active pour ce catalogue, ou avec <code>claude plugin marketplace update</code>.</li>
+</ol>
+<p>Pour faire essayer une version à quelques équipes avant toutes les autres, on tient deux catalogues, l'un stable et l'autre en avance, qui pointent vers des étiquettes différentes des mêmes plugins ; chaque groupe de postes reçoit le sien par ses paramètres gérés.</p>
+<h2>Imposer un socle</h2>
+<p>Au chapitre 16, la règle est fixée avant d'écrire une ligne : le socle tiendra en deux pages. Dans les faits, ce « paquet unique » se compose de trois objets que la DSI livre ensemble, parce qu'un plugin ne peut pas tout porter.</p>
+<table>
+<thead>
+<tr>
+<th>Pièce du socle</th>
+<th>Où elle vit</th>
+<th>Chapitre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Les consignes communes : données synthétiques, conduite face à un secret</td>
+<td>Le CLAUDE.md géré</td>
+<td>M3</td>
+</tr>
+<tr>
+<td>Les verrous et les contrôles qui ne doivent jamais céder : interdictions, mode manuel, bac à sable, serveurs MCP approuvés, hook des journaux</td>
+<td>Les paramètres gérés</td>
+<td>M4, M7</td>
+</tr>
+<tr>
+<td>Les outils communs : le journal des actions, la skill des trois questions de sécurité</td>
+<td>Le plugin <code>socle-agents</code></td>
+<td>M5, M6</td>
+</tr>
+</tbody>
+</table>
+<h3>Les clés à ajouter aux paramètres gérés</h3>
+<p>Ce bloc s'ajoute au <code>managed-settings.json</code> du chapitre M4 :</p>
+<pre><code class="language-json">{
+  &quot;extraKnownMarketplaces&quot;: {
+    &quot;catalogue-agents&quot;: {
+      &quot;source&quot;: { &quot;source&quot;: &quot;git&quot;, &quot;url&quot;: &quot;https://git.mutuelle.intra/outils/catalogue-agents.git&quot; },
+      &quot;autoUpdate&quot;: true
+    }
+  },
+  &quot;enabledPlugins&quot;: {
+    &quot;socle-agents@catalogue-agents&quot;: true
+  },
+  &quot;strictKnownMarketplaces&quot;: [
+    { &quot;source&quot;: &quot;hostPattern&quot;, &quot;hostPattern&quot;: &quot;^git\\.mutuelle\\.intra$&quot; }
+  ],
+  &quot;disableSideloadFlags&quot;: true
+}
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Clé</th>
+<th>Effet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>extraKnownMarketplaces</code></td>
+<td>Déclare le catalogue interne sur chaque poste, sans action de personne.</td>
+</tr>
+<tr>
+<td><code>enabledPlugins</code></td>
+<td>Installe le socle au démarrage de la session suivante. Le désactiver dans ses propres paramètres n'empêche pas son chargement : les paramètres gérés l'emportent.</td>
+</tr>
+<tr>
+<td><code>strictKnownMarketplaces</code></td>
+<td>N'accepte que les catalogues hébergés sur le Git interne. Le catalogue officiel de l'éditeur, comme tout autre, est refusé.</td>
+</tr>
+<tr>
+<td><code>disableSideloadFlags</code></td>
+<td>Refuse le chargement d'un plugin depuis un dossier ou une adresse avec <code>--plugin-dir</code> ou <code>--plugin-url</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Un plugin activé d'office ne se désinstalle pas, mais un développeur pourrait encore couper tous ses hooks avec <code>disableAllHooks</code> dans ses propres paramètres. Les contrôles qui doivent tenir à coup sûr, comme celui des journaux, restent donc déclarés directement dans les paramètres gérés, comme au chapitre M6 : là, aucun réglage du poste ne les désactive. Le plugin porte le reste. Inutile pour autant de poser <code>allowManagedHooksOnly</code>, qui couperait en plus les hooks des équipes, dont leur formateur : le socle impose ses contrôles sans interdire ceux des équipes.</p>
+<p>Deux effets de bord sont à connaître. La liste des catalogues autorisés bloque aussi les plugins rangés dans les dossiers de skills personnels ; on les réautorise en ajoutant l'entrée <code>{ "source": "skills-dir" }</code>. Et <code>disableSideloadFlags</code> gêne les auteurs de plugins, qui essaient leurs versions avec <code>--plugin-dir</code> : ils travaillent alors avec le catalogue en avance, ou sur un poste dédié à l'outillage, qui reçoit d'autres paramètres gérés.</p>
+<h3>Vérifier sur un poste</h3>
+<table>
+<thead>
+<tr>
+<th>Essai</th>
+<th>Résultat attendu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/plugin</code>, onglet <em>Installed</em></td>
+<td>Le socle est présent, signalé comme imposé.</td>
+</tr>
+<tr>
+<td><code>claude plugin disable socle-agents</code> puis nouvelle session</td>
+<td>Le socle se charge quand même.</td>
+</tr>
+<tr>
+<td><code>/plugin marketplace add https://github.com/exemple/catalogue</code></td>
+<td>Refus, avec le message <em>is blocked by enterprise policy</em>.</td>
+</tr>
+<tr>
+<td><code>claude --plugin-dir ./essai</code></td>
+<td>L'outil refuse de démarrer et nomme <code>disableSideloadFlags</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3>Une équipe qui arrive</h3>
+<p>Au chapitre 16, la directrice générale veut qu'une équipe du prestataire Horizon travaille avec le socle dès janvier, sur le compte AWS de la maison et avec les mêmes règles que le pilote. C'est tout l'intérêt du dispositif : rien à expliquer, rien à installer à la main. L'équipe reçoit ses postes avec les paramètres gérés, ouvre l'outil, et le socle est là, comme on reçoit son badge le premier jour. Le chapitre M12 détaille ce qu'une nouvelle équipe reçoit, et ce qu'elle apprend encore à faire seule.</p>
+<h2>Sécurité et gouvernance</h2>
+<p>Installer un plugin, c'est accepter d'exécuter son code sur le poste, avec les droits de la personne : ses hooks, ses serveurs MCP locaux, et pour certains plugins une commande qui fabrique le plugin lui-même au moment de l'installation. Un catalogue approuvé est donc une liste de logiciels approuvés, et se gère comme telle.</p>
+<h3>Ce qu'on vérifie avant d'accepter un plugin</h3>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Où regarder</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Quels hooks lance-t-il, et sur quels événements ?</td>
+<td><code>hooks/hooks.json</code> et les scripts qu'il appelle</td>
+</tr>
+<tr>
+<td>Quels serveurs MCP démarre-t-il, avec quelle commande ?</td>
+<td><code>.mcp.json</code> ; une commande <code>npx -y</code> sans version figée est un refus</td>
+</tr>
+<tr>
+<td>Que disent ses skills et ses sous-agents ?</td>
+<td>Les fichiers Markdown : ils deviennent des consignes pour l'agent</td>
+</tr>
+<tr>
+<td>D'où vient-il, et qui le maintient ?</td>
+<td>Le dépôt source, son historique, son propriétaire</td>
+</tr>
+<tr>
+<td>Combien coûte-t-il en contexte ?</td>
+<td>Le nombre et la longueur des descriptions de skills et de sous-agents</td>
+</tr>
+</tbody>
+</table>
+<h3>Les réglages qui limitent le risque</h3>
+<ul>
+<li><strong><code>strictKnownMarketplaces</code></strong> : seuls les catalogues internes sont acceptés, ce qui place chaque plugin derrière une relecture de la DSI.</li>
+<li><strong>Des versions figées</strong> : le catalogue pointe vers une étiquette ou un commit, jamais vers une branche qui bouge.</li>
+<li><strong><code>disableCommandPluginSources</code></strong> : refuse les plugins qui se fabriquent en exécutant une commande sur le poste.</li>
+<li><strong>Les mods</strong> : un plugin qui embarque du JavaScript exécuté dans l'outil lui-même peut, sur certains postes, approuver une action qu'un hook aurait refusée. La clé <code>allowManagedModsOnly</code> n'autorise que ceux de l'organisation ; dans la configuration de référence, aucun n'est accepté.</li>
+<li><strong>La télémétrie</strong> : les événements <code>plugin_installed</code> et <code>plugin_loaded</code> disent quels plugins tournent sur quels postes (chapitre M14).</li>
+</ul>
+<h3>Qui décide de quoi</h3>
+<p>Au chapitre 16, la commission sécurité désigne une responsable du socle, Mathilde, et un référent technique, Julien. Le partage vaut pour tout le catalogue.</p>
+<table>
+<thead>
+<tr>
+<th>Rôle</th>
+<th>Responsabilité</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Responsable du socle</td>
+<td>Ce qui entre dans le socle, et ce qui en sort ; la règle des deux pages</td>
+</tr>
+<tr>
+<td>Référent technique</td>
+<td>Le fonctionnement des pièces, les tests, les versions</td>
+</tr>
+<tr>
+<td>Propriétaire d'une skill</td>
+<td>Le contenu de sa skill, et l'approbation de ses modifications (chapitre M5)</td>
+</tr>
+<tr>
+<td>DSI, outillage</td>
+<td>Le dépôt du catalogue, les paramètres gérés, la diffusion sur les postes</td>
+</tr>
+</tbody>
+</table>
+<h3>Tenir le catalogue propre</h3>
+<p>Un plugin activé coûte du contexte à chaque message, même inutilisé. L'onglet <em>Installed</em> de <code>/plugin</code> signale ceux qui n'ont pas servi récemment, et le bilan <code>/doctor</code> compare les skills, serveurs et plugins installés à ce qu'ils coûtent en contexte. Une revue trimestrielle retire du catalogue ce que personne n'appelle, et vérifie que le socle tient toujours en deux pages. Au chapitre 16, Julien y tenait plus que tout : un socle qui grossit finit par être contourné.</p>
+<h2>Dans le roman</h2>
+<table>
+<thead>
+<tr>
+<th>Chapitre</th>
+<th>Scène</th>
+<th>Ce qu'elle illustre ici</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16 — La sécurité au quotidien</td>
+<td>Mathilde trouve les garde-fous de l'équipe éparpillés en cinq endroits ; Sofiane propose de les réunir dans un paquet unique, publié dans un catalogue interne et imposé par les paramètres gérés.</td>
+<td>Le socle : un plugin, des paramètres gérés, un CLAUDE.md d'entreprise, livrés ensemble.</td>
+</tr>
+<tr>
+<td>16 — La sécurité au quotidien</td>
+<td>Avant d'écrire une ligne, Julien impose que le socle tienne en deux pages.</td>
+<td>Un plugin activé coûte à chaque message ; un socle qui grossit est contourné.</td>
+</tr>
+<tr>
+<td>16 — La sécurité au quotidien</td>
+<td>La commission valide le socle pour toute la maison, y compris l'équipe d'Horizon qui démarre en janvier ; Mathilde en est la responsable, Julien le référent technique.</td>
+<td>Imposer sans rien installer à la main ; désigner qui décide.</td>
+</tr>
+<tr>
+<td>18 — Les rôles bougent</td>
+<td>Sofiane empaquette quatre savoir-faire en skills ; Nadia corrige la sienne et en devient propriétaire.</td>
+<td>La boîte à outils d'équipe, proposée par les paramètres du projet, versionnée et relue.</td>
+</tr>
+</tbody>
+</table>
+<p>Pour aller plus loin : M3 (CLAUDE.md d'entreprise), M4 (paramètres gérés), M5 (skills et sous-agents), M6 (hooks), M7 (serveurs MCP), M12 (partager en équipe : ce qu'une nouvelle équipe reçoit le premier jour).</p>
+<h2>Sources</h2>
+<p>Consultées le 21 octobre 2026.</p>
+<ul>
+<li><a href="https://code.claude.com/docs/en/plugins/overview">Vue d'ensemble des plugins</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/create">Créer un plugin</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/create-marketplace">Créer une marketplace</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/org">Gérer les plugins pour une organisation</a></li>
+<li><a href="https://code.claude.com/docs/en/plugins/security">Sécurité et confiance des plugins</a></li>
+<li><a href="https://code.claude.com/docs/en/plugin-evals">Tester un plugin avec des évaluations</a></li>
+</ul></article><nav class="pager"><span><a href="f-m07-mcp.html">← MCP</a></span><span><a href="f-m09-installer-et-configurer-bmad.html">Installer et configurer BMAD →</a></span></nav></main>
+<script>
+(function () {
+  var sel = document.getElementById('ver'); if (!sel) return;
+  var root = sel.dataset.root, current = sel.dataset.current;
+  fetch(root + 'versions.json').then(function (r) { return r.json(); }).then(function (d) {
+    var opts = [['latest', 'Dernière version (' + d.latest + ')']].concat(d.versions.map(function (v) { return [v, v]; }));
+    sel.innerHTML = opts.map(function (o) {
+      return '<option value="' + o[0] + '"' + (o[0] === current ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    sel.hidden = false;
+    sel.onchange = function () {
+      var file = location.pathname.split('/').pop() || 'index.html';
+      location.href = root + (sel.value === 'latest' ? '' : sel.value + '/') + file;
+    };
+  }).catch(function () {});
+})();
+</script></body></html>
