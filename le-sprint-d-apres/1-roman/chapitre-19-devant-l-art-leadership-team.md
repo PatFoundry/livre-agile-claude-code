@@ -1,0 +1,201 @@
+# Chapitre 19 — Devant l'ART Leadership Team
+
+## Jeudi, 14 heures
+
+Le train Indemnisation occupait tout le quatrième étage, et cela se voyait dès la sortie de l'ascenseur. Sur le mur du couloir, un grand panneau montrait le plan de l'incrément en cours : huit colonnes, une par équipe, des fiches de couleur pour les fonctionnalités, et des fils de laine rouge tendus d'une colonne à l'autre pour marquer les dépendances. Il y en avait beaucoup. Certains fils traversaient tout le panneau.
+
+Je me suis arrêté devant un moment. Dans notre salle Lys, il n'y avait jamais eu qu'une seule colonne.
+
+La salle de réunion du train s'appelait l'Aa, comme la rivière de Saint-Omer. Ils étaient six autour de la table. Isabelle Delattre, la Release Train Engineer, au bout, avec un ordinateur et un minuteur posé à côté. Sandrine Debruyne, la Product Manager du train, qui décidait de l'ordre dans lequel les fonctionnalités arrivaient aux équipes. Marc Vanhoutte, l'architecte système, que j'avais croisé à la commission sécurité la veille. Philippe Wattebled, pour qui le train travaillait, et qui en était le premier Business Owner. Claire, en sponsor de la phase 1. Et Laurent Dewitte, invité au titre d'Horizon, parce que la phase 2 toucherait le cœur de gestion.
+
+J'étais venu avec Julien et Nadia. J'avais hésité à venir seul. Mais on allait parler de la façon dont l'équipe travaillerait, et je ne voulais pas qu'on en parle sans elle.
+
+Isabelle a lancé son minuteur et elle a posé le cadre en trois phrases.
+
+— Nous ne sommes pas là pour juger la phase 1. Le comité l'a fait. Nous sommes là pour décider si cette équipe peut rejoindre le train au prochain incrément, en janvier, et à quelles conditions. Vous avez dix minutes pour le bilan, puis nous posons nos questions.
+
+J'ai présenté la page du comité, mise à jour. Seize stories au-dessus de la ligne rouge, quinze livrées, la dernière pour le lendemain. L'entrée en homologation le lundi suivant, pour un mois. Le socle de sécurité validé la veille par la commission. Le registre de la dette, vingt-trois lignes, dont quatre déjà soldées. Le wiki du système des contrats, cent soixante pages en quatre jours, et une contradiction vieille de quinze ans que personne n'avait jamais vue. Les dix-neuf stories sous la ligne rouge, que Philippe Wattebled avait lui-même annoncées à ses équipes.
+
+J'ai fini en neuf minutes. Isabelle a arrêté son minuteur et l'a regardé, sans commentaire. Je crois que c'était un compliment.
+
+Puis Sandrine Debruyne a ouvert son carnet, et elle a commencé par l'argent.
+
+## Jeudi, 14 h 30
+
+— Combien vous a coûté l'agent, sur la phase 1 ? a demandé Sandrine Debruyne. Et combien vous coûte une story ?
+
+J'avais préparé les chiffres avec Sylvie, à partir de la facture du compte AWS et des tickets Jira. La consommation de l'agent sur Bedrock représentait un peu moins de deux pour cent du budget de la phase 1. Par story livrée, cela allait de trois à quinze euros selon les mois, le pire étant celui des quatre agents en parallèle.
+
+— C'est moins que je ne le pensais, a dit Sandrine.
+
+— C'est surtout beaucoup moins que l'heure de relecture que chaque story demande, ai-je répondu. Si vous voulez suivre un coût, suivez celui-là. L'agent ne coûte presque rien. Le temps des gens qui vérifient ce qu'il produit coûte tout.
+
+Elle l'a noté, et elle a souri pour la première fois.
+
+Marc Vanhoutte a pris le relais, et il est allé droit au Mercredi noir.
+
+— Vous avez eu une fuite de données avec une équipe de cinq. Le train en compte huit, et en comptera dix au printemps. Qu'est-ce qui m'assure que cela ne se reproduira pas dix fois ?
+
+Julien a répondu. Il n'a pas parlé de l'incident. Il a parlé du socle : les paramètres gérés que personne ne peut désactiver, le contrôle automatique dans l'outil, le test dans la chaîne d'intégration qui bloque toute fusion fautive, quel qu'en soit l'auteur. Il a ajouté une phrase qu'il avait préparée.
+
+— Quatre des six causes du Mercredi noir existaient déjà dans tous vos environnements, avant notre arrivée. Le socle ne protège pas seulement des agents. Il protège de nous.
+
+Vanhoutte a hoché la tête. Il avait lu la note de Bertrand.
+
+Philippe Wattebled a posé la troisième question, celle que je redoutais le plus parce qu'elle était la plus juste.
+
+— Votre réussite tient à quelques personnes. Nadia, que j'ai dû libérer de ses dossiers. Julien, qui a craqué une fois. Gérard, qui part en avril. Que se passe-t-il si l'un d'eux tombe malade pendant la phase 2 ?
+
+J'ai laissé Nadia répondre, et elle n'a pas cherché à se rendre irremplaçable.
+
+— Il se passe ce qui s'est passé en octobre, quand Julien s'est arrêté : on ralentit. Mais moins qu'avant. Ma façon de préparer une story est écrite, versionnée, et une autre gestionnaire peut s'en servir dès demain. Ce que sait Gérard est en train d'entrer dans le wiki, et il le relit. Et la relecture du rouge ne repose plus sur une seule personne.
+
+J'ai alors présenté la composition que nous avions construite le mardi, avec sa quatrième colonne. Huit personnes. Une gestionnaire spécialiste des autres sinistres. Une deuxième testeuse. Un relecteur qui connaît le cœur de gestion. Et pas un développeur de plus.
+
+Sandrine Debruyne a relevé la tête.
+
+— Isabelle vous a proposé cinq développeurs. Vous les refusez ?
+
+— Le code représente trente-cinq minutes sur les cinq heures que demande une story, ai-je dit. Si nous doublons les développeurs, nous doublons surtout la file devant les relecteurs. Ce qui nous manquera pour tous les sinistres, ce n'est pas du code. C'est quelqu'un qui sait ce qui est juste pour un incendie, quelqu'un pour le vérifier, et quelqu'un pour relire ce qui touche au cœur.
+
+Philippe Wattebled a souri.
+
+— La gestionnaire, je sais où la trouver. Elle traite les incendies depuis quinze ans et elle se plaint qu'on ne l'écoute jamais. Ce sera une excellente recrue.
+
+Le relecteur, c'est Dewitte qui l'a proposé, sans qu'on le lui demande.
+
+— Franck a deux développeurs qui relèvent le COBOL du système des contrats depuis dix-huit mois. Je vous en prête un, à mi-temps. Il apprendra votre façon de travailler. Et il me la rapportera.
+
+Il l'avait dit avec un demi-sourire, et personne ne s'est trompé sur le sens de la dernière phrase. Ce n'était pas une menace. C'était un marché, et il était équitable.
+
+Sandrine Debruyne s'est tournée vers Claire.
+
+— Tous les sinistres pour l'été, avec huit personnes, c'est tenable ?
+
+Je connaissais la réponse que Claire aurait faite trois mois plus tôt. Je l'ai regardée la chercher, la trouver, et la poser.
+
+— Je ne sais pas, a-t-elle dit. L'équipe vous le dira après avoir planifié son premier incrément avec vous. Pas avant.
+
+## Jeudi, 15 h 15
+
+Jusque-là, nous avions répondu à des questions sur le passé. Les trois suivantes portaient sur l'avenir, et elles ont changé la réunion.
+
+Sandrine Debruyne a ouvert la première.
+
+— Dans le train, chaque fonctionnalité part de mon backlog, avec une hypothèse de bénéfice et des critères d'acceptation. Elle descend ensuite dans les équipes, qui la découpent en stories. Quand l'autorité de contrôle ou l'audit interne me demande où une exigence est réalisée, et où elle est testée, je dois pouvoir répondre. Chez vous, une exigence, elle vit où ?
+
+J'ai voulu répondre honnêtement, et en le faisant je me suis rendu compte de ce que j'allais dire.
+
+— À quatre endroits. Dans la story, sur Jira. Dans le dossier des règles de gestion, dans le dépôt, quand c'est une règle. Dans les scénarios d'acceptation d'Émilie, toujours dans le dépôt. Et depuis cette semaine, dans le wiki, quand elle touche au système des contrats.
+
+— Et ces quatre endroits sont reliés entre eux ?
+
+— Par des liens, quand quelqu'un pense à les mettre.
+
+Nadia a ajouté, avec une franchise qui m'a surpris :
+
+— Pour le dégât des eaux et le vol, ça tient, parce que tout est dans ma tête et dans celle d'Émilie. Pour six sinistres et deux gestionnaires, ça ne tiendra pas.
+
+Marc Vanhoutte a posé la deuxième question, et c'était la sienne depuis le début, je crois.
+
+— Dans un train, le problème n'est pas d'écrire du code vite. C'est que plusieurs équipes écrivent le même système sans se contredire. La phase 2 touchera l'équipe des règlements, celle des recours, et le cœur d'Horizon. Chacune aura ses agents. Chaque agent lira les stories de son équipe, et seulement celles-là. Qu'est-ce qui garantit qu'ils comprennent tous la même chose par « date d'effet d'un avenant » ?
+
+Julien a eu un rire bref.
+
+— Rien. Nous venons de découvrir ce matin que deux programmes de la maison ne la comprennent pas de la même façon depuis 2011. Sans agent.
+
+Philippe Wattebled a posé la troisième, pour le compte de quelqu'un d'autre.
+
+— La responsable de la gestion des risques m'a demandé de vous poser une question. Pour DORA et pour l'autorité de contrôle, elle doit pouvoir montrer qu'une règle de gestion décidée par mes équipes est bien celle qui est appliquée en production. Pas la story qui en parle. La règle. Avec sa date, sa source, et ceux qui l'ont validée.
+
+Il y a eu un silence. C'est Marc Vanhoutte qui l'a rompu, en me regardant.
+
+— Où est la spécification ? Pas la story. La spécification. Celle qu'une autre équipe, ou un auditeur, peut lire pour savoir ce que fait votre partie du système, sans vous téléphoner.
+
+J'ai réfléchi à voix haute, parce que c'était la seule façon honnête de répondre.
+
+— Elle existe en morceaux. Le dossier des règles, avec la franchise, la date d'effet des avenants, chaque règle sourcée et validée. Les scénarios d'Émilie, écrits avant le code et que l'agent n'a pas le droit de modifier. Le wiki, pour ce que le système existant fait et pourquoi. Et le format d'échange avec Horizon.
+
+— Donc vous avez déjà commencé à écrire des spécifications avant le code, a dit Vanhoutte. Vous ne l'appelez simplement pas comme ça. Et vous ne les avez jamais rassemblées.
+
+C'est Laurent Dewitte qui a parlé ensuite, et personne ne s'y attendait, moi le premier.
+
+— Je peux dire une chose ? Le format d'échange entre le portail et le cœur, celui que Julien et Franck ont écrit il y a huit jours, c'est la seule pièce de ce projet que mes équipes ont pu utiliser sans poser une seule question. Parce qu'il a été écrit avant le code, versionné, et signé des deux côtés. Si toute la phase 2 ressemblait à ce document, je n'aurais plus d'objection.
+
+Il a laissé passer un temps.
+
+— Ce n'est pas très éloigné de ce que fait Horizon, d'ailleurs. Nous écrivons tout avant. La différence, c'est que nos spécifications mettent six mois à s'écrire, et que personne ne les relit après le code.
+
+Vanhoutte s'est tourné vers moi.
+
+— Il existe des méthodes pour ça, avec des agents. Partir d'une spécification versionnée, faire dériver le code de la spécification, corriger la spécification quand le code est faux. On appelle ça le développement dirigé par les spécifications. Vous connaissez ?
+
+— Un membre de l'équipe l'a proposé la semaine dernière, ai-je dit. Je l'ai refusé. On était dans le dernier sprint.
+
+— Vous avez eu raison, a dit Isabelle Delattre, qui n'avait presque rien dit jusque-là. Et vous ne le serez plus en janvier.
+
+Elle a regardé chacun autour de la table, puis elle a formulé la décision, comme une RTE formule toujours les décisions : avec des conditions et une date.
+
+— L'équipe rejoint le train au prochain incrément. Pour la phase 2, nous testons le développement dirigé par les spécifications. Sur cette équipe seulement, pas sur tout le train. Le cadre, c'est nous qui le fixons : chaque fonctionnalité du backlog de Sandrine renvoie à une spécification versionnée dans le dépôt ; chaque règle de gestion a sa source et ses validateurs ; les formats d'échange avec les autres équipes sont des contrats signés des deux côtés. La méthode pour y arriver, c'est l'équipe qui la choisit. Et nous faisons le point au premier Inspect & Adapt, à la fin de l'incrément. Si ça ne marche pas, nous arrêtons.
+
+— Et si ça marche ? a demandé Sandrine.
+
+— Alors nous verrons pour les autres équipes. Une à la fois.
+
+## Jeudi, 18 heures
+
+Nous sommes redescendus au septième par l'escalier, tous les trois, sans rien dire jusqu'au palier. Là, Julien s'est arrêté.
+
+— Ils nous demandent d'écrire avant, a-t-il dit. On le fait déjà à moitié. On ne s'en rendait pas compte.
+
+— Et on le fait mal, a dit Nadia. À quatre endroits.
+
+L'équipe nous attendait dans la salle Lys. Sofiane faisait semblant de travailler. Émilie, elle, travaillait vraiment : elle relisait les scénarios de la dernière story du sprint, celle qui devait être terminée le lendemain.
+
+Je leur ai raconté la réunion dans l'ordre. L'argent, le Mercredi noir, la dépendance aux personnes, la composition acceptée, la gestionnaire des incendies, le développeur d'Horizon à mi-temps. Puis les trois dernières questions, et la décision d'Isabelle Delattre.
+
+Quand j'ai dit « développement dirigé par les spécifications », Sofiane n'a rien dit. Il a seulement tourné la tête vers le mur, vers le parking des bonnes idées, et vers la première ligne, celle qu'il avait écrite huit jours plus tôt, en rentrant d'une démonstration que j'avais refusée.
+
+— Ce n'est pas toi qui l'as imposée, a-t-il dit enfin.
+
+— Non. C'est le train qui l'a demandée. Parce qu'il en a besoin pour la traçabilité, pour faire travailler plusieurs équipes ensemble, et pour les auditeurs. Pas parce que c'est à la mode.
+
+— C'est mieux, a dit Sofiane. C'est beaucoup mieux, en fait.
+
+Il avait raison, et il l'avait compris tout seul. Une bonne idée qui arrive parce que quelqu'un en a besoin vaut dix bonnes idées qui arrivent parce que quelqu'un les trouve belles. La première, on la défend ensemble quand elle coûte. La seconde, on l'abandonne à la première difficulté.
+
+— On commence quand ? a demandé Émilie.
+
+— Demain, à la rétrospective. Le train fixe le cadre ; c'est à nous de choisir la méthode, et de décider comment l'essayer. On en parlera tous ensemble, avec le parking, le registre et tout ce qu'on a vécu depuis trois mois. Pas ce soir. Ce soir, il reste une story à finir pour demain midi.
+
+Sofiane a ouvert la bouche, puis il l'a refermée. Il avait appris ça aussi.
+
+Gérard est passé à ce moment-là, son manteau sur le bras, pour déposer une demande rouge relue. Il a entendu le mot « spécifications » en entrant.
+
+— De mon temps, a-t-il dit, on appelait ça un cahier des charges. Il faisait trois cents pages, on mettait six mois à l'écrire, et personne ne le relisait une fois le code commencé.
+
+— Cette fois, a dit Julien, c'est l'agent qui le relira. À chaque story. Et il n'aura pas le droit de coder ce qui n'y est pas.
+
+Gérard a réfléchi un instant, son manteau toujours sur le bras.
+
+— Alors ça change tout, a-t-il dit. À condition que quelqu'un le tienne à jour.
+
+Il est parti. Personne n'a relevé, mais je crois que nous avions tous entendu la vraie question.
+
+Quand ils sont rentrés chez eux, je suis resté devant le parking des bonnes idées. Cinq lignes, en attente de leur tour depuis huit jours. En face de celle de Sofiane, *Essayer une méthode dirigée par les spécifications, comme BMAD*, j'ai ajouté une flèche et quatre mots : *rétrospective, vendredi, 14 heures*. J'ai fait la même chose en face de celle de Nadia, *Écrire les règles de gestion avant les stories*. Puis, après une hésitation, en face de celle d'Émilie, sur les données de test artificielles.
+
+Trois idées sur cinq allaient sortir du parking le lendemain. Elles en sortiraient au bon moment, par la bonne porte, et c'est l'équipe qui leur dirait comment.
+
+## Le carnet de Thomas
+
+**Ce qui s'est passé.** Pour rejoindre le train SAFe Indemnisation au prochain incrément, l'équipe a présenté son bilan à l'équipe de direction du train : la Release Train Engineer, la Product Manager, l'architecte système, le premier Business Owner, la sponsor et le directeur d'Horizon. Les questions sur le passé (coût de l'agent, Mercredi noir, dépendance aux personnes) ont trouvé des réponses chiffrées. La composition sans développeur supplémentaire a été acceptée, et Horizon a prêté un relecteur. Puis trois questions sur l'avenir ont changé la réunion : où vit une exigence ? comment plusieurs équipes et leurs agents comprennent-ils la même chose ? comment prouver qu'une règle décidée par le métier est bien celle qui s'applique ? L'équipe a constaté qu'elle écrivait déjà des spécifications avant le code, mais en morceaux éparpillés. Le train a décidé de tester le développement dirigé par les spécifications sur la phase 2, en fixant le cadre et en laissant à l'équipe le choix de la méthode.
+
+**La leçon.** Un train n'attend pas d'une équipe qu'elle code vite. Il attend qu'elle tienne ses engagements, qu'elle rende ses exigences traçables, et qu'elle ne contredise pas les autres équipes. Quand plusieurs équipes travaillent avec des agents, chaque agent ne connaît que ce qu'on lui donne à lire : la spécification versionnée, partagée et signée devient le contrat entre les équipes, et la seule manière de garantir qu'elles comprennent la même chose. Mesurez le coût du temps humain de vérification plutôt que celui de l'agent. Enfin, une méthode adoptée parce qu'un besoin l'exige résiste mieux qu'une méthode adoptée parce qu'elle séduit : laissez le cadre à ceux qui ont le besoin, et la méthode à ceux qui feront le travail.
+
+**Trois questions à poser à votre équipe**
+
+1. Si un auditeur nous demande où une exigence est réalisée et où elle est testée, en combien d'endroits devons-nous chercher ?
+2. Nos agents et ceux des équipes voisines lisent-ils la même définition des notions qu'ils partagent ?
+3. Quels échanges avec d'autres équipes sont écrits, versionnés et signés des deux côtés ?
+
+**Pour aller plus loin.** Manuel, chapitres M9 (installer et configurer BMAD : choisir son niveau), M10 (GitHub et Jira : relier les fonctionnalités du train aux spécifications versionnées) et M13 (bonnes pratiques : une équipe augmentée dans un train SAFe).

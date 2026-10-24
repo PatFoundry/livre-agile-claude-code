@@ -1,0 +1,191 @@
+# Chapitre 23 — Un PRD que personne n'avait écrit
+
+## Lundi 12 janvier, 14 heures
+
+Le lundi, la colonne de gauche du tableau ne contenait plus qu'une ligne : *Mise en production, mardi 13.* Julien et Sofiane y étaient de garde, avec Didier Vermeersch. Tous les autres étaient à droite, dans la salle Scarpe, devant l'écran où l'agent chef de produit allait lire le brief.
+
+C'était la deuxième étape de la méthode. L'analyste avait posé les questions ; le chef de produit devait en tirer le document d'exigences, ce que la méthode appelle un PRD : ce que le portail devait faire, ligne par ligne, et comment il devait le faire, en matière de sécurité, de temps de réponse ou de disponibilité. Nadia en était la propriétaire. Sabine et Émilie étaient là, Mathilde aussi, puisque c'était un lundi. Antoine Lambrecht était venu « pour voir », un café à la main, et Sylvie s'était assise près de la porte avec son carnet.
+
+Nadia a donné à l'agent le brief, le dossier des règles, le wiki et les objectifs du PI Planning. Puis elle lui a demandé un premier jet.
+
+Quarante minutes plus tard, il y avait trente-deux pages à l'écran. Cent quatorze exigences fonctionnelles, numérotées, rangées par sinistre. Vingt-six exigences non fonctionnelles. Des critères de succès, une liste d'epics, un glossaire. Les six sinistres du brief y étaient tous, de l'incendie aux dommages électriques.
+
+Antoine a sifflé entre ses dents.
+
+— Chez nous, a-t-il dit, un document comme ça, c'est six mois et trois comités.
+
+Nadia ne souriait pas. Elle faisait défiler les pages, de plus en plus vite.
+
+— Personne ne lira trente-deux pages, a-t-elle dit. Et surtout, je n'en veux pas la moitié. Les tempêtes et les dommages électriques, c'est l'incrément suivant. Les catastrophes naturelles et la responsabilité civile ne sont pas engagées. Si on écrit maintenant les exigences de ce qu'on fera en avril, elles seront fausses en avril.
+
+Elle a demandé à l'agent de reprendre, en se limitant aux trois objectifs engagés et au nouveau premier écran. Le reste attendrait, au niveau du brief, qu'on en ait besoin. L'agent a retiré les deux tiers du document et rangé les sinistres non engagés dans une annexe intitulée *Au niveau du brief, à détailler le moment venu*. Il restait onze pages : quarante et une exigences fonctionnelles, dix-sept non fonctionnelles.
+
+C'est en lisant le bris de glace que Sabine a posé son stylo.
+
+— L'exigence douze, a-t-elle dit. *L'assuré choisit un vitrier dans le réseau agréé de la mutuelle, à proximité de son domicile.* On n'a pas de réseau agréé.
+
+Il y a eu un silence. Nadia a relu la ligne. Elle était parfaitement écrite. Elle avait un numéro, un critère d'acceptation, un lien vers l'objectif du PI. Elle avait tout d'une exigence, sauf une raison d'exister.
+
+— Les grandes compagnies en ont, a dit Sabine. Nous, l'assuré appelle le vitrier qu'il veut, il nous envoie la facture, et on rembourse. Ça a toujours été comme ça.
+
+Nadia a demandé à l'agent d'où venait l'exigence douze. La réponse est arrivée en quelques secondes, et elle était honnête : l'exigence ne venait ni du brief, ni du wiki, ni des entretiens. Elle venait de ce que font, en général, les assureurs pour le bris de glace. L'agent avait comblé un vide avec ce qui se fait ailleurs.
+
+— Combien y en a-t-il comme celle-là ? a demandé Mathilde.
+
+Nadia a posé la question à l'agent : pour chaque exigence, citer sa source, et signaler celles qui n'en avaient pas. Il en a signalé neuf. Un réseau de vitriers. Une prise de rendez-vous en visioconférence avec l'expert. Un avis automatique au syndic de copropriété après un incendie. Un suivi du dossier par messagerie instantanée. Et cinq autres du même genre : plausibles, utiles ailleurs, inexistantes ici. Aucune n'était absurde. C'est ce qui les rendait dangereuses. Dans un document d'exigences ordinaire, elles auraient passé la relecture, parce qu'elles ressemblaient à ce qu'on s'attend à lire.
+
+Nadia en a supprimé sept. Elle a gardé le suivi par messagerie, marqué *à décider*, parce qu'il coûterait de l'argent et que ce n'était pas à elle d'en décider. Et elle a gardé une exigence que Sabine a reconnue comme la sienne sans l'avoir jamais formulée : pouvoir ajouter des photos les jours suivants, quand un assuré en retrouvait de nouvelles. Elle a inscrit en face le nom de Sabine.
+
+Puis elle a ajouté une règle en tête du document, et elle l'a lue à voix haute en l'écrivant.
+
+— Chaque exigence a une source et un nom. Une exigence sans source est une invention. Une exigence sans nom n'est pas décidée.
+
+Sylvie a levé les yeux de son carnet.
+
+— Un nom, c'est-à-dire ?
+
+— Celui de la personne qui a décidé qu'on la ferait. Moi, la plupart du temps. Claire, quand ça dépasse ce que je peux décider. Et l'agent jamais.
+
+Le mardi 13, il n'y a pas eu de séance. Le portail partait en production, et la première règle du tableau s'appliquait. De cette journée, je parlerai plus loin. Elle le mérite, justement parce qu'il ne s'y est presque rien passé.
+
+## Mercredi 14 janvier, 14 heures
+
+Le mercredi, le portail tournait en production depuis vingt-huit heures, sans un incident. Julien a donc pu laisser la garde de production à Sofiane et nous rejoindre pour l'après-midi, sur la phase 2. Émilie avait consacré sa matinée au document. Elle n'avait pas cherché à savoir si les exigences étaient justes : c'était le travail de Nadia. Elle avait cherché à savoir si elles étaient vérifiables. Pour chaque ligne, elle avait noté dans la marge comment elle prouverait qu'elle était respectée. Quand elle n'y arrivait pas, elle mettait un point rouge.
+
+Il y avait onze points rouges.
+
+— *Le parcours de déclaration est simple et rapide*, a-t-elle lu. Simple pour qui ? Rapide comment ? Je ne sais pas écrire un scénario qui dit *simple*.
+
+L'agent a proposé une reformulation : *quatre-vingt-dix pour cent des assurés terminent leur déclaration en moins de dix minutes.* Émilie a secoué la tête.
+
+— Ça, on ne le saura qu'en production. C'est une mesure, pas une exigence. Je la garde pour le tableau de bord de Sylvie. Pour l'exigence, je veux quelque chose que je peux tester avant.
+
+C'est Nadia qui a trouvé.
+
+— Bruno a déclaré un dégât des eaux en quatorze minutes avec son lecteur d'écran. Pour le bris de glace, on écrit : une personne qui utilise un lecteur d'écran déclare un bris de glace de bout en bout, sans aide, en moins de dix minutes. Une personne qui n'a jamais vu le portail aussi. Et on demande à Bruno de le vérifier.
+
+Émilie a effacé le point rouge. Les dix autres ont suivi le même chemin dans l'heure : *intuitif*, *sécurisé*, *rapidement*, *dans les meilleurs délais*. Chacun de ces mots cachait une question que personne n'avait tranchée. L'agent les écrivait volontiers, parce qu'on les trouve dans tous les documents d'exigences du monde. Il les remplaçait tout aussi volontiers par des chiffres. Le plus difficile n'était pas d'obtenir un chiffre. C'était de savoir d'où il venait.
+
+Didier Vermeersch est monté à 16 heures, sur l'insistance de Julien, qui avait accepté d'être le propriétaire du document d'exploitation à condition que la production le relise. Il a lu les dix-sept exigences non fonctionnelles debout, sans ôter son manteau. Il s'est arrêté à la troisième.
+
+— *Disponibilité du portail : 99,95 %.* Qui a écrit ça ?
+
+— L'agent, a dit Julien. C'est dans le modèle de la méthode, au niveau entreprise.
+
+— Le système des contrats ferme toutes les nuits de 23 heures à 5 heures. Six heures sur vingt-quatre. Votre portail sera disponible à 99,95 % pour enregistrer des déclarations qu'il ne pourra pas traiter avant le matin. Le chiffre est peut-être vrai, et il ne veut rien dire.
+
+Il a enfin ôté son manteau.
+
+— Écrivez ce que vous voulez vraiment.
+
+Ce que nous voulions vraiment, nous l'avions découvert en décembre, en coupant le système des contrats en plein après-midi. Une déclaration commencée devait toujours pouvoir être terminée. Une déclaration enregistrée ne devait jamais être perdue. Et l'assuré devait toujours savoir, en une phrase juste, quand elle serait traitée. Nadia l'a écrit en trois lignes. Didier en a ajouté une quatrième : le temps de retour à la normale après une coupure, qu'il avait chronométré pour le registre DORA, deviendrait un engagement, avec son chiffre réel et non un chiffre de modèle.
+
+— Celui-là, je le mesure, a-t-il dit. Donc je peux le promettre.
+
+Mathilde attendait son tour. Le socle de sécurité imposait que toute pièce jointe soit analysée par l'antivirus avant d'être enregistrée. Le brief disait que le portail ne bloquait jamais une déclaration. L'agent avait repéré la contradiction tout seul et l'avait signalée en rouge : *Si l'antivirus est indisponible, l'exigence ENF-08 impose de refuser les photos ; le principe 2 du brief interdit de bloquer la déclaration. Décision requise.*
+
+— Il a raison, a dit Mathilde. Les deux ne tiennent pas ensemble.
+
+Elle et Nadia ont trouvé la sortie en dix minutes. La déclaration serait enregistrée, toujours. Les photos partiraient en quarantaine, dans un espace où personne ne pourrait les ouvrir, et seraient analysées dès le retour de l'antivirus. Le gestionnaire verrait le dossier, avec une mention : *pièces en cours d'analyse*. L'assuré, lui, ne verrait aucune différence.
+
+La dernière question de Mathilde n'a pas eu de réponse ce jour-là. Combien de temps garder la photo d'une maison brûlée, avec une famille devant ? Elle est allée la poser à Anne-Sophie Dhondt. Dans le document, la ligne est restée marquée *à confirmer*, avec deux noms en face.
+
+Le soir, j'ai fait le compte. Sur les dix-sept exigences non fonctionnelles du premier jet, quatre avaient survécu telles quelles. Les autres avaient été réécrites par des gens qui savaient ce qu'elles voulaient dire. L'agent avait fourni la liste complète de ce qu'un document d'exigences doit aborder, sans en oublier une rubrique. Il ne pouvait pas savoir ce qu'il fallait y dire ici.
+
+## Jeudi 15 janvier, 11 heures
+
+Le jeudi, il restait dans le document neuf lignes marquées *à décider par la sponsor*. Neuf décisions que Nadia avait refusé de prendre, non par prudence, mais parce qu'elles ne lui appartenaient pas : elles engageaient de l'argent, un autre service, ou un risque pour toute la maison. Claire avait accepté de venir une heure dans la salle Scarpe. Elle est arrivée à 11 heures précises, son ordinateur sous le bras.
+
+Nadia avait préparé une page. Pour chaque décision, une ligne : la question, les options, l'avis de l'équipe, et ce qu'il en coûterait. L'agent l'avait rédigée ; Nadia l'avait réduite de moitié.
+
+Claire a lu la page en silence. Puis elle a pris les décisions une par une, à voix haute, et Nadia a inscrit son nom en face de chacune.
+
+Le mandat d'un proche durerait un an au plus, renouvelable, et l'assuré pourrait le retirer à tout moment depuis son espace. Le suivi par messagerie instantanée ne se ferait pas : trop cher pour ce qu'il apportait, et un canal de plus à sécuriser. Mathilde n'a rien dit, mais elle a eu l'air soulagée. La déclaration accompagnée serait ouverte à tous les gestionnaires sinistres, pas seulement aux spécialistes de l'incendie, et chacun de leurs gestes serait tracé et relu chaque mois.
+
+La quatrième décision était celle que je redoutais. Le nouveau premier écran, *que s'est-il passé ?*, devait remplacer celui de la phase 1, en production depuis deux jours. L'agent avait proposé de le livrer dès la troisième itération, pour tous les sinistres à la fois. C'était logique. C'était aussi toucher à un portail qui venait de partir, avant de savoir comment il se comportait.
+
+— Combien de déclarations depuis mardi ? a demandé Claire.
+
+— Quatre-vingt-sept, a dit Sylvie, sans regarder son carnet.
+
+— Et d'incidents ?
+
+— Aucun. Une question au centre de relation, sur le message de nuit.
+
+Claire a réfléchi un moment.
+
+— Le nouvel écran pour les nouveaux sinistres, oui, dès qu'ils sont prêts. Pour les dégâts des eaux et les vols, pas avant que la phase 1 ait tourné un mois complet sans incident sérieux. Je veux qu'on compare deux choses qu'on connaît, pas une chose qu'on connaît avec une chose qu'on espère.
+
+Nadia a écrit : *décidé par C. Vasseur, condition : un mois de production sans incident sérieux.* L'agent a reporté la condition sur les quatre exigences qui en dépendaient, sans qu'on le lui demande.
+
+La cinquième décision portait sur le nombre de conseillers formés aux grands sinistres. Claire l'a renvoyée à Philippe Wattebled, qui y avait déjà répondu la veille par courriel : quatre conseillers, et un rappel dans les deux heures ouvrées. Elle a seulement demandé que le portail ne promette jamais un délai plus court que celui-là. La sixième, l'ajout de photos les jours suivants, a pris trente secondes : oui, pendant trente jours, après un coup d'œil au coût de stockage que Didier avait chiffré.
+
+La septième portait sur les critères de succès. Comme le modèle de la méthode l'y invitait, l'agent avait proposé des objectifs chiffrés pour la fin de l'incrément : soixante pour cent des bris de glace déclarés en ligne, vingt pour cent d'appels en moins au centre de relation pour les sinistres concernés.
+
+— D'où viennent ces chiffres ? a demandé Claire.
+
+— Du modèle, a dit Nadia. Et de ce que l'agent croit savoir des autres assureurs. Il ne peut citer aucune source.
+
+Claire a reposé la page.
+
+— À l'automne, j'ai promis au comité une productivité multipliée par trois, et tous les sinistres avant l'été. Personne ne l'avait estimé, et moi la première. Je ne recommence pas. Écrivez : pendant cet incrément, on mesure. À l'incrément suivant, on fixe l'objectif, à partir de ce qu'on aura mesuré.
+
+La huitième, une copie papier de la déclaration accompagnée pour les assurés sans portable ni courriel, est passée sans discussion : la chaîne d'édition existait déjà, depuis la règle de Nadia en décembre. La neuvième était la durée de conservation des photos d'incendie. Claire a secoué la tête.
+
+— Ce n'est pas à moi. C'est à Anne-Sophie Dhondt. Et quoi qu'elle décide, je la soutiendrai.
+
+Elle est repartie à 11 h 55. Elle avait pris six décisions, en avait renvoyé deux à ceux à qui elles revenaient, avait remplacé un objectif par une mesure, et n'avait rien promis. Sur le seuil, elle s'est retournée.
+
+— Une heure pour neuf décisions. Au comité, il me faut parfois trois séances pour une seule, parce que personne n'a écrit la question.
+
+## Vendredi 16 janvier, 17 heures
+
+Le vendredi après-midi, Nadia a relu le document une dernière fois, à voix haute, avec Sabine et Émilie. Il tenait en neuf pages : trente-quatre exigences fonctionnelles, onze non fonctionnelles, chacune avec sa source, son nom et sa façon d'être vérifiée. Trois lignes restaient *à confirmer*, chacune avec la personne qui devait trancher. Une annexe gardait au chaud, au niveau du brief, tout ce que l'incrément n'engageait pas.
+
+> **Document d'exigences — phase 2, incrément 1** · propriétaire : Nadia Benali · validé le 16 janvier
+>
+> *Règle.* Chaque exigence a une source et un nom. Une exigence sans source est une invention ; une exigence sans nom n'est pas décidée.
+>
+> **EF-07 — Logement inhabitable, la nuit.** Si l'assuré indique que son logement est inhabitable en dehors des heures d'ouverture du centre de relation, le portail affiche d'abord le numéro de l'assistance, puis propose un rappel à l'ouverture. *Source : brief ; entretien S. Dumortier. Décidé par : N. Benali. Vérifié par : scénario 07-a.*
+>
+> **EF-15 — Mandat d'un proche.** Un proche déclare au nom d'un assuré grâce à un mandat enregistré par celui-ci, pour un an au plus, révocable à tout moment. *Source : brief. Décidé par : C. Vasseur. Vérifié par : scénarios 15-a à 15-d.*
+>
+> **ENF-03 — Aucune déclaration perdue.** Une déclaration commencée peut toujours être terminée ; une déclaration enregistrée n'est jamais perdue, même si le système des contrats ou l'antivirus est indisponible. *Source : test de résilience de décembre ; socle sécurité. Décidé par : N. Benali, M. Grare. Vérifié par : test de coupure.*
+>
+> **Supprimée — premier jet, exigence 12 (proposée par l'agent).** « L'assuré choisit un vitrier dans le réseau agréé. » *Motif : la maison n'a pas de réseau agréé. Aucune source.*
+
+Sandrine Debruyne l'avait lu à l'heure du déjeuner. Elle est descendue à 16 h 30 avec une seule question : pouvait-elle reprendre le modèle, avec ses deux colonnes, *source* et *décidé par*, pour les autres équipes du train ? Nadia a dit oui.
+
+— Elles vont détester la colonne de la source, a dit Sandrine en repartant. Pendant un mois. Après, elles ne pourront plus s'en passer.
+
+Claire est passée à 17 heures, pour relire ses six décisions dans leur contexte. Elle a tourné les pages lentement, en s'arrêtant sur les noms plus que sur les phrases. Arrivée à la dernière, elle a levé les yeux.
+
+— Qui a écrit ce document ?
+
+Nadia a réfléchi avant de répondre.
+
+— Personne, a-t-elle dit. L'agent a écrit toutes les phrases. Mais il n'y a pas une ligne qui ne porte pas un nom.
+
+— Alors c'est le premier document d'exigences de cette maison dont je sais qui a décidé quoi, a dit Claire. Et sans doute le premier que quelqu'un aura lu en entier.
+
+Pendant vingt-cinq ans, j'avais vu passer des documents d'exigences écrits par des gens. Ils faisaient cent pages, personne ne les lisait jusqu'au bout, et personne ne savait plus, six mois plus tard, qui avait décidé quoi. Celui-là n'avait été écrit par personne, et chacune de ses lignes avait été décidée par quelqu'un.
+
+Le lundi, l'agent architecte le lirait. Julien est resté après les autres, devant le tableau. Il m'a demandé s'il pouvait faire lire à l'agent architecte le wiki de Gérard avant le document d'exigences, et pas après.
+
+— C'est à toi de décider, ai-je dit. Tu es le propriétaire de l'architecture.
+
+Il a souri. Puis il a envoyé un message à Gérard : *Lundi, 9 heures. Apportez vos cahiers.*
+
+## Le carnet de Thomas
+
+**Ce qui s'est passé.** Pour la deuxième étape de la méthode, l'agent chef de produit a tiré du brief un document d'exigences. Son premier jet faisait trente-deux pages et couvrait les six sinistres ; la propriétaire l'a limité aux objectifs engagés de l'incrément, le reste attendant au niveau du brief. En vérifiant les sources, l'équipe a découvert neuf exigences que personne n'avait demandées : plausibles, courantes chez d'autres assureurs, inexistantes dans la maison. Elle a posé une règle : chaque exigence porte une source et le nom de celui qui l'a décidée. La testeuse a remplacé les adjectifs par des vérifications. La production a remplacé un taux de disponibilité tiré d'un modèle par ce que l'équipe voulait vraiment : aucune déclaration perdue. Une contradiction entre le socle de sécurité et un principe du brief a été tranchée par la quarantaine des pièces jointes. La sponsor a pris en une heure les décisions qui lui revenaient, en a renvoyé deux à leurs vrais propriétaires, et a refusé de fixer des objectifs chiffrés avant de les avoir mesurés. Le jour de la mise en production, il n'y a pas eu de séance.
+
+**La leçon.** Un agent rédige un document d'exigences complet en quelques minutes, et c'est justement le danger. Il comble les vides avec ce qui se fait ailleurs, et ce qui se fait ailleurs ressemble à ce qu'on s'attend à lire : ces exigences-là passent les relectures ordinaires. Exigez une source pour chaque ligne, et le nom de la personne qui l'a décidée ; l'agent propose, il ne décide jamais. N'écrivez le détail que de ce que vous allez construire bientôt. Remplacez chaque adjectif par une façon de vérifier, et chaque chiffre de modèle par un chiffre que quelqu'un mesure. Préparez les décisions du sponsor sur une page, avec les options et leur coût : une heure suffit alors pour des arbitrages qui prennent des semaines quand personne n'a écrit la question.
+
+**Trois questions à poser à votre équipe**
+
+1. Pour chacune de nos exigences, savons-nous d'où elle vient et qui l'a décidée ?
+2. Combien de nos exigences contiennent un adjectif que personne ne sait vérifier ?
+3. Nos chiffres de performance et de disponibilité ont-ils été mesurés, ou recopiés d'un modèle ?
+
+**Pour aller plus loin.** Manuel, chapitres M9 (BMAD : de l'analyse à la planification, adapter le modèle du document d'exigences) et M13 (bonnes pratiques : relire un document produit par un agent, exiger des sources).

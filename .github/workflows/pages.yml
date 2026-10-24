@@ -1,0 +1,59 @@
+name: Pages
+
+# À chaque tag vX.Y.Z, publie le site : chaque version est accessible dans /<tag>/ via le sélecteur,
+# et la racine affiche la version au numéro le plus élevé (pas forcément le tag qui vient d'être poussé).
+# Le site est servi depuis la branche gh-pages (Settings → Pages → Deploy from a branch → gh-pages).
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install markdown
+
+      - name: Construire le site de cette version
+        run: python outils/build_site.py --version "$GITHUB_REF_NAME"
+
+      - name: Fusionner avec les versions déjà publiées
+        run: |
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            git fetch origin gh-pages --depth=1
+            git worktree add ../gh-pages-old FETCH_HEAD
+            for d in ../gh-pages-old/v*/; do
+              [ -d "$d" ] || continue
+              name=$(basename "$d")
+              [ "$name" = "$GITHUB_REF_NAME" ] || cp -R "$d" "site/$name"
+            done
+          fi
+          latest=$(ls -d site/v*/ | xargs -n1 basename | sort -rV | head -n1)
+          echo "Version la plus élevée : $latest (tag poussé : $GITHUB_REF_NAME)"
+          if [ "$latest" != "$GITHUB_REF_NAME" ]; then
+            # Le tag poussé n'est pas le plus élevé : on garde la racine existante.
+            find site -mindepth 1 -maxdepth 1 -not -name 'v[0-9]*' -exec rm -rf {} +
+            find ../gh-pages-old -mindepth 1 -maxdepth 1 -not -name 'v[0-9]*' -not -name .git -exec cp -R {} site/ \;
+          fi
+          versions=$(ls -d site/v*/ | xargs -n1 basename | sort -rV | jq -R . | jq -s -c .)
+          jq -n -c --arg latest "$latest" --argjson versions "$versions" \
+            '{latest: $latest, versions: $versions}' > site/versions.json
+          cat site/versions.json
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site

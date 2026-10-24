@@ -1,0 +1,216 @@
+# Chapitre 4 — Nadia et la page blanche
+
+## Jeudi, 9 heures
+
+J'avais réservé la salle Lys pour la journée entière. La salle a été réorganisée pour qu’il ne reste que des chaises, un mur blanc et trois paquets de post-it de couleur. Claire a passé la tête par la porte, a vu la pièce vide et a eu l'air inquiet.
+
+— Vous ne faites pas un atelier de spécifications ?
+
+— Pas encore. Aujourd'hui, on cherche pourquoi on construit ce portail.
+
+J'ai demandé à Nadia de nous raconter trois sinistres. De vrais dossiers, sans les noms.
+
+Elle a réfléchi, puis elle a commencé par un dimanche soir de février. Une femme de soixante-dix ans, dans un appartement de Roubaix, avait découvert de l'eau sous l'évier à 22 heures. Elle avait appelé le numéro d'assistance, qui avait parfaitement réagi : un plombier était passé avant minuit et la fuite était colmatée. Mais l'assistance est un prestataire, avec son propre logiciel. Le lundi, aucun dossier de sinistre n'existait chez nous. Elle avait dû rappeler, tout raconter une deuxième fois, puis envoyer ses photos par courrier électronique à une adresse générique. Trois semaines plus tard, elle appelait encore pour savoir si quelqu'un les avait reçues. Entre-temps, le voisin du dessous avait déclaré le même dégât des eaux chez son propre assureur, et personne n'avait fait le lien.
+
+— La nuit, l'assistance a fait son travail, a dit Nadia. C'est après que tout s'est perdu. Elle ne demandait pas d'argent. Elle voulait savoir que son dossier existait, et où il en était.
+
+Le deuxième dossier était un cambriolage à Villeneuve-d'Ascq. Un jeune couple, qui avait dû envoyer trois fois la même liste d'objets volés parce que les pièces jointes se perdaient entre la messagerie et le logiciel de gestion. Le troisième, une tempête : un toit arraché, un expert qui ne pouvait pas venir avant trois semaines, et une famille qui n'osait pas faire bâcher la toiture de peur que l'assurance refuse de payer.
+
+Personne n'a rien dit pendant un moment. Sofiane, qui pianotait sur son téléphone depuis le début, l'avait rangé.
+
+— Maintenant, ai-je dit, une seule phrase. Ce que doit faire le portail. Une phrase que vous pourriez répéter au directeur général dans l'ascenseur.
+
+La première version tenait sur trois lignes et contenait les mots « omnicanal » et « expérience client ». Julien l'a lue à voix haute avec une telle neutralité que tout le monde a ri. La deuxième oubliait les assurés. À la septième, Nadia a pris le feutre.
+
+*Permettre à un assuré de déclarer un sinistre habitation en dix minutes, depuis son téléphone, à toute heure, et de savoir à tout moment où en est son dossier.*
+
+— « À toute heure » et « où en est son dossier », a-t-elle dit. Pour la dame de Roubaix.
+
+Puis est venue la question qui fâche : par où commencer. Dans son mail de cadrage, Claire avait listé tout ce que le comité attendait : les dégâts des eaux, les vols, les catastrophes naturelles, les bris de glace.
+
+— En quatorze semaines, on livre bien une seule chose, ou mal quatre, ai-je dit. Lequel est le plus fréquent ?
+
+— Le dégât des eaux, a dit Nadia sans hésiter. De loin.
+
+— Alors on commence par lui. Les autres viendront, sur la même mécanique.
+
+À midi, j'ai appelé Claire entre deux réunions. Elle a négocié cinq minutes, en marchant dans un couloir. Elle a obtenu une promesse : le vol, si le dégât des eaux était en production avant la fin du sprint 4. Je n'étais pas sûr de pouvoir la tenir. Je l'ai écrite au tableau quand même, avec un point d'interrogation.
+
+## Jeudi, 14 heures
+
+L'après-midi, nous avons construit la carte.
+
+La méthode est vieille de vingt ans et tient en une idée : avant de découper le travail en petites tâches, on raconte le parcours de l'utilisateur de gauche à droite, comme une bande dessinée. Les grandes étapes en haut, sur une ligne. Sous chacune, tout ce qu'il faudrait pour la réaliser, du plus indispensable au plus accessoire.
+
+Nadia a posé les étapes en jaune, d'un geste de plus en plus sûr.
+
+```text
+SIGNALER  →  DÉCRIRE  →  PROUVER  →  SUIVRE  →  ÊTRE INDEMNISÉ
+```
+
+Sous chacune, les post-it bleus se sont accumulés. Se connecter, retrouver son contrat, choisir le type de sinistre, indiquer la date, décrire ce qui s'est passé, joindre des photos, joindre des factures, recevoir un accusé de réception, être prévenu d'un rendez-vous d'expert, suivre l'avancement, recevoir le virement.
+
+Émilie, qui n'avait encore rien dit, s'est levée au bout d'une demi-heure avec un paquet de post-it roses. Elle a commencé à les coller sous les bleus, sans un mot. *Contrat résilié la veille du sinistre. Deux contrats pour le même logement. Photos de vingt mégaoctets. Assuré sous tutelle. Déclaration commencée puis abandonnée.*
+
+— D'où sortez-vous tout ça ? a demandé Sofiane.
+
+— Des campagnes de tests d'Horizon, a répondu Émilie. Ce sont des cas qui ont fait échouer leurs recettes.
+
+Julien, lui, a ajouté des post-it verts : les dépendances. Pour retrouver un contrat, il fallait interroger le système central, en COBOL, à travers son module d'adaptation. Pour verser une indemnité, il fallait passer par le logiciel de gestion des sinistres, qu'Horizon était justement censé remplacer.
+
+— Celui-là, on n'y touche pas en quatorze semaines, a-t-il dit en posant un post-it vert sous « Être indemnisé ». On transmet le dossier complet aux gestionnaires, et ils continuent comme aujourd'hui.
+
+Personne ne l'a contredit. C'était la meilleure décision de la journée.
+
+Vers 17 heures, j'ai tendu une ficelle rouge à l'horizontale à travers le mur, juste sous la première rangée de post-it bleus.
+
+— Tout ce qui est au-dessus de cette ficelle, c'est la première tranche. Le minimum pour qu'un vrai assuré déclare un vrai dégât des eaux, de bout en bout, même de façon rustique.
+
+Au-dessus de la ficelle, il restait neuf post-it. Se connecter, retrouver son contrat, choisir dégât des eaux, indiquer la date, décrire, joindre des photos, valider, recevoir un accusé de réception, transmettre le dossier aux gestionnaires.
+
+Sofiane a compté.
+
+— Neuf stories. Avec l'agent, je les fais en deux jours.
+
+Julien n'a pas répondu. Il a simplement regardé les post-it roses d'Émilie, qui débordaient de partout sous la ficelle.
+
+## Vendredi
+
+Le lendemain matin, la carte a quitté le mur pour entrer dans Jira. À la mutuelle, rien n'existait officiellement tant qu'il n'avait pas de numéro.
+
+Sylvie Caron, responsable du bureau des projets, est venue en personne créer notre espace. Elle avait cinquante ans, un sens aigu de l'ordre et un modèle de ticket à douze champs obligatoires, dont un code budgétaire, une date de fin prévue et une charge estimée en jours-homme.
+
+— Le comité de direction lit les tableaux de bord le jeudi, a-t-elle expliqué. Ils sont alimentés par ces champs. Pas de champ, pas d'indicateur. Pas d'indicateur, pas de projet.
+
+J'ai gardé le code budgétaire et la date. Pour la charge en jours-homme, j'ai négocié.
+
+— Nous ne savons pas encore combien de temps l'agent fait gagner. Je ne veux pas inventer un chiffre que vous mettrez dans un tableau. Je vous propose une taille relative pour chaque story, et dans trois sprints, un délai mesuré.
+
+Elle m'a observé un long moment, puis elle a coché une case dans son modèle.
+
+— Provisoire. Tant que le comité a ses indicateurs le jeudi.
+
+Le projet s'appelait SIN. Les cinq grandes étapes de la carte sont devenues cinq epics, et les neuf post-it au-dessus de la ficelle, les neuf premières stories, numérotées de SIN-10 à SIN-18. Nadia avait passé sa soirée à les rédiger, au format que tout le monde lui avait conseillé :
+
+*En tant que déclarant, je veux joindre des photos à ma déclaration afin de prouver les dommages.*
+
+Sofiane a pris SIN-14, les photos. Il a ouvert une session, a collé le texte de la story et a demandé à l'agent de l'implémenter. L'agent a lu le CLAUDE.md, puis il a lu la story. Et il a répondu par onze questions.
+
+```text
+Avant d'implémenter SIN-14, plusieurs règles ne sont pas définies :
+1. Combien de photos au maximum par déclaration ?
+2. Taille maximale d'une photo ? Faut-il la compresser ?
+3. Quels formats ? Les iPhone produisent souvent du HEIC.
+4. Les photos contiennent souvent la position GPS : la garder ?
+5. Combien de temps conserver les photos ?
+6. Que faire si le réseau coupe pendant l'envoi ?
+7. Qui peut voir les photos : l'assuré, le gestionnaire, l'expert ?
+[…quatre autres questions sur les vidéos, les documents scannés,
+la suppression et l'accessibilité]
+```
+
+Nadia a lu la liste en silence, une fois, deux fois.
+
+— Je sais répondre à trois questions, a-t-elle fini par dire. Peut-être quatre.
+
+Émilie s'est penchée par-dessus son épaule.
+
+— Les questions 2, 3 et 6, je les ai dans les cas de tests d'Horizon. Ils avaient eu le problème du HEIC en recette. Personne ne l'avait prévu.
+
+— La 7 dépend des habilitations du logiciel de gestion, a ajouté Julien. Je peux répondre.
+
+Restaient la 4 et la 5. La position GPS dans les photos et leur durée de conservation. Des données personnelles, au sens le plus strict.
+
+— Ça, a dit Julien, c'est pour Mathilde. Et sans doute pour la déléguée à la protection des données.
+
+À 18 heures, Nadia était encore assise devant son écran, les neuf stories ouvertes dans Jira. Je me suis assis à côté d'elle.
+
+— Je croyais qu'une user story, c'était trois lignes, a-t-elle dit. Tout le monde m'a dit ça. Les formations, les articles, Sofiane.
+
+— Ils ont raison. Une story tient sur une carte. Mais celui qui a inventé ce format disait que la carte n'est qu'une promesse de conversation. Dans une équipe humaine, la conversation a lieu pendant le sprint, devant la machine à café, quand le développeur bute sur une question. L'agent, lui, ne va pas à la machine à café.
+
+— Donc la conversation doit avoir lieu avant.
+
+— Avant, et elle doit laisser une trace écrite.
+
+Elle a fait le compte à voix haute.
+
+— Onze questions par story. Neuf stories pour la première tranche. Et j'en ai trente-cinq autres sous la ficelle. Il me faudrait un mois.
+
+— Non, ai-je dit. Il vous faut quelqu'un qui pose les questions à votre place. Et on l'a déjà.
+
+## Lundi, 10 heures
+
+L'idée m'était venue pendant le week-end, en relisant les onze questions. L'agent savait parfaitement repérer ce qui manquait. Il suffisait de lui demander de le faire avant le code, et non après.
+
+J'ai ouvert une session avec Nadia, et j'ai écrit une consigne simple. L'agent devait l'interroger sur la story SIN-14, une question à la fois, en langage métier, sans jamais proposer de solution technique. Quand elle ne savait pas, il devait noter la question comme ouverte, avec le nom de la personne capable d'y répondre. À la fin, il rédigerait la story, avec des exemples concrets plutôt que des règles abstraites.
+
+La première question a surpris Nadia.
+
+```text
+Pourquoi un assuré voudrait-il joindre des photos ?
+Qu'est-ce que cela change pour lui, concrètement ?
+```
+
+— Pour prouver les dommages, a-t-elle répondu par réflexe.
+
+Puis elle s'est arrêtée.
+
+— Non. Ce n'est pas ça. Ce qui change pour lui, c'est l'expert. Pour un petit dégât des eaux, la convention entre assureurs permet souvent de s'en passer. Si les photos sont bonnes, on indemnise en quelques jours au lieu de trois semaines.
+
+L'agent a enchaîné. Combien de photos prend en général un assuré ? Que se passe-t-il chez lui quand l'envoi échoue ? Que fait un gestionnaire d'une photo floue ? Nadia répondait, de plus en plus vite. Parfois elle disait « je ne sais pas », et l'agent notait : *question ouverte, Julien* ou *question ouverte, Mathilde et la DPO*. Parfois elle se contredisait, et il le lui faisait remarquer, poliment, en citant ce qu'elle avait dit dix minutes plus tôt.
+
+Quarante minutes plus tard, la story était écrite. Nadia l'a relue, a corrigé deux formulations et a changé un exemple.
+
+```text
+SIN-14 — Joindre des photos à une déclaration
+En tant que déclarant, je veux joindre des photos des dommages
+afin d'être indemnisé sans attendre un expert pour un petit sinistre.
+
+Exemples
+- Mme Lefort joint 3 photos prises avec son téléphone : acceptées.
+- Elle en ajoute une 21e : refusée, 20 photos au maximum.
+- Une photo au format HEIC : convertie automatiquement.
+- Une photo contient sa position GPS : position supprimée avant envoi.
+- Le réseau coupe pendant l'envoi : rien n'est perdu, l'envoi reprend.
+
+Question ouverte : durée de conservation (Mathilde, DPO).
+```
+
+Le lendemain, la déléguée à la protection des données a tranché en deux phrases : la position GPS ne servait à rien, il fallait la supprimer ; les photos seraient conservées le temps du dossier, puis deux ans, la durée de prescription en assurance. Nadia a mis la story à jour elle-même.
+
+Sofiane l'a donnée à l'agent dans l'après-midi. Cette fois, l'agent n'a posé qu'une question, technique, à laquelle Julien a répondu en dix secondes. Le code et les tests sont arrivés dans l'heure. Émilie a comparé les tests avec sa propre liste de cas.
+
+— Pour la première fois, a-t-elle dit, les exemples de la story et mes cas de test sont les mêmes. Je n'ai rien eu à traduire.
+
+Nadia regardait la story affichée dans Jira, avec sa liste d'exemples.
+
+— Je ne l'ai pas écrite, a-t-elle dit. Je l'ai dictée, puis corrigée.
+
+— C'est ça, être Product Owner. Décider, pas taper.
+
+Sofiane s'est tourné vers Julien.
+
+— On devrait faire de cette consigne d'entretien une commande pour toute l'équipe.
+
+— Plus tard, a répondu Julien. D'abord, on vérifie que ça marche sur dix stories.
+
+Puis il a désigné SIN-14 sur l'écran.
+
+— Bon. Celle-là, elle est prête ?
+
+J'ai ouvert la bouche pour répondre oui. Puis je me suis rendu compte que je ne savais pas ce que « prête » voulait dire. J'ai fait le tour de la table du regard. Chacun avait une réponse. Aucune n'était la même.
+
+## Le carnet de Thomas
+
+**Ce qui s'est passé.** L'équipe a fixé une vision en une phrase à partir de vrais sinistres, puis construit une carte des stories et tracé une première tranche de neuf stories, saisies dans Jira. La première story confiée à l'agent a déclenché onze questions. En inversant les rôles, l'agent interrogeant la Product Owner avant le code, elle est devenue une story à exemples concrets, directement testable.
+
+**La leçon.** Une user story est une promesse de conversation. Avec un agent, cette conversation doit avoir lieu avant le code et laisser une trace écrite : des exemples précis plutôt que des règles générales, et des questions ouvertes nommément attribuées.
+
+**Trois questions à poser à votre équipe**
+
+1. Notre vision tient-elle en une phrase que le métier peut répéter ?
+2. Nos critères d'acceptation sont-ils des exemples testables ou des intentions ?
+3. Qui répond aux questions que le Product Owner ne peut pas trancher seul, et en combien de temps ?
+
+**Pour aller plus loin.** Manuel, chapitre M2 (premiers pas et mode plan), chapitre M5 (transformer une consigne en skill) et chapitre M10 (Jira au quotidien).
